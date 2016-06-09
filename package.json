@@ -8,7 +8,7 @@
     "pretest": "npm install",
     "test": "karma start test/karma.conf.ci.js",
     "test-browsers": "karma start test/karma.conf.browsers.js",
-    "test-continous": "karma start test/karma.conf.js",
+    "test-continuous": "karma start test/karma.conf.js",
     "coverage": "karma start test/karma.conf.coverage.js",
     "check-coverage": "istanbul check-coverage --config=test/coverage.yml",
     "grunt": "grunt -d",
