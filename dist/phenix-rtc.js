@@ -967,7 +967,38 @@ define('rtc/WebRTCAdapter',
             RTCIceCandidate = window.RTCIceCandidate;
 
             // Get UserMedia (only difference is the prefix).
-            getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
+            getUserMedia = function (constraints, successCallback, errorCallback) {
+                var onSuccess = function (stream) {
+                    setTimeout(function () {
+                        var tracks = stream.getTracks();
+
+                        for (var i = 0; i < tracks.length; i++) {
+                            var track = tracks[i];
+
+                            track.onended = function (event) {
+                                log(event.timeStamp, 'Track', track.id, track.label, 'ended');
+                            };
+
+                            log('Track', track.id, track.label, tracks[i].kind, 'readyState=', tracks[i].readyState);
+
+                            if (track.readyState === 'ended') {
+                                try {
+                                    errorCallback(new Error('User media not available'));
+                                } finally {
+                                    for (var j = 0; j < tracks.length; j++) {
+                                        tracks[j].stop();
+                                    }
+                                }
+                                return;
+                            }
+                        }
+
+                        successCallback(stream);
+                    }, 100);
+                };
+
+                navigator.webkitGetUserMedia(constraints, onSuccess, errorCallback);
+            };
 
             getStats = function (pc, track, successCallback, errorCallback) {
                 pc.getStats(successCallback, track, errorCallback);
