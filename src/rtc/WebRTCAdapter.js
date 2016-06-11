@@ -202,12 +202,17 @@ define('rtc/WebRTCAdapter',
 
                             if (track.readyState === 'ended') {
                                 try {
-                                    errorCallback(new Error('User media not available'));
+                                    var error = new Error('User media not available');
+
+                                    error.code = 'unavailable';
+
+                                    errorCallback(error);
                                 } finally {
                                     for (var j = 0; j < tracks.length; j++) {
                                         tracks[j].stop();
                                     }
                                 }
+
                                 return;
                             }
                         }
