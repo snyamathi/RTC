@@ -339,16 +339,22 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
 
         var stopUserMedia = function stopUserMedia() {
             if (userMediaStream) {
-                userMediaStream.stop();
+                if (userMediaStream.stop) {
+                    userMediaStream.stop();
+                } else if (userMediaStream.getTracks) {
+                    userMediaStream.getTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                }
             }
         };
 
         var stopLocalVideo = function stopLocalVideo() {
-            localVideoEl.src = null;
+            localVideoEl.src = '';
         };
 
         var stopRemoteVideo = function stopRemoteVideo() {
-            remoteVideoEl.src = null;
+            remoteVideoEl.src = '';
         };
 
         var muteLocalVideo = function muteLocalVideo() {

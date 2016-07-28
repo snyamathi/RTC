@@ -4,6 +4,9 @@
       <env name="NODE_ENV" value="development" />
     </envs>
     <browser start="true" url="http://localhost:8888/" />
+    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
+      <browser start="true" url="http://localhost:8888/" />
+    </EXTENSION>
     <RunnerSettings RunnerId="Basic" />
     <RunnerSettings RunnerId="debuggableProgram" />
     <ConfigurationWrapper RunnerId="Basic" />

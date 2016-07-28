@@ -34,6 +34,29 @@ define('rtc/WebRTCAdapter',
         var reattachMediaStream = null;
         var createIceServer = null;
         var webrtcSupported = false;
+        var navigatorMediaDevicesEnumerateDevicesWrapper = function getSources(callback) {
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+                var sources = [];
+
+                devices.forEach(function (device) {
+                    if (device.kind === 'audioinput') {
+                        sources.push({
+                            kind: 'audio',
+                            id: device.deviceId,
+                            label: device.label
+                        })
+                    } else if (device.kind === 'videoinput') {
+                        sources.push({
+                            kind: 'video',
+                            id: device.deviceId,
+                            label: device.label
+                        })
+                    }
+                });
+
+                callback(sources);
+            });
+        };
 
         if (navigator.mozGetUserMedia) {
             log('Firefox detected', navigator.userAgent);
@@ -47,8 +70,16 @@ define('rtc/WebRTCAdapter',
             // The RTCIceCandidate object.
             RTCIceCandidate = mozRTCIceCandidate;
 
-            // Get UserMedia (only difference is the prefix).
-            getUserMedia = navigator.mozGetUserMedia.bind(navigator);
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                getUserMedia = function (constraints, onUserMediaSuccess, onUserMediaFailure) {
+                    // Make sure older browsers do not reject the syntax (e.g. 'catch')
+                    navigator.mediaDevices.getUserMedia(constraints)
+                        ['then'](onUserMediaSuccess)['catch'](onUserMediaFailure);
+                };
+            } else {
+                // Get UserMedia (only difference is the prefix).
+                getUserMedia = navigator.mozGetUserMedia.bind(navigator);
+            }
 
             getStats = function (pc, track, successCallback) {
                 var promise = pc.getStats(track).then(successCallback);
@@ -141,7 +172,9 @@ define('rtc/WebRTCAdapter',
                 };
             }
 
-            if (MediaStreamTrack.getSources) {
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
+            } else if (MediaStreamTrack.getSources) {
                 getSources = MediaStreamTrack.getSources.bind(MediaStreamTrack);
             } else {
                 getSources = function (callback) {
@@ -251,7 +284,11 @@ define('rtc/WebRTCAdapter',
                 return to;
             };
 
-            getSources = MediaStreamTrack.getSources.bind(MediaStreamTrack);
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
+            } else {
+                getSources = MediaStreamTrack.getSources.bind(MediaStreamTrack);
+            }
 
             webrtcSupported = true;
         } else {
