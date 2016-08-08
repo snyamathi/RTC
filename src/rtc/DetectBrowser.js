@@ -52,6 +52,10 @@ define('rtc/DetectBrowser',
                 // Opera pretends to be Chrome
                 browser = 'Opera';
                 versionMatch = this._userAgent.match(/(OPR)\/([0-9]+)\./);
+            } else if (browser === 'Chrome' && this._userAgent.match(/Edge\//)) {
+                // Edge pretends to be Chrome
+                browser = 'Edge';
+                versionMatch = this._userAgent.match(/(Edge)\/([0-9]+)\./);
             } else if ((browser === 'Firefox' || browser === 'IE') && this._userAgent.match(/Opera/)) {
                 // Opera pretends to be Firefox or IE
                 browser = 'Opera';

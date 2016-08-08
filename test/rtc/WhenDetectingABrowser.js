@@ -83,6 +83,12 @@ define([
         'Mozilla/5.0 (Windows NT 6.0; rv:2.0) Gecko/20100101 Firefox/4.0 Opera 12.14',
         'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0) Opera 12.14'
     ];
+    var edge13UserAgents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586'
+    ];
+    var edge12UserAgents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.0'
+    ];
     var ie11UserAgents = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko',
         'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko'
@@ -4252,6 +4258,20 @@ define([
             _.forEach(opera12UserAgents, function (ua) {
                 var detect = new DetectBrowser(ua).detect();
                 expect(detect.browser).to.be.equal('Opera');
+                expect(detect.version).to.be.equal(12);
+            });
+        });
+        it('detects Edge 13', function () {
+            _.forEach(edge13UserAgents, function (ua) {
+                var detect = new DetectBrowser(ua).detect();
+                expect(detect.browser).to.be.equal('Edge');
+                expect(detect.version).to.be.equal(13);
+            });
+        });
+        it('detects Edge 12', function () {
+            _.forEach(edge12UserAgents, function (ua) {
+                var detect = new DetectBrowser(ua).detect();
+                expect(detect.browser).to.be.equal('Edge');
                 expect(detect.version).to.be.equal(12);
             });
         });
