@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define('rtc/exportGlobal',
-    [], function () {
-        'use strict';
+define([], function () {
+    'use strict';
 
-        var exportGlobal = function exportGlobal(adapter) {
-            window.RTCPeerConnection = adapter.RTCPeerConnection;
-            window.RTCSessionDescription = adapter.RTCSessionDescription;
-            window.RTCIceCandidate = adapter.RTCIceCandidate;
-        };
+    var exportGlobal = function exportGlobal(adapter) {
+        window.RTCPeerConnection = adapter.RTCPeerConnection;
+        window.RTCSessionDescription = adapter.RTCSessionDescription;
+        window.RTCIceCandidate = adapter.RTCIceCandidate;
+    };
 
-        return exportGlobal;
-    });
+    return exportGlobal;
+});
