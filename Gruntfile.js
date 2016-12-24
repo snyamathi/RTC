@@ -15,25 +15,43 @@
  */
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-webpack');
 
-    grunt.registerTask('default', [ ]);
-    grunt.registerTask('build', [ 'default', 'clean', 'concat', 'uglify' ]);
+    grunt.registerTask('default', []);
+    grunt.registerTask('build', ['default', 'clean', 'webpack', 'uglify']);
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: [ 'build' ],
+        clean: ['build'],
         concat: {
             rtc: {
-                src: [ 'src/rtc/**/*.js', 'src/main.js' ],
+                src: ['src/rtc/**/*.js', 'src/main.js'],
                 dest: 'dist/phenix-rtc.js'
+            }
+        },
+        webpack: {
+            'phenix-web-sdk': {
+                context: __dirname + '/src',
+                entry: './main',
+                externals: [
+                    {
+                    }
+                ],
+                output: {
+                    libraryTarget: 'umd',
+                    path: __dirname + '/dist',
+                    filename: 'phenix-rtc.js'
+                },
+                resolve: {
+                    modulesDirectories: ['3p', 'node_modules']
+                }
             }
         },
         uglify: {
             minify: {
                 files: {
-                    'dist/phenix-rtc.min.js': [ 'dist/phenix-rtc.js' ]
+                    'dist/phenix-rtc.min.js': ['dist/phenix-rtc.js']
                 }
             }
         }
