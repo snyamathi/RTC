@@ -1,7 +1,9 @@
 {
   "name": "phenix-rtc",
-  "private": false,
+  "version": "1.0.6",
   "license": "Apache-2.0",
+  "private": false,
+  "main": "dist/phenix-rtc.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/PhenixP2P/RTC.git"
@@ -24,30 +26,32 @@
   },
   "dependencies": {},
   "engines": {
-    "node": "4.4.5"
+    "node": "6.9.2"
   },
   "devDependencies": {
-    "bower": "1.7.9",
-    "express": "4.13.4",
+    "bower": "1.8.0",
+    "express": "4.14.0",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.6.0",
-    "grunt-contrib-concat": "0.5.0",
-    "grunt-contrib-uglify": "1.0.1",
-    "istanbul": "0.4.3",
+    "grunt-contrib-uglify": "1.0.2",
+    "grunt-webpack": "1.0.18",
+    "istanbul": "0.4.5",
     "karma": "0.13.22",
     "karma-chrome-launcher": "1.0.1",
-    "karma-cli": "1.0.0",
-    "karma-coverage": "1.0.0",
+    "karma-cli": "1.0.1",
+    "karma-coverage": "1.1.1",
     "karma-firefox-launcher": "1.0.0",
     "karma-ie-launcher": "1.0.0",
-    "karma-mocha": "1.0.1",
+    "karma-mocha": "1.3.0",
     "karma-opera-launcher": "1.0.0",
-    "karma-phantomjs-launcher": "1.0.0",
-    "karma-requirejs": "1.0.0",
+    "karma-phantomjs-launcher": "1.0.2",
+    "karma-requirejs": "1.1.0",
     "karma-safari-launcher": "1.0.0",
     "mocha": "2.5.3",
-    "phantomjs": "1.9.17",
-    "requirejs": "2.2.0"
+    "phantomjs": "2.1.1",
+    "requirejs": "2.3.2",
+    "webpack": "1.14.0",
+    "webpack-dev-server": "1.16.2"
   }
 }

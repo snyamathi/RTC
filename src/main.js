@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 'use strict';
-
 define('phenix-rtc', [
-    'rtc/RTCAdapter',
-    'rtc/exportGlobal'
+    './rtc/RTCAdapter',
+    './rtc/exportGlobal'
 ], function (adapter, exportGlobal) {
     adapter.onLoaded = function () {
         exportGlobal(adapter);
