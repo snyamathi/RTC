@@ -8,8 +8,8 @@
   "license": "Apache-2.0",
   "homepage": "https://phenixp2p.com/docs",
   "private": false,
-  "main": "dist/phenix-rtc.min",
-  "moduleType": "amd",
+  "main": "dist/phenix-rtc.min.js",
+  "moduleType": ["globals", "amd"],
   "repository": {
     "type": "git",
     "url": "git://github.com/PhenixP2P/RTC.git"
@@ -30,7 +30,6 @@
     "coverage",
     "scripts",
     "Gruntfile.js",
-    "package.json",
     ".*"
   ]
 }
