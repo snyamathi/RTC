@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -517,7 +517,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 
 	        // The RTCPeerConnection object.
-	        RTCPeerConnection = webkitRTCPeerConnection;
+	        RTCPeerConnection = window.webkitRTCPeerConnection;
 
 	        // The RTCSessionDescription object.
 	        RTCSessionDescription = window.RTCSessionDescription;
@@ -622,6 +622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    return adapter;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ },
 /* 4 */
