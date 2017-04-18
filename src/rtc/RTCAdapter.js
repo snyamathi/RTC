@@ -115,5 +115,13 @@ define([
         }
     };
 
+    adapter.removeEventListener = function (target, name, listener, useCapture) {
+        if (target.removeEventListener) {
+            target.removeEventListener(name, listener, useCapture === true);
+        } else {
+            target.detachEvent('on' + name, listener);
+        }
+    };
+
     return adapter;
 });

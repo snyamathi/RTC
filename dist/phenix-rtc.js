@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -219,6 +219,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 
+	    adapter.removeEventListener = function (target, name, listener, useCapture) {
+	        if (target.removeEventListener) {
+	            target.removeEventListener(name, listener, useCapture === true);
+	        } else {
+	            target.detachEvent('on' + name, listener);
+	        }
+	    };
+
 	    return adapter;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -227,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -307,7 +315,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -629,7 +637,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -870,7 +878,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -960,7 +968,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
@@ -1306,7 +1314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Copyright 2016 PhenixP2P Inc. All Rights Reserved.
+	 * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
 	 *
 	 * Licensed under the Apache License, Version 2.0 (the "License");
 	 * you may not use this file except in compliance with the License.
