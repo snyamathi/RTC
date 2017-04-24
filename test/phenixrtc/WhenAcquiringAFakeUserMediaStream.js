@@ -274,7 +274,6 @@ define([
                         $(el).appendTo(document.body);
 
                         phenixEl = rtc.attachMediaStream(el, mediaStream);
-
                     });
                     after(function () {
                         $(phenixEl).remove();
@@ -377,6 +376,7 @@ define([
                                     if (maxTries-- < 0) {
                                         done('No frames received in time');
                                     }
+
                                     if (phenixEl.phenixFramesRendered > 0) {
                                         done();
                                     } else {

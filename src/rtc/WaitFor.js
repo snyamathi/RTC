@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 define([
-        './DetectBrowser'
-    ], function (DetectBrowser) {
+    './DetectBrowser'
+], function (DetectBrowser) {
     'use strict';
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -26,8 +26,8 @@ define([
     }
 
     var logError = function () {
-            console.error.apply(console, arguments);
-        } || log;
+        console.error.apply(console, arguments);
+    } || console.log;
 
     WaitFor.prototype.waitForReadyWithTimeout = function (element, loaded, timeout) {
         var triggered = false;
@@ -44,7 +44,7 @@ define([
         var checkLoaded = function checkLoaded() {
             if (element.readyState === ReadyStateComplete) { // IE
                 guardedLoaded(true);
-            } else if (element.phenixVersion) { // property is available
+            } else if (element.phenixVersion) { // Property is available
                 guardedLoaded(true);
             } else {
                 waitFor = Math.min(waitFor + 1000, 2 * waitFor);

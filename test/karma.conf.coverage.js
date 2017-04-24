@@ -13,82 +13,85 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/* global module __dirname */
+var path = require('path');
 var browsers = [ 'Chrome' ];
+var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 module.exports = function (config) {
     config.set({
+        // Base path that will be used to resolve all patterns (eg. files, exclude)
+        basePath: '../src',
 
-        // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: '..',
-
-
-        // frameworks to use
+        // Frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha', 'requirejs'],
+        frameworks: ['mocha'],
 
-
-        // list of files / patterns to load in the browser
+        // List of files / patterns to load in the browser
         files: [
-            {pattern: '3p/**/*.js', included: false},
-            {pattern: 'src/**/*.js', included: false},
-            {pattern: 'test/**/When*.js', included: false},
-            'test/test-runner.js'
+            '../test/test-runner.js'
         ],
 
-
-        // list of files to exclude
+        // List of files to exclude
         exclude: [
             'src/main.js'
         ],
 
-
-        // preprocess matching files before serving them to the browser
+        // Preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {
-            'src/**/*.js': ['coverage']
+        preprocessors: {'../test/test-runner.js': ['webpack', 'sourcemap']},
+
+        webpack: {
+            devtool: 'inline-source-map',
+            plugins: [
+                new CaseSensitivePathsPlugin()
+            ],
+            resolve: {alias: {'rtc': path.resolve(__dirname, '../src/rtc')}} // Resolve test dependencies to src
         },
 
+        webpackMiddleware: {stats: 'errors-only'},
 
-        // test results reporter to use
+        // Test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: ['progress', 'coverage'],
 
-
         coverageReporter: {
-            dir: 'coverage',
+            dir: path.resolve(__dirname, '../coverage'),
             reporters: [
-                {type: 'json', subdir: '.'},
-                {type: 'html', subdir: '.'},
-                {type: 'lcov', subdir: '.'},
+                {
+                    type: 'json',
+                    subdir: '.'
+                },
+                {
+                    type: 'html',
+                    subdir: '.'
+                },
+                {
+                    type: 'lcov',
+                    subdir: '.'
+                },
                 {type: 'teamcity'},
                 {type: 'text-summary'}
             ]
         },
 
-
-        // web server port
+        // Web server port
         port: 9877,
 
-
-        // enable / disable colors in the output (reporters and logs)
+        // Enable / disable colors in the output (reporters and logs)
         colors: true,
 
-
-        // level of logging
+        // Level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
         logLevel: config.LOG_INFO,
 
-
-        // enable / disable watching file and executing tests whenever any file changes
+        // Enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,
 
-
-        // start these browsers
+        // Start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: browsers,
-
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits

@@ -3,9 +3,9 @@
     <envs>
       <env name="NODE_ENV" value="development" />
     </envs>
-    <browser start="true" url="http://localhost:8888/" />
+    <browser start="true" url="https://local.phenixp2p.com:8843/" />
     <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
-      <browser start="true" url="http://localhost:8888/" />
+      <browser start="true" url="https://local.phenixp2p.com:8843/" />
     </EXTENSION>
     <RunnerSettings RunnerId="Basic" />
     <RunnerSettings RunnerId="debuggableProgram" />

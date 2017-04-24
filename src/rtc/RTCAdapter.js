@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 define([
-        './DetectBrowser',
-        './WebRTCAdapter',
-        './PhenixRTC'
-    ], function (DetectBrowser, webRTC, PhenixRTC) {
+    'phenix-web-lodash-light',
+    'phenix-web-assert',
+    'phenix-web-observable',
+    './DetectBrowser',
+    './WebRTC',
+    './PhenixRTC'
+], function (_, assert, obserervable, DetectBrowser, webRTC, PhenixRTC) {
     'use strict';
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -78,7 +81,6 @@ define([
             }
         };
 
-
         if (phenixRTC.isEnabled()) {
             enablePhenix();
         } else {
@@ -99,29 +101,6 @@ define([
     } else {
         adapter.phenixSupported = false;
     }
-
-    /**
-     * All modern browsers including IE9+ support addEventListener
-     * IE8 and less support attachEvent(...)
-     * Phenix supports proprietary API to register events
-     */
-    adapter.addEventListener = function (target, name, listener, useCapture) {
-        if (target.phenixSetEventListener) {
-            target.phenixSetEventListener(name, listener);
-        } else if (target.addEventListener) {
-            target.addEventListener(name, listener, useCapture === true);
-        } else {
-            target.attachEvent('on' + name, listener);
-        }
-    };
-
-    adapter.removeEventListener = function (target, name, listener, useCapture) {
-        if (target.removeEventListener) {
-            target.removeEventListener(name, listener, useCapture === true);
-        } else {
-            target.detachEvent('on' + name, listener);
-        }
-    };
 
     return adapter;
 });

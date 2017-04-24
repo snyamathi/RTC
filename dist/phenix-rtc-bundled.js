@@ -15,14 +15,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("phenix-web-assert"), require("phenix-web-lodash-light"), require("phenix-web-observable"));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["phenix-web-assert", "phenix-web-lodash-light", "phenix-web-observable"], factory);
+		define([], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("phenix-web-assert"), require("phenix-web-lodash-light"), require("phenix-web-observable")) : factory(root["phenix-web-assert"], root["phenix-web-lodash-light"], root["phenix-web-observable"]);
+		var a = factory();
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -88,11 +88,65 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(12)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (LodashLight) {
+    'use strict';
+
+    return LodashLight;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(8)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (assert) {
+    return assert;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -171,7 +225,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 1 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -190,7 +244,231 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(0)
+    __webpack_require__(0),
+    __webpack_require__(1),
+    __webpack_require__(11)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, disposable) {
+    'use strict';
+
+    function Observable(initialValue, beforeChange) {
+        this.latestValue = null;
+        this.subscribeCallbacks = {};
+        this.subscriptionTimeout = 100;
+        this.subscriptionCount = 0;
+        this.resetOnChange = false;
+        this.lastChangeTime = 0;
+        this.isPendingChanges = false;
+        this.beforeChange = beforeChange;
+
+        setLatestValue.call(this, initialValue);
+    }
+
+    Observable.prototype.getValue = function getValue() {
+        return clone(this.latestValue);
+    };
+
+    Observable.prototype.setValue = function setValue(value) {
+        if (value !== this.latestValue) {
+            setLatestValue.call(this, value);
+            onSubscribeCallback.call(this, this.subscriptionTimeout);
+        }
+    };
+
+    Observable.prototype.subscribe = function subscribe(callback, options) {
+        assert.isFunction(callback, 'callback');
+
+        if (options) {
+            assert.isObject(options, 'options');
+        }
+
+        var that = this;
+        var key = _.uniqueId();
+        var listenForChanges;
+
+        that.subscribeCallbacks[key] = callback;
+        that.subscriptionCount += 1;
+
+        if (options) {
+            if (options.initial === 'notify') {
+                onSubscribeCallback.call(that, that.subscriptionTimeout, true);
+            }
+
+            if (options.listenForChanges) {
+                listenForChanges = setInterval(function() {
+                    var valueAtInterval = options.listenForChanges.callback();
+
+                    if (valueAtInterval !== that.latestValue) {
+                        that.setValue(valueAtInterval);
+                    }
+                }, options.listenForChanges.timeout);
+            }
+        }
+
+        return new disposable.Disposable(function dispose() {
+            delete that.subscribeCallbacks[key];
+
+            if (listenForChanges) {
+                clearInterval(listenForChanges);
+
+                listenForChanges = null;
+            }
+
+            that.subscriptionCount -= 1;
+        });
+    };
+
+    Observable.prototype.extend = function extend(options) {
+        assert.isObject(options, 'options');
+
+        switch (options.method) {
+        case 'notifyWhenChangesStop':
+            this.subscriptionTimeout = options.timeout;
+            this.resetOnChange = true;
+
+            break;
+        case 'notifyAtFixedRate':
+            this.subscriptionTimeout = options.timeout;
+
+            break;
+        default:
+            break;
+        }
+
+        if (_.isNumber(options.rateLimit)) {
+            this.subscriptionTimeout = options.rateLimit;
+        }
+
+        return this;
+    };
+
+    function clone(value) {
+        if (typeof value === 'undefined' || value === null) {
+            return value;
+        }
+
+        // Necessary for observable array. Subsequent comparison must not be equal in order to trigger updates.
+        if (_.isArray(value)) {
+            return value.slice();
+        }
+
+        return value;
+    }
+
+    function setLatestValue(value) {
+        var valueToSet = value;
+
+        if (this.beforeChange) {
+            valueToSet = this.beforeChange(value);
+        }
+
+        this.latestValue = clone(valueToSet);
+    }
+
+    function onSubscribeCallback(timeoutLength, noTimeout) {
+        this.lastChangeTime = _.now();
+
+        if (!this.isPendingChanges && this.subscriptionCount !== 0) {
+            this.isPendingChanges = true;
+
+            if (noTimeout) {
+                return notifySubscribers.call(this);
+            }
+
+            continueAfterTimeout.call(this, timeoutLength);
+        }
+    }
+
+    function continueAfterTimeout(timeoutLength) {
+        var that = this;
+
+        setTimeout(function() {
+            var timeElapsedSinceLastChange = _.now() - that.lastChangeTime;
+
+            if (that.resetOnChange && timeElapsedSinceLastChange < that.subscriptionTimeout) {
+                continueAfterTimeout.call(that, that.subscriptionTimeout - timeElapsedSinceLastChange);
+            } else {
+                notifySubscribers.call(that);
+            }
+        }, timeoutLength);
+    }
+
+    function notifySubscribers() {
+        try {
+            executeSubscriptionCallbacks.call(this);
+        } finally {
+            this.isPendingChanges = false;
+        }
+    }
+
+    function executeSubscriptionCallbacks() {
+        var that = this;
+
+        _.forOwn(that.subscribeCallbacks, function (callback) {
+            if (_.isFunction(callback)) {
+                callback(that.latestValue);
+            }
+        });
+    }
+
+    return Observable;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(3),
+    __webpack_require__(13),
+    __webpack_require__(14)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (Observable, ObservableArray, ObservableMonitor) {
+    'use strict';
+
+    return {
+        Observable: Observable,
+        ObservableArray: ObservableArray,
+        ObservableMonitor: ObservableMonitor
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(2)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (DetectBrowser) {
     'use strict';
 
@@ -262,25 +540,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
-
-/***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -299,12 +559,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(3),
-    __webpack_require__(2),
-    __webpack_require__(4),
     __webpack_require__(0),
-    __webpack_require__(12),
-    __webpack_require__(10)
+    __webpack_require__(1),
+    __webpack_require__(4),
+    __webpack_require__(2),
+    __webpack_require__(20),
+    __webpack_require__(18)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, obserervable, DetectBrowser, webRTC, PhenixRTC) {
     'use strict';
 
@@ -392,7 +652,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -424,7 +684,1000 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 7 */
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_) {
+    var Assert = function() {
+
+    };
+
+    Assert.prototype.isObject = function isObject(obj, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must be an object';
+
+        if (!_.isObject(obj)) {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isArray = function isArray(array, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must be an array';
+
+        if (!_.isArray(array)) {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isString = function isString(string, name) {
+        var error = '"' + name + '" must be a string';
+
+        if (!_.isString(name)) {
+            throw new Error('"name" must be a string');
+        }
+
+        if (!_.isString(string)) {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isBoolean = function isBoolean(bool, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must be a string';
+
+        if (!_.isBoolean(bool)) {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isNumber = function isNumber(number, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must be a number';
+
+        if (!_.isNumber(number)) {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isFunction = function isFunction(callback, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must be a function';
+
+        if (!_.isFunction(callback)) {
+            throw new Error(error);
+        }
+    };
+
+    // TODO (dcy) remove once all dependencies have been updated
+    Assert.prototype.stringNotEmpty = function stringNotEmpty(string, name) {
+        Assert.prototype.isStringNotEmpty(string, name);
+    };
+
+    Assert.prototype.isStringNotEmpty = function stringNotEmpty(string, name) {
+        Assert.prototype.isString('name', name);
+
+        var error = '"' + name + '" must not be empty';
+
+        Assert.prototype.isString(string, name);
+
+        if (string === '') {
+            throw new Error(error);
+        }
+    };
+
+    Assert.prototype.isInstanceOf = function (object, clazz, name) {
+        Assert.prototype.isString('name', name);
+
+        if (!_.isObject(object)) {
+            throw new Error('"' + name + '" must be an instance');
+        }
+
+        if (!(object instanceof clazz)) {
+            throw new Error('"' + name + '" must be a valid instance of class');
+        }
+    };
+
+    Assert.prototype.isNotUndefined = function (value, name) {
+        Assert.prototype.isString('name', name);
+
+        if (_.isUndefined(value)) {
+            throw new Error('"' + name + '" must not be undefined');
+        }
+    };
+
+    return new Assert();
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. Confidential and Proprietary. All Rights Reserved.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(1)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert) {
+    'use strict';
+
+    /**
+     * Create a new disposable object.
+     *
+     * @param cleanup The callback to perform whatever cleanup is required when this object is disposed.
+     * @constructor
+     */
+    function Disposable(cleanup) {
+        assert.isFunction(cleanup, 'cleanup');
+
+        this._cleanup = cleanup;
+    }
+
+    Disposable.prototype.dispose = function () {
+        return this._cleanup.call();
+    };
+
+    Disposable.prototype.toString = function () {
+        return _.toString(this);
+    };
+
+    return Disposable;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. Confidential and Proprietary. All Rights Reserved.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_) {
+    'use strict';
+
+    function DisposableList() {
+        this._list = [];
+    }
+
+    DisposableList.prototype.add = function (disposable) {
+        if (!disposable || !_.isFunction(disposable.dispose)) {
+            throw new Error('"disposable" must be a disposable or implement dispose');
+        }
+
+        this._list.push(disposable);
+    };
+
+    DisposableList.prototype.dispose = function () {
+        var results = [];
+
+        _.forEach(this._list, function (disposable) {
+            results.push(disposable.dispose());
+        });
+
+        this._list = [];
+
+        return results;
+    };
+
+    DisposableList.prototype.toString = function () {
+        return _.toString(this);
+    };
+
+    return DisposableList;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(9),
+    __webpack_require__(10)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (Disposable, DisposableList) {
+    return {
+        Disposable: Disposable,
+        DisposableList: DisposableList
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+    'use strict';
+
+    var _ = function() {
+
+    };
+
+    _.bind = function bind(callback, that) {
+        var argsAfterContext = Array.prototype.slice.call(arguments, 2);
+
+        return function boundFunction() {
+            if (!_.isFunction(callback)) {
+                throw new TypeError('_.bind - callback must be a function');
+            }
+
+            var combinedArguments = argsAfterContext.concat(Array.prototype.slice.call(arguments));
+
+            return callback.apply(that, combinedArguments);
+        };
+    };
+
+    _.now = function now() {
+        return new Date().getTime();
+    };
+
+    _.utc = function utc(date) {
+        if (_.isNumber(date)) {
+            return date;
+        } else if (!date) {
+            return NaN;
+        }
+
+        return Math.floor(date);
+    };
+
+    _.isoString = function isoString() {
+        var now = new Date();
+
+        if (now.toISOString) {
+            return now.toISOString();
+        }
+
+        return now.getUTCFullYear() +
+            '-' + _.pad(now.getUTCMonth() + 1, 2) +
+            '-' + _.pad(now.getUTCDate(), 2) +
+            'T' + _.pad(now.getUTCHours(), 2) +
+            ':' + _.pad(now.getUTCMinutes(), 2) +
+            ':' + _.pad(now.getUTCSeconds(), 2) +
+            '.' + (now.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+            'Z';
+    };
+
+    _.map = function map(collection, callback) {
+        assertIsObject(collection, 'collection');
+
+        var newArray = [];
+
+        if (collection.constructor === Array) {
+            _.forEach(collection, function mapCollection(item, index) {
+                if (_.isString(callback) && _.isObject(item)) {
+                    newArray.push(item[callback]);
+                } else if (_.isFunction(callback)) {
+                    newArray.push(callback(item, index));
+                }
+            });
+        } else {
+            _.forOwn(collection, function mapCollection(value, key) {
+                if (_.isFunction(callback)) {
+                    newArray.push(callback(value, key));
+                }
+            });
+        }
+
+        return newArray;
+    };
+
+    _.values = function (collection) {
+        if (!_.isObject(collection) || _.isArray(collection)) {
+            throw new Error('Collection must be an object.');
+        }
+
+        return _.map(collection, function (value) {
+            return value;
+        });
+    };
+
+    _.keys = function (collection) {
+        if (!_.isObject(collection) || _.isArray(collection)) {
+            throw new Error('Collection must be an object.');
+        }
+
+        return _.map(collection, function (value, key) {
+            return key;
+        });
+    };
+
+    _.forEach = function forEach(collection, callback) {
+        if (!_.isFunction(callback)) {
+            throw new Error('Callback must be a function');
+        }
+
+        assertIsArray(collection, 'collection');
+
+        for (var i = 0; i < collection.length; i++) {
+            callback(collection[i], i);
+        }
+    };
+
+    _.forOwn = function forOwn(objectWithProperties, callback) {
+        if (!_.isFunction(callback)) {
+            throw new Error('Callback must be a function');
+        }
+
+        assertIsObject(objectWithProperties, 'objectWithProperties');
+
+        var keys = Object.keys(objectWithProperties);
+
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+
+            if (objectWithProperties.hasOwnProperty(key) || Object.prototype.hasOwnProperty.call(objectWithProperties, key)) {
+                callback(objectWithProperties[key], key);
+            }
+        }
+    };
+
+    _.argumentsToArray = function(args) {
+        if (!_.isObject(args) || !args.length) {
+            throw new Error('Collection must be arguments');
+        }
+
+        var collection = [];
+
+        for (var i = 0; i < args.length; i++) {
+            collection.push(args[i]);
+        }
+
+        return collection;
+    };
+
+    _.assign = function assign(target) {
+        assertIsObject(target, 'target');
+
+        var sources = _.argumentsToArray(arguments);
+
+        sources.shift();
+
+        _.forEach(sources, function(source, index) {
+            assertIsObject(source, 'source ' + index);
+
+            _.forOwn(source, function(value, key) {
+                target[key] = value;
+            });
+        });
+
+        return target;
+    };
+
+    _.includes = function includes(collection, value) {
+        if (_.isString(collection)) {
+            assertIsString(value, 'Includes value and search parameter');
+
+            return collection.indexOf(value) > -1;
+        }
+
+        if (_.isUndefined(collection) || _.isUndefined(value)) {
+            return false;
+        }
+
+        assertIsObject(collection, 'collection');
+
+        var hasValue = false;
+
+        var checkCollection = function checkCollection(currentValue) {
+            if (currentValue === value) {
+                hasValue = true;
+            }
+        };
+
+        if (collection.constructor === Array) {
+            _.forEach(collection, checkCollection);
+        } else {
+            _.forOwn(collection, checkCollection);
+        }
+
+        return hasValue;
+    };
+
+    _.reduce = function reduce(collection, callback, initialValue) {
+        assertIsObject(collection, 'collection');
+
+        var result = initialValue === _.noop() ? null : initialValue;
+
+        if (collection.constructor === Array) {
+            _.forEach(collection, function (item) {
+                result = callback(result, item);
+            });
+        } else {
+            _.forOwn(collection, function (value, key) {
+                result = callback(result, value, key);
+            });
+        }
+
+        return result;
+    };
+
+    _.sample = function sample(collection) {
+        assertIsArray(collection, 'collection');
+
+        return collection[Math.floor(Math.random() * collection.length)];
+    };
+
+    _.uniqueId = function () {
+        return (_.now() * Math.random()).toString();
+    };
+
+    _.find = function find(collection, callback, initialIndex) {
+        assertIsArray(collection, 'collection');
+
+        var hasItem;
+
+        _.forEach(collection, function findInCollection(value, index) {
+            if (callback(value) && index >= (initialIndex || 0)) {
+                hasItem = value;
+
+                return hasItem;
+            }
+        });
+
+        return hasItem;
+    };
+
+    _.findIndex = function find(collection, callback, initialIndex) {
+        assertIsArray(collection, 'collection');
+
+        var hasItem;
+
+        _.forEach(collection, function findInCollection(value, index) {
+            if (callback(value, index) && index >= (initialIndex || 0)) {
+                hasItem = index;
+
+                return hasItem;
+            }
+        });
+
+        return hasItem;
+    };
+
+    _.filter = function filter(collection, callback) {
+        assertIsArray(collection, 'collection');
+
+        var newCollection = [];
+
+        _.forEach(collection, function findInCollection(value) {
+            if (callback(value)) {
+                newCollection.push(value);
+            }
+        });
+
+        return newCollection;
+    };
+
+    _.remove = function remove(collection, callback) {
+        assertIsArray(collection, 'collection');
+
+        var filterCallback = function filterCallback(value) {
+            return !callback(value);
+        };
+
+        return _.filter(collection, filterCallback);
+    };
+
+    _.take = function take(collection, size) {
+        assertIsArray(collection, 'collection');
+
+        return collection.slice(0, size);
+    };
+
+    _.hasDifferences = function hasDifferences(collectionA, collectionB, deep) {
+        return _.findDifferences(collectionA, collectionB, deep).length > 0;
+    };
+
+    _.findDifferences = function findDifferences(collectionA, collectionB, deep) {
+        var differences = [];
+        var visitedKeys = {};
+
+        function getDifferences(value, indexOrKey) {
+            visitedKeys[indexOrKey] = 1;
+
+            if ((_.isObject(value) || _.isArray(value)) && deep) {
+                if (!_.hasIndexOrKey(collectionB, indexOrKey)) {
+                    differences.push(indexOrKey);
+                } else if (!_.sameTypes(collectionA[indexOrKey], collectionB[indexOrKey])) {
+                    differences.push(indexOrKey);
+                } else if (_.hasDifferences(collectionA[indexOrKey], collectionB[indexOrKey], deep)) {
+                    differences.push(indexOrKey);
+                }
+            } else if (collectionA[indexOrKey] !== collectionB[indexOrKey]) {
+                differences.push(indexOrKey);
+            }
+        }
+
+        if (_.isArray(collectionA) && _.isArray(collectionB)) {
+            if (collectionA.length > collectionB.length) {
+                _.forEach(collectionA, getDifferences);
+            } else {
+                _.forEach(collectionB, getDifferences);
+            }
+        } else if (_.isObject(collectionA) && _.isObject(collectionB) && !_.isArray(collectionA) && !_.isArray(collectionB)) {
+            _.forOwn(collectionA, getDifferences);
+
+            _.forOwn(collectionB, function (value, key) {
+                if (!visitedKeys.hasOwnProperty(key)) {
+                    differences.push(key);
+                }
+            });
+        } else {
+            throw new Error('Object types do not match');
+        }
+
+        return differences;
+    };
+
+    _.hasIndexOrKey = function hasIndexOrKey(collection, indexOrKey) {
+        if (_.isArray(collection)) {
+            return collection.length > parseInt(indexOrKey);
+        } else if (_.isObject(collection)) {
+            return collection.hasOwnProperty(indexOrKey);
+        }
+
+        return false;
+    };
+
+    _.startsWith = function startsWith(value, prefix) {
+        assertIsString(value, 'value');
+        assertIsString(prefix, 'prefix');
+
+        return value.indexOf(prefix) === 0;
+    };
+
+    _.sameTypes = function sameTypes(first, second) {
+        if (_.isNullOrUndefined(first) || _.isNullOrUndefined(second)) {
+            return _.isNullOrUndefined(first) && _.isNullOrUndefined(second);
+        }
+
+        if (_.isArray(first) || _.isArray(second)) {
+            return _.isArray(first) && _.isArray(second);
+        }
+
+        return typeof first === typeof second;
+    };
+
+    _.freeze = function freeze(obj) {
+        if ('freeze' in Object) {
+            return Object.freeze(obj);
+        }
+
+        return obj;
+    };
+
+    _.noop = function () {
+        return undefined;
+    };
+
+    _.isObject = function isObject(obj) {
+        if (obj === null) {
+            return false;
+        }
+
+        return typeof obj === 'object';
+    };
+
+    _.isArray = function isArray(array) {
+        if (!_.isObject(array)) {
+            return false;
+        }
+
+        return array.constructor === Array;
+    };
+
+    _.isString = function isString(string) {
+        return typeof string === 'string';
+    };
+
+    _.isNumber = function isNumber(number) {
+        if (isNaN(number)) {
+            return false;
+        }
+
+        return typeof number === 'number';
+    };
+
+    _.isBoolean = function isBoolean(bool) {
+        return typeof bool === 'boolean';
+    };
+
+    _.isFunction = function isFunction(func) {
+        return typeof func === 'function';
+    };
+
+    _.isNullOrUndefined = function isNullOrUndefined(value) {
+        return value === null || value === undefined;
+    };
+
+    _.isUndefined = function isUndefined(value) {
+        return value === undefined;
+    };
+
+    _.getEnumName = function getEnumName(enums, nameOrId) {
+        var enumObject = null;
+
+        var enumArray = _.map(enums, function (value) {
+            return value;
+        });
+
+        if (_.isNumber(nameOrId)) {
+            enumObject = _.find(enumArray, function (current) {
+                return current.id === nameOrId;
+            });
+        } else if (_.isString(nameOrId)) {
+            enumObject = _.find(enumArray, function (current) {
+                return current.name.toLowerCase() === nameOrId.toLowerCase();
+            });
+        }
+
+        if (enumObject) {
+            return enumObject.name;
+        }
+
+        return null;
+    };
+
+    _.toString = function toString(data) {
+        if (_.isString(data)) {
+            return data;
+        }
+
+        if (_.isBoolean(data)) {
+            return data ? 'true' : 'false';
+        }
+
+        if (_.isNumber(data)) {
+            return data.toString();
+        }
+
+        var toStringStr = '';
+
+        if (data) {
+            if (_.isFunction(data.toString)) {
+                toStringStr = data.toString();
+            } else if (_.isObject(data.toString)) {
+                try {
+                    toStringStr = data.toString();
+                } catch (e) {
+                    toStringStr = '[object invalid toString()]';
+                }
+            }
+        }
+
+        if (toStringStr.indexOf('[object') !== 0) {
+            return toStringStr;
+        }
+
+        var cache = [];
+
+        return toStringStr + JSON.stringify(data, function (key, value) {
+            if (_.isObject(value) && !_.isNullOrUndefined(value)) {
+                if (_.includes(cache, value)) {
+                    return '<recursive>';
+                }
+
+                cache.push(value);
+            }
+
+            return key === '' ? value : _.toString(value);
+        });
+    };
+
+    _.pad = function padNumber(value, numberToPad) {
+        assertIsNumber(value, 'value');
+        assertIsNumber(numberToPad, 'numberToPad');
+
+        var valueLength = value.toString().length;
+
+        for (var i = 0; i < numberToPad - valueLength; i++) {
+            value = '0' + value.toString();
+        }
+
+        return value.toString();
+    };
+
+    _.addEventListener = function addEventListener(target, eventName, listener, useCapture) {
+        assertIsObject(target, 'target');
+        assertIsString(eventName, 'eventName');
+        assertIsFunction(listener, 'listener');
+
+        if (target.phenixAddEventListener) {
+            target.phenixAddEventListener.call(target, eventName, listener, !!useCapture);
+        } else if (target.addEventListener) {
+            target.addEventListener(eventName, listener, !!useCapture);
+        } else if (target.attachEvent) {
+            target.attachEvent("on" + eventName, listener);
+        }
+    };
+
+    _.removeEventListener = function removeEventListener(target, eventName, listener, useCapture) {
+        assertIsObject(target, 'target');
+        assertIsString(eventName, 'eventName');
+        assertIsFunction(listener, 'listener');
+
+        if (target.phenixRemoveEventListener) {
+            target.phenixRemoveEventListener.call(target, eventName, listener, !!useCapture);
+        } else if(target.removeEventListener) {
+            target.removeEventListener(eventName, listener, !!useCapture);
+        } else if (target.detachEvent) {
+            target.detachEvent("on" + eventName, listener);
+        }
+    };
+
+    var assertIsArray = function assertIsArray(collection) {
+        if (!_.isArray(collection)) {
+            throw new Error('Array must be an array.');
+        }
+    };
+
+    var assertIsNumber = function assertIsNumber(number, name) {
+        assertIsString(name, 'name');
+
+        if (!_.isNumber(number)) {
+            throw new Error(name + ' must be a number.');
+        }
+    };
+
+    var assertIsObject = function assertIsObject(collection, name) {
+        assertIsString(name, 'name');
+
+        if (!_.isObject(collection)) {
+            throw new Error('collection type not supported - ' + name +' must be an array or object.');
+        }
+    };
+
+    var assertIsFunction = function assertIsFunction(callback, name) {
+        assertIsString(name, 'name');
+
+        if (!_.isFunction(callback)) {
+            throw new Error(name + ' must be a function.');
+        }
+    };
+
+    var assertIsString = function assertIsFunction(value, name) {
+        if (!_.isString(value)) {
+            throw new Error('Name must be a string.');
+        }
+
+        if (!_.isString(value)) {
+            throw new Error(name + ' must be a string.');
+        }
+    };
+
+    return _;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(1),
+    __webpack_require__(3)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, Observable) {
+    'use strict';
+
+    function ObservableArray(initialValues, beforeChange) {
+        var valuesToSet = initialValues;
+
+        if (valuesToSet === undefined || valuesToSet === null) {
+            valuesToSet = [];
+        }
+
+        assert.isArray(valuesToSet, 'valuesToSet');
+
+        this.observableArray = new Observable(valuesToSet, beforeChange);
+    }
+
+    ObservableArray.prototype.getValue = function getValue() {
+        return this.observableArray.getValue();
+    };
+
+    ObservableArray.prototype.setValue = function setValue(values) {
+        if (values === undefined || values === null) {
+            values = [];
+        }
+
+        if (values !== undefined) {
+            assert.isArray(values, 'values');
+        }
+
+        return this.observableArray.setValue(values);
+    };
+
+    ObservableArray.prototype.subscribe = function subscribe(callback, options) {
+        return this.observableArray.subscribe(callback, options);
+    };
+
+    ObservableArray.prototype.push = function push(value) {
+        var array = this.observableArray.getValue();
+        array.push(value);
+
+        this.observableArray.setValue(array);
+    };
+
+    ObservableArray.prototype.pop = function pop() {
+        var array = this.observableArray.getValue();
+        var value = array.pop();
+
+        this.observableArray.setValue(array);
+
+        return value;
+    };
+
+    ObservableArray.prototype.remove = function remove(valueOrFunction) {
+        var array = this.observableArray.getValue();
+
+        var filterFunction = function (value) {
+            return _.isFunction(valueOrFunction) ? valueOrFunction(value) : value === valueOrFunction;
+        };
+
+        var valuesToRemove = _.filter(array, filterFunction);
+
+        if (valuesToRemove.length > 0) {
+            this.observableArray.setValue(_.remove(array, filterFunction));
+        }
+
+        return valuesToRemove;
+    };
+
+    ObservableArray.prototype.removeAll = function removeAll() {
+        var array = this.observableArray.getValue();
+
+        this.observableArray.setValue([]);
+
+        return array;
+    };
+
+    ObservableArray.prototype.extend = function extend(options) {
+        this.observableArray.extend(options);
+
+        return this;
+    };
+
+    return ObservableArray;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(1)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert) {
+    'use strict';
+
+    function ObservableMonitor(observable) {
+        assert.isObject(observable, 'observable');
+
+        this._observable = observable;
+        this._listenerSubscription = null;
+        this._isEnabled = false;
+    }
+
+    ObservableMonitor.prototype.start = function start(checkForChanges, timeout) {
+        this._isEnabled = true;
+
+        this._listenerSubscription = this._observable.subscribe(_.noop, {
+            listenForChanges: {
+                callback: checkForChanges,
+                timeout: timeout || 500
+            }
+        });
+    };
+
+    ObservableMonitor.prototype.stop = function stop() {
+        this._isEnabled = false;
+
+        if (this._listenerSubscription) {
+            this._listenerSubscription.dispose();
+        }
+
+        this._listenerSubscription = null;
+    };
+
+    ObservableMonitor.prototype.isEnabled = function isEnabled() {
+        return this._isEnabled;
+    };
+
+    return ObservableMonitor;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports) {
 
 var g;
@@ -451,7 +1704,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 8 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var require;var require;(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.adapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return require(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -4431,10 +5684,10 @@ module.exports = {
 
 },{}]},{},[2])(2)
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
 
 /***/ }),
-/* 9 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4455,8 +5708,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(5),
-    __webpack_require__(6)
+    __webpack_require__(6),
+    __webpack_require__(7)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (adapter, exportGlobal) {
     adapter.onLoaded = function () {
         exportGlobal(adapter);
@@ -4469,7 +5722,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 10 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4488,11 +5741,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(3),
-    __webpack_require__(2),
-    __webpack_require__(4),
+    __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(11)
+    __webpack_require__(4),
+    __webpack_require__(5),
+    __webpack_require__(19)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
@@ -4824,7 +6077,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 11 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4843,7 +6096,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(1)
+    __webpack_require__(5)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (WaitFor) {
     'use strict';
 
@@ -5177,7 +6430,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 12 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -5196,8 +6449,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(0),
-    __webpack_require__(8)
+    __webpack_require__(2),
+    __webpack_require__(16)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (DetectBrowser, webRtcAdapter) { // eslint-disable-line no-unused-vars
     'use strict';
 
@@ -5426,4 +6679,4 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=phenix-rtc.js.map
+//# sourceMappingURL=phenix-rtc-bundled.js.map

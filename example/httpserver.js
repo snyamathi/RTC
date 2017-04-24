@@ -13,17 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* global process */
 const express = require('express');
 const path = require('path');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const app = express();
 
 app.use(express.static(path.join(process.cwd(), 'example')));
 app.use(express.static(path.join(process.cwd(), 'dist')));
 app.use(express.static(path.join(process.cwd(), 'src')));
+app.use(express.static(path.join(process.cwd(), 'node_modules')));
 
 app.get('/', function (req, res) {
     res.redirect('/PhenixRTC.html');
 });
 
-app.listen(8888);
+const httpServer = http.createServer(app);
+
+httpServer.listen(8888);
+
 console.log('Listening on port 8888');
+
+if (process.env['PHENIX_HTTPS_PFX']) {
+    const httpsOptions = {
+        pfx: fs.readFileSync(process.env['PHENIX_HTTPS_PFX']),
+        passphrase: process.env['PHENIX_HTTPS_PASSPHRASE']
+    };
+    const httpsServer = https.createServer(httpsOptions, app);
+
+    httpsServer.listen(8843);
+
+    console.log('Listening on port 8843/https');
+}

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 define([
-        './WaitFor'
-    ], function (WaitFor) {
+    './WaitFor'
+], function (WaitFor) {
     'use strict';
 
     var log = function () {
-            console.log.apply(console, arguments);
-        } || function () {
+        console.log.apply(console, arguments);
+    } || function () {
         };
+
     var logError = function () {
-            console.error.apply(console, arguments);
-        } || log;
+        console.error.apply(console, arguments);
+    } || log;
 
     function PhenixVideo(ghost, stream) {
         var that = this;
@@ -125,7 +126,7 @@ define([
         if (this._loaded) {
             setTimeout(function () {
                 callback(that._enabled);
-            }, 1)
+            }, 1);
         } else {
             this._onReady = callback;
         }
@@ -151,7 +152,7 @@ define([
         return video;
     }
 
-    function addEventListener(name, listener, useCapture) {
+    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
         var listeners = this._events[name];
 
         if (!listeners) {
@@ -165,7 +166,7 @@ define([
         listeners.push(listener);
     }
 
-    function removeEventListener(name, listener, useCapture) {
+    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
         var listeners = this._events[name];
 
         if (listeners) {
@@ -308,7 +309,12 @@ define([
                 });
             });
 
-            var configMutations = {childList: true, attributes: false, characterData: false, subtree: true};
+            var configMutations = {
+                childList: true,
+                attributes: false,
+                characterData: false,
+                subtree: true
+            };
 
             observer.observe(document.body, configMutations);
         } else {
@@ -316,9 +322,9 @@ define([
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
-            addEventListener(that._ghost, 'DOMNodeInserted', function (e) {
+            addEventListener(that._ghost, 'DOMNodeInserted', function () {
                 that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                //that._video.appendChild(that._ghost);
+                // That._video.appendChild(that._ghost);
             }, false);
         }
     }
@@ -326,8 +332,8 @@ define([
     function isDescendant(parent, child) {
         var node = child.parentNode;
 
-        while (node != null) {
-            if (node == parent) {
+        while (node !== null) {
+            if (node === parent) {
                 return true;
             }
 

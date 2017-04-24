@@ -15,37 +15,37 @@
  */
 define([
     'lodash',
-    'rtc/WebRTCAdapter'
-], function (_, WebRTCAdapter) {
+    'rtc/WebRTC'
+], function (_, webRtcAdapter) {
     'use strict';
 
     describe('When loading the WebRTC adapter', function () {
         it('defines RTCPeerConnection', function () {
-            expect(WebRTCAdapter).to.have.property('RTCPeerConnection');
+            expect(webRtcAdapter).to.have.property('RTCPeerConnection');
         });
         it('defines RTCSessionDescription', function () {
-            expect(WebRTCAdapter).to.have.property('RTCSessionDescription');
+            expect(webRtcAdapter).to.have.property('RTCSessionDescription');
         });
         it('defines RTCIceCandidate', function () {
-            expect(WebRTCAdapter).to.have.property('RTCIceCandidate');
+            expect(webRtcAdapter).to.have.property('RTCIceCandidate');
         });
         it('defines getSources', function () {
-            expect(WebRTCAdapter).to.have.property('getSources');
+            expect(webRtcAdapter).to.have.property('getSources');
         });
         it('defines getUserMedia', function () {
-            expect(WebRTCAdapter).to.have.property('getUserMedia');
+            expect(webRtcAdapter).to.have.property('getUserMedia');
         });
         it('defines attachMediaStream', function () {
-            expect(WebRTCAdapter).to.have.property('attachMediaStream');
+            expect(webRtcAdapter).to.have.property('attachMediaStream');
         });
         it('defines reattachMediaStream', function () {
-            expect(WebRTCAdapter).to.have.property('reattachMediaStream');
+            expect(webRtcAdapter).to.have.property('reattachMediaStream');
         });
         it('defines webrtcSupported boolean flag', function () {
-            expect(WebRTCAdapter.webrtcSupported).to.be.a('boolean');
+            expect(webRtcAdapter.webrtcSupported).to.be.a('boolean');
         });
         it('defines the api to export it global', function () {
-            expect(WebRTCAdapter.exportGlobal).to.be.a('function');
+            expect(webRtcAdapter.exportGlobal).to.be.a('function');
         });
     });
 });

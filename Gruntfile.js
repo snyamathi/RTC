@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* global module */
+var webpackConfig = require('./webpack.config');
+
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-webpack');
 
     grunt.registerTask('default', []);
-    grunt.registerTask('release-package-json', 'Parse package.json and output for release.', function() {
-        const packageJson = grunt.file.readJSON('./package.json');
-
-        delete packageJson.scripts;
-        delete packageJson.dependencies;
-        delete packageJson.engines;
-        delete packageJson.devDependencies;
-
-        grunt.file.write('dist/package.json', JSON.stringify(packageJson, null, 2));
-    });
-    grunt.registerTask('build', ['default', 'clean', 'webpack', 'uglify', 'release-package-json']);
+    grunt.registerTask('build', ['default', 'clean', 'webpack', 'uglify']);
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -40,28 +33,14 @@ module.exports = function (grunt) {
                 dest: 'dist/phenix-rtc.js'
             }
         },
-        webpack: {
-            'phenix-web-sdk': {
-                context: __dirname + '/src',
-                entry: './main',
-                externals: [
-                    {
-                    }
-                ],
-                output: {
-                    libraryTarget: 'umd',
-                    path: __dirname + '/dist',
-                    filename: 'phenix-rtc.js'
-                },
-                resolve: {
-                    modulesDirectories: ['3p', 'node_modules']
-                }
-            }
-        },
+        webpack: webpackConfig,
         uglify: {
             minify: {
                 files: {
-                    'dist/phenix-rtc.min.js': ['dist/phenix-rtc.js']
+                    'dist/phenix-rtc.min.js': ['dist/phenix-rtc.js'],
+                    'dist/phenix-rtc-bundled.min.js': ['dist/phenix-rtc-bundled.js'],
+                    'dist/phenix-rtc-no-edge.min.js': ['dist/phenix-rtc-no-edge.js'],
+                    'dist/phenix-rtc-no-edge-bundled.min.js': ['dist/phenix-rtc-no-edge-bundled.js']
                 }
             }
         }

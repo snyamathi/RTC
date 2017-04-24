@@ -41,31 +41,17 @@ define([
                 var pc;
                 var peerConnectionConfig = {
                     'iceServers': [
-                        {
-                            url: 'stun:stun.l.google.com:19302'
-                        },
-                        {
-                            url: 'stun:stun1.l.google.com:19302'
-                        },
-                        {
-                            url: 'stun:stun2.l.google.com:19302'
-                        },
-                        {
-                            url: 'stun:stun3.l.google.com:19302'
-                        },
-                        {
-                            url: 'stun:stun4.l.google.com:19302'
-                        }
+                        {url: 'stun:stun.l.google.com:19302'},
+                        {url: 'stun:stun1.l.google.com:19302'},
+                        {url: 'stun:stun2.l.google.com:19302'},
+                        {url: 'stun:stun3.l.google.com:19302'},
+                        {url: 'stun:stun4.l.google.com:19302'}
                     ]
                 };
                 var peerConnectionConstraints = {
                     'optional': [
-                        {
-                            DtlsSrtpKeyAgreement: false
-                        },
-                        {
-                            RtpDataChannels: false
-                        }
+                        {DtlsSrtpKeyAgreement: false},
+                        {RtpDataChannels: false}
                     ]
                 };
 
@@ -182,7 +168,10 @@ define([
                     before(function (done) {
                         var RTCSessionDescription = rtc.getRTCSessionDescriptionConstructor();
 
-                        remoteSdp = new RTCSessionDescription({ type: 'offer', sdp: remoteOffer });
+                        remoteSdp = new RTCSessionDescription({
+                            type: 'offer',
+                            sdp: remoteOffer
+                        });
 
                         addEventListener(pc, 'addstream', function (stream) {
                             streams.push(stream);
@@ -271,6 +260,7 @@ define([
                                         if (maxTries-- < 0) {
                                             done('Add stream not triggered');
                                         }
+
                                         if (streams.length > 0) {
                                             done();
                                         } else {
@@ -416,6 +406,7 @@ define([
                                                 if (maxTries-- < 0) {
                                                     done('No frames received in time');
                                                 }
+
                                                 if (phenixEl.phenixFramesRendered > 0) {
                                                     done();
                                                 } else {
@@ -504,7 +495,7 @@ define([
                             });
                         });
                     });
-                })
+                });
             });
         }
     });

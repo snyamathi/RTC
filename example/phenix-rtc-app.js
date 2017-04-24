@@ -13,51 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* global requirejs */
 requirejs.config({
     paths: {
-        'phenix-rtc': 'phenix-rtc',
+        'phenix-rtc': 'main',
         'jquery': '//code.jquery.com/jquery-2.1.3.min',
         'lodash': '//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min',
-        'bootstrap': '//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min'
+        'bootstrap': '//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min',
+        'webrtc-adapter': '/webrtc-adapter/out/adapter',
+        'phenix-web-lodash-light': 'phenix-web-lodash-light/dist/phenix-web-lodash-light.min',
+        'phenix-web-assert': 'phenix-web-assert/dist/phenix-web-assert.min',
+        'phenix-web-observable': 'phenix-web-observable/dist/phenix-web-observable.min'
     }
 });
 
 var peerConnectionConfig = {
-    'iceServers': [{
-        url: 'stun:stun.l.google.com:19302'
-    }, {
-        url: 'stun:stun1.l.google.com:19302'
-    }, {
-        url: 'stun:stun2.l.google.com:19302'
-    }, {
-        url: 'stun:stun3.l.google.com:19302'
-    }, {
-        url: 'stun:stun4.l.google.com:19302'
-    }
+    iceServers: [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun1.l.google.com:19302'}
     ]
 };
 var peerConnectionConstraints = {
-    'optional': [{
-        DtlsSrtpKeyAgreement: false
-    }, {
-        RtpDataChannels: false
-    }
+    'optional': [{DtlsSrtpKeyAgreement: true}, {RtpDataChannels: false}
     ]
 };
+
 var sendingConstraints = {
-    mandatory: {
-        OfferToReceiveVideo: false,
-        OfferToReceiveAudio: false
-    }
+    offerToReceiveVideo: false,
+    offerToReceiveAudio: false
 };
 var receivingConstraints = {
-    mandatory: {
-        OfferToReceiveVideo: true,
-        OfferToReceiveAudio: true
-    }
+    offerToReceiveVideo: true,
+    offerToReceiveAudio: true
 };
 
-requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
+requirejs([
+    'jquery',
+    'lodash',
+    'phenix-rtc'
+], function ($, _, rtc) {
     var init = function init() {
         var localVideoEl = $('#localVideo')[0];
         var remoteVideoEl = $('#remoteVideo')[0];
@@ -81,12 +73,14 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
         var onLoadedMetaData = function onLoadedMetaData(video) {
             console.log('Meta data, width=' + video.videoWidth + ', height=' + video.videoHeight);
 
-            video.width = video.videoWidth;
-            video.height = video.videoHeight;
+            if (rtc.browser !== 'Edge' && rtc.browser !== 'IE') {
+                video.width = video.videoWidth;
+                video.height = video.videoHeight;
+            }
         };
 
         var onFailure = function onFailure(e) {
-            alert(e);
+            alert(e); // eslint-disable-line no-alert
         };
 
         var getUserMedia = function getUserMedia() {
@@ -104,7 +98,7 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
                 var update = function update() {
                     stateEl.val(pc.signalingState + '/' + pc.iceGatheringState + '/' + pc.iceConnectionState);
 
-                    rtc.getStats(pc, null /*all*/, function (stats) {
+                    rtc.getStats(pc, null /* all*/, function (stats) {
                         if (typeof stats.result === 'function') {
                             _.forEach(stats.result(), function (statsReport) {
                                 if (statsReport.type === 'ssrc') {
@@ -131,18 +125,18 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
 
                                         if (bytesTx) {
                                             var bytesTxBefore = last[ssrc].bytesTx || 0;
-                                            var bps = 8 * 1000 * (bytesTx - bytesTxBefore) / tdelta;
+                                            var bpsTx = 8 * 1000 * (bytesTx - bytesTxBefore) / tdelta;
 
                                             last[ssrc].bytesTx = bytesTx;
-                                            up = Math.round(bps / 1000) + 'kbps';
+                                            up = Math.round(bpsTx / 1000) + 'kbps';
                                         }
 
                                         if (bytesRx) {
                                             var bytesRxBefore = last[ssrc].bytesRx || 0;
-                                            var bps = 8 * 1000 * (bytesRx - bytesRxBefore) / tdelta;
+                                            var bpsRx = 8 * 1000 * (bytesRx - bytesRxBefore) / tdelta;
 
                                             last[ssrc].bytesRx = bytesRx;
-                                            down = Math.round(bps / 1000) + 'kbps';
+                                            down = Math.round(bpsRx / 1000) + 'kbps';
                                         }
 
                                         if (codec === 'opus') {
@@ -154,7 +148,11 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
                                 }
                             });
                         } else {
-                            _.forEach(stats, function (statsReport, key) {
+                            stats.forEach(function (statsReport) {
+                                if (statsReport['ssrcIds']) {
+                                    statsReport['ssrc'] = statsReport['ssrcIds'][0];
+                                }
+
                                 if (_.has(statsReport, 'ssrc')) {
                                     if (!statsReport.ssrc || statsReport.id.indexOf('rtcp') > -1) {
                                         return;
@@ -180,18 +178,18 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
 
                                     if (bytesTx) {
                                         var bytesTxBefore = last[ssrc].bytesTx || 0;
-                                        var bps = 8 * 1000 * (bytesTx - bytesTxBefore) / tdelta;
+                                        var bpsTx = 8 * 1000 * (bytesTx - bytesTxBefore) / tdelta;
 
                                         last[ssrc].bytesTx = bytesTx;
-                                        up = Math.round(bps / 1000) + 'kbps';
+                                        up = Math.round(bpsTx / 1000) + 'kbps';
                                     }
 
                                     if (bytesRx) {
                                         var bytesRxBefore = last[ssrc].bytesRx || 0;
-                                        var bps = 8 * 1000 * (bytesRx - bytesRxBefore) / tdelta;
+                                        var bpsRx = 8 * 1000 * (bytesRx - bytesRxBefore) / tdelta;
 
                                         last[ssrc].bytesRx = bytesRx;
-                                        down = Math.round(bps / 1000) + 'kbps';
+                                        down = Math.round(bpsRx / 1000) + 'kbps';
                                     }
 
                                     if (mediaType === 'audio') {
@@ -210,6 +208,7 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
                         setTimeout(update, 1000);
                     }
                 };
+
                 update();
             }
         };
@@ -285,7 +284,17 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
                                 pcSender.setLocalDescription(answerSdp, onSetLocalDescriptionSuccess, onFailure);
                             }
 
-                            pcSender.createAnswer(onCreateAnswerSuccess, onFailure, sendingConstraints);
+                            var mediaConstraints = {mandatory: {}};
+
+                            if (rtc.browser === 'chrome') {
+                                mediaConstraints.mandatory.OfferToReceiveVideo = sendingConstraints.OfferToReceiveVideo === true;
+                                mediaConstraints.mandatory.OfferToReceiveAudio = sendingConstraints.OfferToReceiveAudio === true;
+                            } else {
+                                mediaConstraints.mandatory.offerToReceiveVideo = sendingConstraints.OfferToReceiveVideo === true;
+                                mediaConstraints.mandatory.offerToReceiveAudio = sendingConstraints.offerToReceiveAudio === true;
+                            }
+
+                            pcSender.createAnswer(onCreateAnswerSuccess, onFailure, mediaConstraints);
                         }
 
                         pcSender.setRemoteDescription(offerSdp, onSetRemoteDescriptionSuccess, onFailure);
@@ -297,19 +306,35 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
                 pcReceiver.createOffer(onCreateOfferSuccess, onFailure, receivingConstraints);
             }
 
+            pcSender.oniceconnectionstatechange = function() {
+                console.log('Sender ICE state: ' + pcSender.iceConnectionState);
+            };
+            pcReceiver.oniceconnectionstatechange = function() {
+                console.log('Receiver ICE state: ' + pcReceiver.iceConnectionState);
+            };
+            pcSender.onconnectionstatechange = function() {
+                console.log('Sender Connection state: ' + pcSender.connectionState);
+            };
+            pcReceiver.onconnectionstatechange = function() {
+                console.log('Receiver Connection state: ' + pcReceiver.connectionState);
+            };
+            pcSender.onsignalingstatechange = function() {
+                console.log('Sender Signaling state: ' + pcSender.signalingState);
+            };
+            pcReceiver.onsignalingstatechange = function() {
+                console.log('Receiver Signaling state: ' + pcReceiver.signalingState);
+            };
+
             pcSender.onicecandidate = function (event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
                     console.log('ICE candidate (sender): ' + JSON.stringify(candidate));
-
-                    pcReceiver.addIceCandidate(new RTCIceCandidate({
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: candidate.candidate
-                    }));
                 } else {
                     console.log('ICE candidate discovery complete (sender)');
                 }
+
+                pcReceiver.addIceCandidate(candidate);
             };
 
             pcReceiver.onicecandidate = function (event) {
@@ -317,14 +342,11 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
 
                 if (candidate) {
                     console.log('ICE candidate (receiver): ' + candidate.sdpMid + ' ' + candidate.sdpMLineIndex + ' ' + candidate.candidate);
-
-                    pcSender.addIceCandidate(new RTCIceCandidate({
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: candidate.candidate
-                    }));
                 } else {
                     console.log('ICE candidate discovery complete (receiver)');
                 }
+
+                pcSender.addIceCandidate(candidate);
             };
 
             if (userMediaStream && !userMediaStream.ended) {
@@ -332,7 +354,7 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
             } else {
                 rtc.getUserMedia({
                     audio: true,
-                    video: true
+                    video: false
                 }, onUserMediaPeerConnectionSuccess, onFailure);
             }
         };
@@ -374,20 +396,16 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
         };
 
         var closePeerConnection = function closePeerConnection() {
-            if (pcSender != null) {
+            if (pcSender && pcSender.close) {
                 pcSender.close();
             }
-            if (pcReceiver != null) {
+
+            if (pcReceiver && pcReceiver.close) {
                 pcReceiver.close();
             }
         };
 
         var stringify = function stringify() {
-            if (!JSON) {
-                alert('No JSON.stringify()');
-                return;
-            }
-
             console.log(JSON.stringify(userMediaStream));
             console.log(JSON.stringify(pcSender));
             console.log(JSON.stringify(pcReceiver));
@@ -407,15 +425,20 @@ requirejs(['jquery', 'lodash', 'phenix-rtc'], function ($, _, rtc) {
         remoteVideoEl.onloadedmetadata = function () {
             onLoadedMetaData(remoteVideoEl);
         };
+        remoteVideoEl.onresize = function () {
+            console.log('remote video resize event');
+        };
 
         $('#phenixRTCVersion').text(rtc.phenixVersion);
         $('#browser').text(rtc.browser);
         $('#browserVersion').text(rtc.browserVersion);
+
         if (rtc.webrtcSupported) {
             $('#webrtc').addClass('success');
         } else {
             $('#webrtc').addClass('danger');
         }
+
         if (rtc.isPhenixEnabled()) {
             $('#phenix').addClass('success');
         } else if (rtc.phenixSupported) {

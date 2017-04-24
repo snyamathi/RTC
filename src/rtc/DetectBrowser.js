@@ -35,13 +35,11 @@ define([], function () {
                 || this._userAgent.match(/; Trident\/.*rv:[0-9]+/)) {
                 browser = 'IE';
 
-                if (versionMatch = this._userAgent.match(/MSIE ([0-9]+)/)) {
-                    version = parseInt(versionMatch[1], 10);
-                    // compatibility view?
-                    if (versionMatch = this._userAgent.match(/MSIE [0-9]+.*MSIE ([0-9]+)/)) {
-                        version = parseInt(versionMatch[1], 10);
-                    }
-                } else if (versionMatch = this._userAgent.match(/rv:([0-9]+)/)) {
+                versionMatch = this._userAgent.match(/MSIE [0-9]+.*MSIE ([0-9]+)/) ||
+                    this._userAgent.match(/MSIE ([0-9]+)/) ||
+                    this._userAgent.match(/rv:([0-9]+)/);
+
+                if (versionMatch) {
                     version = parseInt(versionMatch[1], 10);
                 }
             }
