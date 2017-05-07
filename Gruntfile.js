@@ -19,7 +19,17 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-webpack');
 
     grunt.registerTask('default', []);
-    grunt.registerTask('build', ['default', 'clean', 'webpack', 'uglify']);
+    grunt.registerTask('release-package-json', 'Parse package.json and output for release.', function() {
+        const packageJson = grunt.file.readJSON('./package.json');
+
+        delete packageJson.scripts;
+        delete packageJson.dependencies;
+        delete packageJson.engines;
+        delete packageJson.devDependencies;
+
+        grunt.file.write('dist/package.json', JSON.stringify(packageJson, null, 2));
+    });
+    grunt.registerTask('build', ['default', 'clean', 'webpack', 'uglify', 'release-package-json']);
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),

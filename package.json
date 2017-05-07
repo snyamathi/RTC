@@ -1,9 +1,9 @@
 {
   "name": "phenix-rtc",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "license": "Apache-2.0",
   "private": false,
-  "main": "dist/phenix-rtc.min.js",
+  "main": "phenix-rtc.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/PhenixP2P/RTC.git"
