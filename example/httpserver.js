@@ -20,6 +20,7 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const WebSocket = require('websocket');
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -54,4 +55,46 @@ if (process.env['PHENIX_HTTPS_PFX']) {
     httpsServer.listen(8843);
 
     console.log('Listening on port 8843/https');
+
+    var wss = new WebSocket.server({httpServer: httpsServer});
+
+    var activeConnections = {};
+
+    wss.on('request', function(request) {
+        var connectionId = Math.random().toString();
+        var connection = request.accept(null, request.origin);
+
+        console.log('Connection [%s] for origin [%s]', connectionId, request.origin);
+
+        activeConnections[connectionId] = connection;
+
+        // This is the most important callback for us, we'll handle
+        // all messages from users here.
+        connection.on('message', function(message) {
+            if (message.type === 'utf8') {
+                var decodedMessage = JSON.parse(message.utf8Data);
+
+                console.log('Connection [%s] Received message [%s] with reported Id of', connectionId, decodedMessage.type, decodedMessage.connectionId);
+
+                Object.keys(activeConnections).forEach(function(activeConnectionId) {
+                    if (decodedMessage.connectionId === activeConnectionId) {
+                        return;
+                    }
+
+                    activeConnections[activeConnectionId].send(message.utf8Data);
+                });
+            }
+        });
+
+        connection.on('close', function() {
+            delete activeConnections[connectionId];
+
+            console.log('closing connection [%s]', connectionId);
+        });
+
+        connection.send(JSON.stringify({
+            type: 'Initialized',
+            connectionId: connectionId
+        }));
+    });
 }

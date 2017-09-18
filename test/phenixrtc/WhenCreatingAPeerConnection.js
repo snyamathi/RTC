@@ -71,11 +71,11 @@ define([
                 });
 
                 it('defines the iceConnectionState attribute', function () {
-                    expect(pc.iceConnectionState).to.be.defined;
+                    expect(pc.iceConnectionState).to.exist;
                     expect(pc).to.have.property('iceConnectionState');
                 });
                 it('defines the iceGatheringState attribute', function () {
-                    expect(pc.iceGatheringState).to.be.defined;
+                    expect(pc.iceGatheringState).to.exist;
                     expect(pc).to.have.property('iceGatheringState');
                 });
                 it('defines the localDescription attribute', function () {
@@ -87,7 +87,7 @@ define([
                     expect(pc).to.have.property('remoteDescription');
                 });
                 it('defines the signalingState attribute', function () {
-                    expect(pc.signalingState).to.be.defined;
+                    expect(pc.signalingState).to.exist;
                     expect(pc).to.have.property('signalingState');
                 });
 
@@ -114,43 +114,43 @@ define([
                 });
 
                 it('defines addIceCandidate()', function () {
-                    expect(pc.addIceCandidate).to.be.defined;
+                    expect(pc.addIceCandidate).to.exist;
                 });
                 it('defines addStream()', function () {
-                    expect(pc.addStream).to.be.defined;
+                    expect(pc.addStream).to.exist;
                 });
                 it('defines close()', function () {
-                    expect(pc.close).to.be.defined;
+                    expect(pc.close).to.exist;
                 });
                 it('defines createAnswer()', function () {
-                    expect(pc.createAnswer).to.be.defined;
+                    expect(pc.createAnswer).to.exist;
                 });
                 it('defines createOffer()', function () {
-                    expect(pc.createOffer).to.be.defined;
+                    expect(pc.createOffer).to.exist;
                 });
                 it('defines getLocalStreams()', function () {
-                    expect(pc.getLocalStreams).to.be.defined;
+                    expect(pc.getLocalStreams).to.exist;
                 });
                 it('defines getRemoteStreams()', function () {
-                    expect(pc.getRemoteStreams).to.be.defined;
+                    expect(pc.getRemoteStreams).to.exist;
                 });
                 it('defines getStats()', function () {
-                    expect(pc.getStats).to.be.defined;
+                    expect(pc.getStats).to.exist;
                 });
                 it('defines getStreamById()', function () {
-                    expect(pc.getStreamById).to.be.defined;
+                    expect(pc.getStreamById).to.exist;
                 });
                 it('defines removeStream()', function () {
-                    expect(pc.removeStream).to.be.defined;
+                    expect(pc.removeStream).to.exist;
                 });
                 it('defines setLocalDescription()', function () {
-                    expect(pc.setLocalDescription).to.be.defined;
+                    expect(pc.setLocalDescription).to.exist;
                 });
                 it('defines setRemoteDescription()', function () {
-                    expect(pc.setRemoteDescription).to.be.defined;
+                    expect(pc.setRemoteDescription).to.exist;
                 });
                 it('defines updateIce()', function () {
-                    expect(pc.updateIce).to.be.defined;
+                    expect(pc.updateIce).to.exist;
                 });
 
                 it('is has not preformed any networking activities', function () {
@@ -200,7 +200,7 @@ define([
                     });
 
                     it('updated the remote SDP', function () {
-                        expect(pc.remoteDescription).to.be.defined;
+                        expect(pc.remoteDescription).to.exist;
                         expect(pc.remoteDescription.sdp).to.be.equal(remoteOffer);
                     });
 
@@ -225,7 +225,7 @@ define([
                         });
 
                         it('provides a local SDP', function () {
-                            expect(localSdp).to.be.defined;
+                            expect(localSdp).to.exist;
                             expect(localSdp.sdp).to.be.a('string');
                         });
 
@@ -244,7 +244,7 @@ define([
                             });
 
                             it('updated the local SDP', function () {
-                                expect(pc.localDescription).to.be.defined;
+                                expect(pc.localDescription).to.exist;
                                 expect(pc.localDescription.sdp).to.be.equal(localSdp.sdp);
                             });
 
@@ -327,7 +327,7 @@ define([
                                     });
 
                                     it('defines the src attribute', function () {
-                                        expect(phenixEl.src).to.be.defined;
+                                        expect(phenixEl.src).to.exist;
                                         expect(phenixEl).to.have.property('src');
                                     });
                                     it('defines the autoplay attribute', function () {
@@ -389,13 +389,13 @@ define([
                                     });
 
                                     it('defines load()', function () {
-                                        expect(phenixEl.load).to.be.defined;
+                                        expect(phenixEl.load).to.exist;
                                     });
                                     it('defines play()', function () {
-                                        expect(phenixEl.play).to.be.defined;
+                                        expect(phenixEl.play).to.exist;
                                     });
                                     it('defines pause()', function () {
-                                        expect(phenixEl.pause).to.be.defined;
+                                        expect(phenixEl.pause).to.exist;
                                     });
 
                                     describe('After playing the first frame', function () {

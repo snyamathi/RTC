@@ -23,7 +23,7 @@ var isLinux = /^linux/.test(process.platform);
 
 if (isWin) {
     browsers.push('IE');
-    browsers.push('Safari');
+    browsers.push('Edge');
 }
 
 if (isOSX) {
@@ -31,11 +31,12 @@ if (isOSX) {
 }
 
 if (isWin || isOSX) {
-    browsers.push('ChromeCanary');
+    // Browsers.push('ChromeCanary');
 }
 
-if (isLinux) {
+if (isLinux || isWin || isOSX) {
     browsers.push('Chrome');
+    browsers.push('Firefox');
 }
 
 module.exports = function (config) {

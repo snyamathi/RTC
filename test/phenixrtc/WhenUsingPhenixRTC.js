@@ -21,7 +21,7 @@ define([
 ], function (_, $, bowser, PhenixRTC) {
     'use strict';
 
-    var supported = bowser.safari === true || bowser.msie === true;
+    var supported = (bowser.safari === true && parseInt(bowser.version) < 11) || bowser.msie === true;
 
     describe('When using PhenixRTC', function () {
         var rtc = new PhenixRTC();
@@ -50,15 +50,15 @@ define([
             });
 
             it('provides the RTCPeerConnection constructor', function () {
-                expect(rtc.getRTCPeerConnectionConstructor()).to.be.defined;
+                expect(rtc.getRTCPeerConnectionConstructor()).to.exist;
             });
 
             it('provides the RTCSessionDescription constructor', function () {
-                expect(rtc.getRTCSessionDescriptionConstructor()).to.be.defined;
+                expect(rtc.getRTCSessionDescriptionConstructor()).to.exist;
             });
 
             it('provides the RTCIceCandidate constructor', function () {
-                expect(rtc.getRTCIceCandidateConstructor()).to.be.defined;
+                expect(rtc.getRTCIceCandidateConstructor()).to.exist;
             });
 
             it('provides the UserMedia function', function () {

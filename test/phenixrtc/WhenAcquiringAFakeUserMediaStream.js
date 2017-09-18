@@ -83,28 +83,28 @@ define([
                 });
 
                 it('defines addTrack()', function () {
-                    expect(mediaStream.addTrack).to.be.defined;
+                    expect(mediaStream.addTrack).to.exist;
                 });
                 it('defines clone()', function () {
-                    expect(mediaStream.clone).to.be.defined;
+                    expect(mediaStream.clone).to.exist;
                 });
                 it('defines getAudioTracks()', function () {
-                    expect(mediaStream.getAudioTracks).to.be.defined;
+                    expect(mediaStream.getAudioTracks).to.exist;
                 });
                 it('defines getTrackById()', function () {
-                    expect(mediaStream.getTrackById).to.be.defined;
+                    expect(mediaStream.getTrackById).to.exist;
                 });
                 it('defines getTracks()', function () {
-                    expect(mediaStream.getTracks).to.be.defined;
+                    expect(mediaStream.getTracks).to.exist;
                 });
                 it('defines getVideoTracks()', function () {
-                    expect(mediaStream.getVideoTracks).to.be.defined;
+                    expect(mediaStream.getVideoTracks).to.exist;
                 });
                 it('defines removeTrack()', function () {
-                    expect(mediaStream.removeTrack).to.be.defined;
+                    expect(mediaStream.removeTrack).to.exist;
                 });
                 it('defines stop()', function () {
-                    expect(mediaStream.stop).to.be.defined;
+                    expect(mediaStream.stop).to.exist;
                 });
 
                 it('has not ended', function () {
@@ -117,15 +117,15 @@ define([
                     expect(mediaStream.label).to.have.length.of.at.least(1);
                 });
                 it('contains two media tracks', function () {
-                    expect(mediaStream.getTracks()).to.be.defined;
+                    expect(mediaStream.getTracks()).to.exist;
                     expect(mediaStream.getTracks().length).to.be.equal(2);
                 });
                 it('contains one audio track', function () {
-                    expect(mediaStream.getAudioTracks()).to.be.defined;
+                    expect(mediaStream.getAudioTracks()).to.exist;
                     expect(mediaStream.getAudioTracks()).to.have.length(1);
                 });
                 it('contains one video track', function () {
-                    expect(mediaStream.getVideoTracks()).to.be.defined;
+                    expect(mediaStream.getVideoTracks()).to.exist;
                     expect(mediaStream.getVideoTracks()).to.have.length(1);
                 });
 
@@ -166,10 +166,10 @@ define([
                     });
 
                     it('defines clone()', function () {
-                        expect(track.clone).to.be.defined;
+                        expect(track.clone).to.exist;
                     });
                     it('defines stop()', function () {
-                        expect(track.stop).to.be.defined;
+                        expect(track.stop).to.exist;
                     });
 
                     it('is enabled', function () {
@@ -224,10 +224,10 @@ define([
                     });
 
                     it('defines clone()', function () {
-                        expect(track.clone).to.be.defined;
+                        expect(track.clone).to.exist;
                     });
                     it('defines stop()', function () {
-                        expect(track.stop).to.be.defined;
+                        expect(track.stop).to.exist;
                     });
 
                     it('is enabled', function () {
@@ -281,7 +281,7 @@ define([
                     });
 
                     it('has a presenter attached', function () {
-                        expect(phenixEl.phenixPresenter).to.be.defined;
+                        expect(phenixEl.phenixPresenter).to.exist;
                     });
                     it('removes the original element from the DOM', function () {
                         expect(document.body.contains(el)).to.be.false;
@@ -296,8 +296,8 @@ define([
                         });
 
                         it('defines the src attribute', function () {
-                            expect(phenixEl.src).to.be.defined;
-                            expect(phenixEl.src.id).to.be.defined;
+                            expect(phenixEl.src).to.exist;
+                            expect(phenixEl.src.id).to.exist;
                             expect(phenixEl.src.id).to.be.equal(mediaStream.id);
                             expect(phenixEl).to.have.property('src');
                         });
@@ -359,13 +359,13 @@ define([
                         });
 
                         it('defines load()', function () {
-                            expect(phenixEl.load).to.be.defined;
+                            expect(phenixEl.load).to.exist;
                         });
                         it('defines play()', function () {
-                            expect(phenixEl.play).to.be.defined;
+                            expect(phenixEl.play).to.exist;
                         });
                         it('defines pause()', function () {
-                            expect(phenixEl.pause).to.be.defined;
+                            expect(phenixEl.pause).to.exist;
                         });
 
                         describe('After playing the first frames', function () {

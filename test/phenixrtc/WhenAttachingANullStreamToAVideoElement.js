@@ -112,13 +112,13 @@ define([
                 });
 
                 it('defines load()', function () {
-                    expect(phenixEl.load).to.be.defined;
+                    expect(phenixEl.load).to.exist;
                 });
                 it('defines play()', function () {
-                    expect(phenixEl.play).to.be.defined;
+                    expect(phenixEl.play).to.exist;
                 });
                 it('defines pause()', function () {
-                    expect(phenixEl.pause).to.be.defined;
+                    expect(phenixEl.pause).to.exist;
                 });
             });
         }

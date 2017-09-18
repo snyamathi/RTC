@@ -1,0 +1,82 @@
+<!--
+© 2015 PhenixP2P LLC. Confidential and Proprietary. All rights reserved.
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PhenixRTC Example</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <style>
+        .messages {
+            position: relative;
+            border: solid thin grey;
+            min-height: 50px;
+        }
+
+        object {
+            z-index: -1;
+        }
+
+        video {
+            z-index: -2;
+        }
+    </style>
+
+    <script data-main="data-channel-signaling"
+            src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <table class="table table-bordered">
+            <tr>
+                <td>
+                    <h1><span id="browser"></span>
+                        <small id="browserVersion"></small>
+                    </h1>
+                </td>
+                <td id="webrtc">
+                    <h1>WebRTC</h1>
+                </td>
+                <td id="phenix">
+                    <h1>
+                        PhenixRTC
+                        <small id="phenixRTCVersion"></small>
+                    </h1>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="row text-center">
+        <input id="connectButton" type="button" value="Connect" disabled/>
+        <input id="disconnectButton" type="button" value="Disconnect" disabled/>
+        Reliable <input id="reliableCheckBox" type="checkbox" value="reliable" checked="true" disabled/>
+        Ordered <input id="orderedCheckBox" type="checkbox" value="ordered" checked="true" disabled/>
+    </div>
+    <div class="row text-center">
+        <div class="row">
+            <h2>Local <label id="header"></label></h2>
+        </div>
+        <div class="row">
+            <input id="message" type="text" value="" aria-multiline="true" disabled/>
+            <input id="sendButton" type="button" value="Send" disabled/>
+            <input id="sendButton1000" type="button" value="Send 1000 Bytes" disabled/>
+            <input id="sendButton10000" type="button" value="Send 10000 Bytes" disabled/>
+        </div>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="row">
+        <h2>Remote</h2>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-offset-3 col-md-6 messages" id="receivebox"></div>
+    </div>
+</div>
+
+</body>
+</html>
+
