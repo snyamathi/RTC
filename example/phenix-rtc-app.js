@@ -46,10 +46,10 @@ var receivingConstraints = {
 };
 
 requirejs([
+    'phenix-web-lodash-light',
     'jquery',
-    'lodash',
     'phenix-rtc'
-], function ($, _, rtc) {
+], function (_, $, rtc) {
     var init = function init() {
         var localVideoEl = $('#localVideo')[0];
         var remoteVideoEl = $('#remoteVideo')[0];
@@ -60,7 +60,7 @@ requirejs([
         var pcReceiverAnswerSdp = null;
 
         var onUserMediaSuccess = function onUserMediaSuccess(stream) {
-            console.log('Got user media stream');
+            log('Got user media stream [%s]', localVideoEl.id);
 
             // **********
             // IMPORTANT: update reference to element as some RTC implementation will replace the element in the DOM
@@ -71,7 +71,7 @@ requirejs([
         };
 
         var onLoadedMetaData = function onLoadedMetaData(video) {
-            console.log('Meta data, width=' + video.videoWidth + ', height=' + video.videoHeight);
+            log('Meta data, width=' + video.videoWidth + ', height=' + video.videoHeight);
 
             if (rtc.browser !== 'Edge' && rtc.browser !== 'IE') {
                 video.width = video.videoWidth;
@@ -105,14 +105,14 @@ requirejs([
                                     var ssrc = statsReport.stat('ssrc');
                                     var bytesTx = statsReport.stat('bytesSent');
                                     var bytesRx = statsReport.stat('bytesReceived');
-                                    var codec = _.contains(statsReport.names(), 'googCodecName')
+                                    var codec = _.includes(statsReport.names(), 'googCodecName')
                                         ? statsReport.stat('googCodecName').toLowerCase()
-                                        : _.contains(statsReport.names(), 'googFrameRateOutput') ? 'vp8' : '?';
+                                        : _.includes(statsReport.names(), 'googFrameRateOutput') ? 'vp8' : '?';
 
                                     if (ssrc) {
                                         var tbefore = 0;
 
-                                        if (!_.has(last, ssrc)) {
+                                        if (!_.hasIndexOrKey(last, ssrc)) {
                                             last[ssrc] = {timestamp: 0};
                                         } else {
                                             tbefore = last[ssrc].timestamp;
@@ -153,7 +153,7 @@ requirejs([
                                     statsReport['ssrc'] = statsReport['ssrcIds'][0];
                                 }
 
-                                if (_.has(statsReport, 'ssrc')) {
+                                if (_.hasIndexOrKey(statsReport, 'ssrc')) {
                                     if (!statsReport.ssrc || statsReport.id.indexOf('rtcp') > -1) {
                                         return;
                                     }
@@ -165,7 +165,7 @@ requirejs([
 
                                     var tbefore = 0;
 
-                                    if (!_.has(last, ssrc)) {
+                                    if (!_.hasIndexOrKey(last, ssrc)) {
                                         last[ssrc] = {timestamp: 0};
                                     } else {
                                         tbefore = last[ssrc].timestamp;
@@ -201,7 +201,7 @@ requirejs([
                             });
                         }
                     }, function (e) {
-                        console.log('getStats failed: ' + e);
+                        log('getStats failed: ' + e);
                     });
 
                     if (pc.signalingState !== 'closed') {
@@ -215,7 +215,7 @@ requirejs([
 
         var listSources = function listSources() {
             function onGetSources(sources) {
-                console.log(JSON.stringify(sources));
+                log(JSON.stringify(sources));
 
                 var sourcesEl = $('#sources');
 
@@ -243,39 +243,39 @@ requirejs([
             var onAddStream = function onAddStream(event) {
                 var stream = event.stream;
 
-                console.log('Got a remote stream');
+                log('Got a remote stream');
 
                 // **********
                 // IMPORTANT: update reference to element as some RTC implementation will replace the element in the DOM
                 // **********
+                log(remoteVideoEl.id);
                 remoteVideoEl = rtc.attachMediaStream(remoteVideoEl, stream);
             };
 
-            rtc.addEventListener(pcReceiver, 'addstream', onAddStream);
+            _.addEventListener(pcReceiver, 'addstream', onAddStream);
 
             function onUserMediaPeerConnectionSuccess(stream) {
-                onUserMediaSuccess(stream);
                 pcSender.addStream(stream);
 
                 function onCreateOfferSuccess(offerSdp) {
-                    console.log('Created offer: ' + offerSdp.sdp);
+                    log('Created offer: ' + offerSdp.sdp);
                     pcSenderOfferSdp = offerSdp;
 
                     function onSetLocalDescriptionSuccess() {
-                        console.log('Set local description (offer)');
+                        log('Set local description (offer)');
 
                         function onSetRemoteDescriptionSuccess() {
-                            console.log('Set remote description (offer)');
+                            log('Set remote description (offer)');
 
                             function onCreateAnswerSuccess(answerSdp) {
-                                console.log('Created answer: ' + answerSdp.sdp);
+                                log('Created answer: ' + answerSdp.sdp);
                                 pcReceiverAnswerSdp = answerSdp;
 
                                 function onSetLocalDescriptionSuccess() {
-                                    console.log('Set local description (answer)');
+                                    log('Set local description (answer)');
 
                                     function onSetRemoteDescriptionSuccess() {
-                                        console.log('Set remote description (answer)');
+                                        log('Set remote description (answer)');
                                     }
 
                                     pcReceiver.setRemoteDescription(answerSdp, onSetRemoteDescriptionSuccess, onFailure);
@@ -287,10 +287,10 @@ requirejs([
                             var mediaConstraints = {mandatory: {}};
 
                             if (rtc.browser === 'chrome') {
-                                mediaConstraints.mandatory.OfferToReceiveVideo = sendingConstraints.OfferToReceiveVideo === true;
-                                mediaConstraints.mandatory.OfferToReceiveAudio = sendingConstraints.OfferToReceiveAudio === true;
+                                mediaConstraints.mandatory.OfferToReceiveVideo = sendingConstraints.offerToReceiveVideo === true;
+                                mediaConstraints.mandatory.OfferToReceiveAudio = sendingConstraints.offerToReceiveAudio === true;
                             } else {
-                                mediaConstraints.mandatory.offerToReceiveVideo = sendingConstraints.OfferToReceiveVideo === true;
+                                mediaConstraints.mandatory.offerToReceiveVideo = sendingConstraints.offerToReceiveVideo === true;
                                 mediaConstraints.mandatory.offerToReceiveAudio = sendingConstraints.offerToReceiveAudio === true;
                             }
 
@@ -307,47 +307,47 @@ requirejs([
             }
 
             pcSender.oniceconnectionstatechange = function() {
-                console.log('Sender ICE state: ' + pcSender.iceConnectionState);
+                log('Sender ICE state: ' + pcSender.iceConnectionState);
             };
             pcReceiver.oniceconnectionstatechange = function() {
-                console.log('Receiver ICE state: ' + pcReceiver.iceConnectionState);
+                log('Receiver ICE state: ' + pcReceiver.iceConnectionState);
             };
             pcSender.onconnectionstatechange = function() {
-                console.log('Sender Connection state: ' + pcSender.connectionState);
+                log('Sender Connection state: ' + pcSender.connectionState);
             };
             pcReceiver.onconnectionstatechange = function() {
-                console.log('Receiver Connection state: ' + pcReceiver.connectionState);
+                log('Receiver Connection state: ' + pcReceiver.connectionState);
             };
             pcSender.onsignalingstatechange = function() {
-                console.log('Sender Signaling state: ' + pcSender.signalingState);
+                log('Sender Signaling state: ' + pcSender.signalingState);
             };
             pcReceiver.onsignalingstatechange = function() {
-                console.log('Receiver Signaling state: ' + pcReceiver.signalingState);
+                log('Receiver Signaling state: ' + pcReceiver.signalingState);
             };
 
-            pcSender.onicecandidate = function (event) {
+            _.addEventListener(pcSender, 'icecandidate', function (event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
-                    console.log('ICE candidate (sender): ' + JSON.stringify(candidate));
+                    log('ICE candidate (sender): ' + JSON.stringify(candidate));
                 } else {
-                    console.log('ICE candidate discovery complete (sender)');
+                    log('ICE candidate discovery complete (sender)');
                 }
 
                 pcReceiver.addIceCandidate(candidate);
-            };
+            });
 
-            pcReceiver.onicecandidate = function (event) {
+            _.addEventListener(pcReceiver, 'icecandidate', function (event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
-                    console.log('ICE candidate (receiver): ' + candidate.sdpMid + ' ' + candidate.sdpMLineIndex + ' ' + candidate.candidate);
+                    log('ICE candidate (receiver): ' + candidate.sdpMid + ' ' + candidate.sdpMLineIndex + ' ' + candidate.candidate);
                 } else {
-                    console.log('ICE candidate discovery complete (receiver)');
+                    log('ICE candidate discovery complete (receiver)');
                 }
 
                 pcSender.addIceCandidate(candidate);
-            };
+            });
 
             if (userMediaStream && !userMediaStream.ended) {
                 onUserMediaPeerConnectionSuccess(userMediaStream);
@@ -355,7 +355,10 @@ requirejs([
                 rtc.getUserMedia({
                     audio: true,
                     video: false
-                }, onUserMediaPeerConnectionSuccess, onFailure);
+                }, function(mediaStream) {
+                    onUserMediaSuccess(mediaStream);
+                    onUserMediaPeerConnectionSuccess(mediaStream);
+                }, onFailure);
             }
         };
 
@@ -406,16 +409,16 @@ requirejs([
         };
 
         var stringify = function stringify() {
-            console.log(JSON.stringify(userMediaStream));
-            console.log(JSON.stringify(pcSender));
-            console.log(JSON.stringify(pcReceiver));
+            log(JSON.stringify(userMediaStream));
+            log(JSON.stringify(pcSender));
+            log(JSON.stringify(pcReceiver));
 
             if (pcReceiverAnswerSdp) {
-                console.log(JSON.stringify(pcReceiverAnswerSdp));
+                log(JSON.stringify(pcReceiverAnswerSdp));
             }
 
             if (pcSenderOfferSdp) {
-                console.log(JSON.stringify(pcSenderOfferSdp));
+                log(JSON.stringify(pcSenderOfferSdp));
             }
         };
 
@@ -426,7 +429,7 @@ requirejs([
             onLoadedMetaData(remoteVideoEl);
         };
         remoteVideoEl.onresize = function () {
-            console.log('remote video resize event');
+            log('remote video resize event');
         };
 
         $('#phenixRTCVersion').text(rtc.phenixVersion);
@@ -461,6 +464,22 @@ requirejs([
         $('#muteRemoteVideo').click(muteRemoteVideo);
         $('#unmuteRemoteVideo').click(unmuteRemoteVideo);
     };
+
+    window.onerror = function() {
+        log.apply(arguments);
+    };
+
+    function log() {
+        console.log.apply(arguments);
+
+        $.ajax({
+            url: '/log',
+            accepts: 'application/json',
+            contentType: 'application/json',
+            method: 'POST',
+            data: JSON.stringify({messages: arguments})
+        });
+    }
 
     $(function () {
         init();

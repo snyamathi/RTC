@@ -19,8 +19,11 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+const bodyParser = require('body-parser');
 const app = express();
 
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.use(express.static(path.join(process.cwd(), 'example')));
 app.use(express.static(path.join(process.cwd(), 'dist')));
 app.use(express.static(path.join(process.cwd(), 'src')));
@@ -28,6 +31,11 @@ app.use(express.static(path.join(process.cwd(), 'node_modules')));
 
 app.get('/', function (req, res) {
     res.redirect('/PhenixRTC.html');
+});
+
+app.post('/log', function (req, res) {
+    console.log(req.body);
+    res.send(200);
 });
 
 const httpServer = http.createServer(app);

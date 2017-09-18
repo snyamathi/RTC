@@ -124,7 +124,8 @@ define([
         };
     }
 
-    if (browser.browser === 'Firefox') {
+    switch (browser.browser) {
+    case 'Firefox':
         log('Firefox detected', browser);
 
         // Attach a media stream to an element.
@@ -161,62 +162,45 @@ define([
         };
 
         webrtcSupported = true;
-    } else if (browser.browser === 'Chrome') {
+
+        break;
+    case 'Chrome':
         log('Webkit detected', browser);
 
-        // Attach a media stream to an element.
-        attachMediaStream = function (element, stream) {
-            if (typeof element.srcObject !== 'undefined') {
-                element.srcObject = stream;
-            } else if (typeof element.mozSrcObject !== 'undefined') {
-                element.mozSrcObject = stream;
-            } else if (typeof element.src !== 'undefined') {
-                element.src = URL.createObjectURL(stream);
-            } else {
-                log('Error attaching stream to element.');
-            }
-
-            element.play();
-
-            return element;
-        };
-
-        reattachMediaStream = function (to, from) {
-            to.src = from.src;
-
-            return to;
-        };
+        attachMediaStream = attachStreamToElement;
+        reattachMediaStream = reattachStreamToElement;
 
         webrtcSupported = true;
-    } else if (browser.browser === 'Edge') {
+
+        break;
+    case 'Edge':
         log('Edge detected', browser);
 
-        // Attach a media stream to an element.
-        attachMediaStream = function (element, stream) {
-            if (typeof element.srcObject !== 'undefined') {
-                element.srcObject = stream;
-            } else if (typeof element.mozSrcObject !== 'undefined') {
-                element.mozSrcObject = stream;
-            } else if (typeof element.src !== 'undefined') {
-                element.src = URL.createObjectURL(stream);
-            } else {
-                log('Error attaching stream to element.');
-            }
-
-            element.play();
-
-            return element;
-        };
-
-        reattachMediaStream = function (to, from) {
-            to.src = from.src;
-
-            return to;
-        };
+        attachMediaStream = attachStreamToElement;
+        reattachMediaStream = reattachStreamToElement;
 
         webrtcSupported = true;
-    } else {
+
+        break;
+    case 'Safari':
+        log('Safari detected', browser);
+
+        if (browser.version < 11) {
+            log('Safari browser version [%s] is not WebRTC-capable', browser.version);
+
+            break;
+        }
+
+        attachMediaStream = attachStreamToElement;
+        reattachMediaStream = reattachStreamToElement;
+
+        webrtcSupported = true;
+
+        break;
+    default:
         log('Browser does not appear to be WebRTC-capable', browser);
+
+        break;
     }
 
     var adapter = {
@@ -236,6 +220,28 @@ define([
         window.RTCSessionDescription = adapter.RTCSessionDescription;
         window.RTCIceCandidate = adapter.RTCIceCandidate;
     };
+
+    function attachStreamToElement(element, stream) {
+        if (typeof element.srcObject !== 'undefined') {
+            element.srcObject = stream;
+        } else if (typeof element.mozSrcObject !== 'undefined') {
+            element.mozSrcObject = stream;
+        } else if (typeof element.src !== 'undefined') {
+            element.src = URL.createObjectURL(stream);
+        } else {
+            log('Error attaching stream to element.');
+        }
+
+        element.play();
+
+        return element;
+    }
+
+    function reattachStreamToElement(to, from) {
+        to.src = from.src;
+
+        return to;
+    }
 
     return adapter;
 });

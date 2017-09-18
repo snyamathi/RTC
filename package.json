@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2017.3.0",
+  "version": "2017.3.1",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -26,15 +26,16 @@
     "lint-fix": "eslint ./ --fix"
   },
   "dependencies": {
-    "phenix-web-assert": "^2017.3.3",
-    "phenix-web-lodash-light": "^2017.3.3",
-    "phenix-web-observable": "^2017.3.3"
+    "phenix-web-assert": "^2017.3.6",
+    "phenix-web-lodash-light": "^2017.3.6",
+    "phenix-web-observable": "^2017.3.6"
   },
   "engines": {
     "node": "6.10.2"
   },
   "devDependencies": {
     "bluebird": "3.5.0",
+    "body-parser": "1.18.1",
     "bower": "1.8.0",
     "bowser": "1.7.1",
     "case-sensitive-paths-webpack-plugin": "2.1.1",
@@ -73,6 +74,6 @@
     "webpack": "2.5.1",
     "webpack-dev-server": "2.4.5",
     "webpack-merge": "4.1.0",
-    "webrtc-adapter": "4.2.1"
+    "webrtc-adapter": "5.0.4"
   }
 }
