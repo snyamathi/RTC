@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2017.3.1",
+  "version": "2017.3.2",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -74,6 +74,6 @@
     "webpack": "2.5.1",
     "webpack-dev-server": "2.4.5",
     "webpack-merge": "4.1.0",
-    "webrtc-adapter": "5.0.4"
+    "webrtc-adapter": "4.2.1"
   }
 }

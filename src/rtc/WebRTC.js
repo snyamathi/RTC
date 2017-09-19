@@ -261,6 +261,18 @@ define([
             });
 
             break;
+        case 'Safari':
+            stats.forEach(function (stat) {
+                if (_.includes(stat.id.toLowerCase(), 'audio') && _.includes(stat.id.toLowerCase(), 'rtp')) {
+                    stat.mediaType = 'audio';
+                }
+
+                if (_.includes(stat.id.toLowerCase(), 'video') && _.includes(stat.id.toLowerCase(), 'rtp')) {
+                    stat.mediaType = 'video';
+                }
+            });
+
+            break;
         default:
             break;
         }
