@@ -158,18 +158,26 @@ requirejs([
                                         return;
                                     }
 
-                                    var ssrc = statsReport.ssrc;
+                                    var key = statsReport.id || statsReport.ssrc;
                                     var bytesTx = statsReport.bytesSent || 0;
                                     var bytesRx = statsReport.bytesReceived || 0;
                                     var mediaType = statsReport.mediaType;
 
+                                    if (!mediaType && statsReport.id.toLowerCase().indexOf('audio') > -1) {
+                                        mediaType = 'audio';
+                                    }
+
+                                    if (!mediaType && statsReport.id.toLowerCase().indexOf('video') > -1) {
+                                        mediaType = 'video';
+                                    }
+
                                     var tbefore = 0;
 
-                                    if (!_.hasIndexOrKey(last, ssrc)) {
-                                        last[ssrc] = {timestamp: 0};
+                                    if (!_.hasIndexOrKey(last, key)) {
+                                        last[key] = {timestamp: 0};
                                     } else {
-                                        tbefore = last[ssrc].timestamp;
-                                        last[ssrc].timestamp = statsReport.timestamp;
+                                        tbefore = last[key].timestamp;
+                                        last[key].timestamp = statsReport.timestamp;
                                     }
 
                                     var tdelta = statsReport.timestamp - tbefore;
@@ -177,18 +185,18 @@ requirejs([
                                     var down = '0bps';
 
                                     if (bytesTx) {
-                                        var bytesTxBefore = last[ssrc].bytesTx || 0;
+                                        var bytesTxBefore = last[key].bytesTx || 0;
                                         var bpsTx = 8 * 1000 * (bytesTx - bytesTxBefore) / tdelta;
 
-                                        last[ssrc].bytesTx = bytesTx;
+                                        last[key].bytesTx = bytesTx;
                                         up = Math.round(bpsTx / 1000) + 'kbps';
                                     }
 
                                     if (bytesRx) {
-                                        var bytesRxBefore = last[ssrc].bytesRx || 0;
+                                        var bytesRxBefore = last[key].bytesRx || 0;
                                         var bpsRx = 8 * 1000 * (bytesRx - bytesRxBefore) / tdelta;
 
-                                        last[ssrc].bytesRx = bytesRx;
+                                        last[key].bytesRx = bytesRx;
                                         down = Math.round(bpsRx / 1000) + 'kbps';
                                     }
 
@@ -301,6 +309,17 @@ requirejs([
                     }
 
                     pcReceiver.setLocalDescription(offerSdp, onSetLocalDescriptionSuccess, onFailure);
+                }
+
+                // TODO (DCY) remove when webrtc adapter fixes https://github.com/webrtc/adapter/issues/661
+                if (rtc.browser === 'Safari' && rtc.browserVersion >= 11) {
+                    if (receivingConstraints.offerToReceiveAudio) {
+                        pcReceiver.addTransceiver('audio');
+                    }
+
+                    if (receivingConstraints.offerToReceiveVideo) {
+                        pcReceiver.addTransceiver('video');
+                    }
                 }
 
                 pcReceiver.createOffer(onCreateOfferSuccess, onFailure, receivingConstraints);
@@ -466,11 +485,11 @@ requirejs([
     };
 
     window.onerror = function() {
-        log.apply(arguments);
+        log.apply(null, arguments);
     };
 
     function log() {
-        console.log.apply(arguments);
+        console.log.apply(null, arguments);
 
         $.ajax({
             url: '/log',

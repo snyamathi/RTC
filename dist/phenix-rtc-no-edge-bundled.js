@@ -5217,9 +5217,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
     __webpack_require__(2),
     __webpack_require__(16)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (DetectBrowser, webRtcAdapter) { // eslint-disable-line no-unused-vars
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, DetectBrowser, webRtcAdapter) { // eslint-disable-line no-unused-vars
     'use strict';
 
     var log = function () {
@@ -5227,7 +5228,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     };
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
-
     var RTCPeerConnection = window.RTCPeerConnection;
     var RTCSessionDescription = window.RTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate;
@@ -5238,7 +5238,172 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     var reattachMediaStream = null;
     var webrtcSupported = false;
 
-    var navigatorMediaDevicesEnumerateDevicesWrapper = function getSources(callback) {
+    function shimRTC() {
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            getUserMedia = navigatorGetUserMedia;
+        }
+
+        if (!window.RTCPeerConnection) {
+            return log('[%s] browser version [%s] does not appear to be WebRTC-capable', browser.browser, browser.version);
+        }
+
+        switch (browser.browser) {
+        case 'Firefox':
+            log('Firefox detected', browser);
+
+            // Attach a media stream to an element.
+            attachMediaStream = function (element, stream) {
+                log('Attaching media stream');
+
+                var muted = element.muted;
+
+                element.mozSrcObject = stream;
+                element.play();
+
+                if (muted === true) {
+                    // FF unmutes upon play()
+                    element.muted = true;
+                }
+
+                return element;
+            };
+
+            reattachMediaStream = function (to, from) {
+                log('Reattaching media stream');
+
+                var muted = to.muted;
+
+                to.mozSrcObject = from.mozSrcObject;
+                to.play();
+
+                if (muted === true) {
+                    // FF unmutes upon play()
+                    to.muted = true;
+                }
+
+                return to;
+            };
+
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
+        case 'Opera':
+            log('Opera detected', browser);
+
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
+        case 'Chrome':
+            log('Webkit detected', browser);
+
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
+        case 'Edge':
+            log('Edge detected', browser);
+
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
+        case 'Safari':
+            log('Safari detected', browser);
+
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(track).then(_.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
+        default:
+            log('Browser does not appear to be WebRTC-capable', browser);
+
+            break;
+        }
+    }
+
+    function navigatorGetUserMedia(constraints, successCallback, errorCallback) {
+        var onSuccess = _.bind(handleGetUserMediaSuccess, this, constraints, successCallback, errorCallback);
+
+        navigator.getUserMedia(constraints, onSuccess, errorCallback);
+    }
+
+    function handleGetUserMediaSuccess(constraints, successCallback, errorCallback, stream) {
+        setTimeout(function () {
+            var tracks = stream.getTracks();
+
+            for (var i = 0; i < tracks.length; i++) {
+                var track = tracks[i];
+
+                track.onended = function (event) {
+                    log(event.timeStamp, 'Track', track.id, track.label, 'ended');
+                };
+
+                log('Track', track.id, track.label, tracks[i].kind, 'readyState=', tracks[i].readyState);
+
+                if (track.readyState === 'ended') {
+                    return handleGetUserMediaUnavailable('User media not available', errorCallback, tracks);
+                }
+            }
+
+            var requestedTrackCount = (constraints.audio ? 1 : 0) + (constraints.video ? 1 : 0);
+
+            // Edge sometimes only gets a subset of tracks requested
+            if (tracks.length !== requestedTrackCount) {
+                return handleGetUserMediaUnavailable('Unable to get all requested user media.', errorCallback, tracks);
+            }
+
+            successCallback(stream);
+        }, 100);
+    }
+
+    function handleGetUserMediaUnavailable(message, errorCallback, tracks) {
+        try {
+            var error = new Error(message);
+
+            error.code = 'unavailable';
+
+            errorCallback(error);
+        } finally {
+            stopAllTracks(tracks);
+        }
+    }
+
+    function stopAllTracks(tracks) {
+        for (var j = 0; j < tracks.length; j++) {
+            tracks[j].stop();
+        }
+    }
+
+    function navigatorMediaDevicesEnumerateDevicesWrapper(callback) {
         navigator.mediaDevices.enumerateDevices().then(function (devices) {
             var sources = [];
 
@@ -5260,169 +5425,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
             callback(sources);
         });
-    };
-
-    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-        getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
     }
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        getUserMedia = function (constraints, successCallback, errorCallback) {
-            var onSuccess = function (stream) {
-                setTimeout(function () {
-                    var tracks = stream.getTracks();
-
-                    for (var i = 0; i < tracks.length; i++) {
-                        var track = tracks[i];
-
-                        track.onended = function (event) {
-                            log(event.timeStamp, 'Track', track.id, track.label, 'ended');
-                        };
-
-                        log('Track', track.id, track.label, tracks[i].kind, 'readyState=', tracks[i].readyState);
-
-                        if (track.readyState === 'ended') {
-                            return handleGetUserMediaUnavailable('User media not available', errorCallback, tracks);
-                        }
-                    }
-
-                    var requestedTrackCount = (constraints.audio ? 1 : 0) + (constraints.video ? 1 : 0);
-
-                    // Edge sometimes only gets a subset of tracks requested
-                    if (tracks.length !== requestedTrackCount) {
-                        return handleGetUserMediaUnavailable('Unable to get all requested user media.', errorCallback, tracks);
-                    }
-
-                    successCallback(stream);
-                }, 100);
-            };
-
-            navigator.getUserMedia(constraints, onSuccess, errorCallback);
-        };
-
-        var handleGetUserMediaUnavailable = function(message, errorCallback, tracks) {
-            try {
-                var error = new Error(message);
-
-                error.code = 'unavailable';
-
-                errorCallback(error);
-            } finally {
-                stopAllTracks(tracks);
-            }
-
-            return;
-        };
-
-        var stopAllTracks = function (tracks) {
-            for (var j = 0; j < tracks.length; j++) {
-                tracks[j].stop();
-            }
-        };
-    }
-
-    if (RTCPeerConnection && RTCPeerConnection.prototype.getStats) {
-        getStats = function (pc, track, successCallback, errorCallback) {
-            pc.getStats(successCallback, track, errorCallback);
-        };
-    }
-
-    switch (browser.browser) {
-    case 'Firefox':
-        log('Firefox detected', browser);
-
-        // Attach a media stream to an element.
-        attachMediaStream = function (element, stream) {
-            log('Attaching media stream');
-
-            var muted = element.muted;
-
-            element.mozSrcObject = stream;
-            element.play();
-
-            if (muted === true) {
-                // FF unmutes upon play()
-                element.muted = true;
-            }
-
-            return element;
-        };
-
-        reattachMediaStream = function (to, from) {
-            log('Reattaching media stream');
-
-            var muted = to.muted;
-
-            to.mozSrcObject = from.mozSrcObject;
-            to.play();
-
-            if (muted === true) {
-                // FF unmutes upon play()
-                to.muted = true;
-            }
-
-            return to;
-        };
-
-        webrtcSupported = true;
-
-        break;
-    case 'Chrome':
-        log('Webkit detected', browser);
-
-        attachMediaStream = attachStreamToElement;
-        reattachMediaStream = reattachStreamToElement;
-
-        webrtcSupported = true;
-
-        break;
-    case 'Edge':
-        log('Edge detected', browser);
-
-        attachMediaStream = attachStreamToElement;
-        reattachMediaStream = reattachStreamToElement;
-
-        webrtcSupported = true;
-
-        break;
-    case 'Safari':
-        log('Safari detected', browser);
-
-        if (browser.version < 11) {
-            log('Safari browser version [%s] is not WebRTC-capable', browser.version);
-
-            break;
-        }
-
-        attachMediaStream = attachStreamToElement;
-        reattachMediaStream = reattachStreamToElement;
-
-        webrtcSupported = true;
-
-        break;
-    default:
-        log('Browser does not appear to be WebRTC-capable', browser);
-
-        break;
-    }
-
-    var adapter = {
-        RTCPeerConnection: RTCPeerConnection,
-        RTCSessionDescription: RTCSessionDescription,
-        RTCIceCandidate: RTCIceCandidate,
-        getSources: getSources,
-        getUserMedia: getUserMedia,
-        getStats: getStats,
-        attachMediaStream: attachMediaStream,
-        reattachMediaStream: reattachMediaStream,
-        webrtcSupported: webrtcSupported
-    };
-
-    adapter.exportGlobal = function () {
-        window.RTCPeerConnection = adapter.RTCPeerConnection;
-        window.RTCSessionDescription = adapter.RTCSessionDescription;
-        window.RTCIceCandidate = adapter.RTCIceCandidate;
-    };
 
     function attachStreamToElement(element, stream) {
         if (typeof element.srcObject !== 'undefined') {
@@ -5445,6 +5448,93 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
         return to;
     }
+
+    function handleGetStatsSuccess(pc, successCallback, stats) {
+        successCallback(normalizePeerConnectionStats(pc, stats));
+    }
+
+    function normalizePeerConnectionStats(pc, stats) {
+        // TODO (DCY) add vendor specific logic to map all stats to same similar object
+        switch (browser.browser) {
+        case 'Edge':
+            stats.forEach(function (stat) {
+                stat.mediaType = getMediaTypeByCodecFromSdp(pc, stat.codecId);
+                stat.bytesSent = estimateBytesFromNumberOfPacketsAndMediaType(stat.packetsSent, stat.mediaType);
+                stat.bytesReceived = estimateBytesFromNumberOfPacketsAndMediaType(stat.packetsReceived, stat.mediaType);
+            });
+
+            break;
+        default:
+            break;
+        }
+
+        return stats;
+    }
+
+    function getMediaTypeByCodecFromSdp(peerConnection, codec) {
+        if (!codec) {
+            return;
+        }
+
+        var mediaType;
+
+        findInSdpSections(peerConnection, function(section) {
+            if (_.startsWith(section, 'video') && _.includes(section.toLowerCase(), codec.toLowerCase())) {
+                mediaType = 'video';
+            }
+
+            if (_.startsWith(section, 'audio') && _.includes(section.toLowerCase(), codec.toLowerCase())) {
+                mediaType = 'audio';
+            }
+        });
+
+        return mediaType;
+    }
+
+    function findInSdpSections(peerConnection, callback) {
+        var localSections = peerConnection.localDescription.sdp.split('m=');
+        var remoteSections = peerConnection.remoteDescription.sdp.split('m=');
+
+        if (localSections.length !== remoteSections.length) {
+            return false;
+        }
+
+        return _.findIndex(localSections, function(section, index) {
+            return callback(section, index, remoteSections);
+        });
+    }
+
+    function estimateBytesFromNumberOfPacketsAndMediaType(packets, mediaType) {
+        var packetsReceivedNum = parseInt(packets) || 0;
+
+        if (mediaType === 'audio') {
+            return packetsReceivedNum * 100;
+        }
+
+        if (mediaType === 'video') {
+            return packetsReceivedNum * 1080;
+        }
+    }
+
+    shimRTC();
+
+    var adapter = {
+        RTCPeerConnection: RTCPeerConnection,
+        RTCSessionDescription: RTCSessionDescription,
+        RTCIceCandidate: RTCIceCandidate,
+        getSources: getSources,
+        getUserMedia: getUserMedia,
+        getStats: getStats,
+        attachMediaStream: attachMediaStream,
+        reattachMediaStream: reattachMediaStream,
+        webrtcSupported: webrtcSupported
+    };
+
+    adapter.exportGlobal = function () {
+        window.RTCPeerConnection = adapter.RTCPeerConnection;
+        window.RTCSessionDescription = adapter.RTCSessionDescription;
+        window.RTCIceCandidate = adapter.RTCIceCandidate;
+    };
 
     return adapter;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
