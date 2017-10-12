@@ -27,11 +27,12 @@ define([
         console.error.apply(console, arguments);
     } || log;
 
-    function PhenixVideo(ghost, stream) {
+    function PhenixVideo(ghost, stream, isUsingPlugin) {
         var that = this;
 
         this._ghost = ghost;
         this._stream = stream;
+        this._isUsingPlugin = isUsingPlugin;
         this._events = {};
 
         var loaded = function loaded(success) {
@@ -50,7 +51,7 @@ define([
         };
 
         try {
-            this._video = createPhenixVideoElement();
+            this._video = createPhenixVideoElement(isUsingPlugin);
             this._video.className = this._ghost.className;
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
@@ -72,6 +73,10 @@ define([
 
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
+            }
+
+            if (!isUsingPlugin) {
+                return loaded(true);
             }
 
             var waitFor = new WaitFor();
@@ -103,7 +108,6 @@ define([
             dispatchEvent(ghost, 'ended');
         });
         this.addEventListener('loadedmetadata', function () {
-            log('Video loaded metadata', that._video.videoWidth, that._video.videoHeight);
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadedmetadata');
@@ -144,15 +148,23 @@ define([
         removeEventListener.call(this, name, listener, useCapture);
     };
 
-    function createPhenixVideoElement() {
-        var video = document.createElement('object');
+    function createPhenixVideoElement(isUsingPlugin) {
+        var video = document.createElement('video');
 
-        video.type = 'application/x-phenix-video';
+        if (isUsingPlugin) {
+            video = document.createElement('object');
+
+            video.type = 'application/x-phenix-video';
+        }
 
         return video;
     }
 
     function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.addEventListener(name, listener, useCapture);
+        }
+
         var listeners = this._events[name];
 
         if (!listeners) {
@@ -167,6 +179,10 @@ define([
     }
 
     function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.removeEventListener(name, listener, useCapture);
+        }
+
         var listeners = this._events[name];
 
         if (listeners) {

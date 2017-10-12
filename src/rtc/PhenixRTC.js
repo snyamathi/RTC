@@ -227,7 +227,7 @@ define([
             return element;
         }
 
-        var phenixVideo = new PhenixVideo(element, stream);
+        var phenixVideo = new PhenixVideo(element, stream, true);
 
         phenixVideo.getElement().phenixPresenter = phenixVideo;
 

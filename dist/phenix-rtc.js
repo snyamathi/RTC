@@ -22,7 +22,7 @@
 		var a = typeof exports === 'object' ? factory(require("phenix-web-lodash-light"), require("phenix-web-assert"), require("phenix-web-observable")) : factory(root["phenix-web-lodash-light"], root["phenix-web-assert"], root["phenix-web-observable"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -88,7 +88,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -196,6 +196,375 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(3)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (WaitFor) {
+    'use strict';
+
+    var log = function () {
+        console.log.apply(console, arguments);
+    } || function () {
+        };
+
+    var logError = function () {
+        console.error.apply(console, arguments);
+    } || log;
+
+    function PhenixVideo(ghost, stream, isUsingPlugin) {
+        var that = this;
+
+        this._ghost = ghost;
+        this._stream = stream;
+        this._isUsingPlugin = isUsingPlugin;
+        this._events = {};
+
+        var loaded = function loaded(success) {
+            that._loaded = true;
+            that._enabled = success === true;
+
+            if (success) {
+                initialize.call(that);
+            } else {
+                logError('Failed to create Phenix video element');
+            }
+
+            if (that._onReady) {
+                that._onReady(that._enabled);
+            }
+        };
+
+        try {
+            this._video = createPhenixVideoElement(isUsingPlugin);
+            this._video.className = this._ghost.className;
+            this._video.height = this._ghost.height;
+            this._video.width = this._ghost.width;
+
+            this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
+                'margin:0px !important;padding:0px !important;' +
+                'border-style:none !important;border-width:0px !important;' +
+                'max-width:0px !important;max-height:0px !important;outline:none !important';
+
+            this._video.onunload = function () {
+                that._loaded = false;
+            };
+
+            observeInsertion.call(this);
+
+            if (!document.body || !document.body.contains) {
+                log('document.body.contains is not supported');
+            }
+
+            if (document.body && document.body.contains && document.body.contains(this._ghost)) {
+                this._ghost.parentNode.replaceChild(this._video, this._ghost);
+            }
+
+            if (!isUsingPlugin) {
+                return loaded(true);
+            }
+
+            var waitFor = new WaitFor();
+
+            waitFor.waitForReady(this._video, loaded);
+        } catch (e) {
+            logError('Error while loading Phenix RTC' + e);
+            loaded(false);
+        }
+    }
+
+    PhenixVideo.prototype.hookUpEvents = function () {
+        var that = this;
+        var ghost = this._ghost;
+
+        this.addEventListener('error', function () {
+            dispatchEvent(ghost, 'error');
+        });
+        this.addEventListener('mute', function () {
+            ghost.muted = that._video.muted;
+            dispatchEvent(ghost, 'mute');
+        });
+        this.addEventListener('unmute', function () {
+            ghost.muted = that._video.muted;
+            dispatchEvent(ghost, 'unmute');
+        });
+        this.addEventListener('ended', function () {
+            ghost.ended = that._video.ended;
+            dispatchEvent(ghost, 'ended');
+        });
+        this.addEventListener('loadedmetadata', function () {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'loadedmetadata');
+        });
+        this.addEventListener('loadeddata', function () {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'loadeddata');
+        });
+        this.addEventListener('resize', function () {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'resize');
+        });
+    };
+
+    PhenixVideo.prototype.onReady = function (callback) {
+        var that = this;
+
+        if (this._loaded) {
+            setTimeout(function () {
+                callback(that._enabled);
+            }, 1);
+        } else {
+            this._onReady = callback;
+        }
+    };
+
+    PhenixVideo.prototype.getElement = function () {
+        return this._video;
+    };
+
+    PhenixVideo.prototype.addEventListener = function (name, listener, useCapture) {
+        addEventListener.call(this, name, listener, useCapture);
+    };
+
+    PhenixVideo.prototype.removeEventListener = function (name, listener, useCapture) {
+        removeEventListener.call(this, name, listener, useCapture);
+    };
+
+    function createPhenixVideoElement(isUsingPlugin) {
+        var video = document.createElement('video');
+
+        if (isUsingPlugin) {
+            video = document.createElement('object');
+
+            video.type = 'application/x-phenix-video';
+        }
+
+        return video;
+    }
+
+    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.addEventListener(name, listener, useCapture);
+        }
+
+        var listeners = this._events[name];
+
+        if (!listeners) {
+            listeners = this._events[name] = [];
+
+            if (this._loaded) {
+                registerEvent.call(this, name);
+            }
+        }
+
+        listeners.push(listener);
+    }
+
+    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.removeEventListener(name, listener, useCapture);
+        }
+
+        var listeners = this._events[name];
+
+        if (listeners) {
+            var idx = listeners.indexOf(listener);
+
+            if (idx >= 0) {
+                listeners = listeners.splice(idx, 1);
+
+                if (listeners.length > 0) {
+                    this._events[name] = listeners;
+                } else {
+                    delete this._events[name];
+                }
+            }
+        }
+    }
+
+    function registerEvent(name) {
+        var that = this;
+
+        function listener() {
+            var listeners = that._events[name];
+
+            if (listeners) {
+                for (var i = 0; i < listeners.length; i++) {
+                    listeners[i].apply(that, arguments);
+                }
+            }
+        }
+
+        that._video.phenixSetEventListener(name, listener);
+    }
+
+    function dispatchEvent(source, name) {
+        var event; // The custom event that will be created
+
+        if (document.createEvent) {
+            event = document.createEvent('HTMLEvents');
+            event.initEvent(name, true, true);
+        } else {
+            event = document.createEventObject();
+            event.eventType = name;
+        }
+
+        event.eventName = name;
+
+        setTimeout(function () {
+            if (document.createEvent) {
+                source.dispatchEvent(event);
+            } else {
+                source.fireEvent('on' + event.eventType, event);
+            }
+        });
+    }
+
+    function initialize() {
+        var events = Object.keys(this._events);
+
+        for (var i = 0; i < events.length; i++) {
+            registerEvent.call(this, events[i]);
+        }
+
+        this.hookUpEvents();
+
+        propagateAttributeChanges.call(this);
+
+        this._video.id = this._ghost.id;
+        this._video.style.cssText = this._ghost.cssText;
+        this._video.className = this._ghost.className;
+        this._video.innerHtml = this._ghost.innerHtml;
+        this._video.width = this._ghost.width;
+        this._video.height = this._ghost.height;
+        this._video.autoplay = this._ghost.autoplay;
+        this._video.muted = this._ghost.muted;
+        this._video.defaultMuted = this._ghost.defaultMuted;
+        this._video.volume = this._ghost.volume;
+
+        if (this._stream) {
+            this._video.src = this._stream;
+        }
+    }
+
+    function propagateAttributeChanges() {
+        var that = this;
+        var readonly = ['style'];
+
+        if (window.MutationObserver) {
+            // Newer browsers support an efficient way to observe DOM modifications
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes' && mutation.target === that._ghost && readonly.indexOf(mutation.attributeName) === -1) {
+                        that._video[mutation.attributeName] = that._ghost[mutation.attributeName];
+                    }
+                });
+            });
+
+            var configAttributes = {attributes: true};
+
+            observer.observe(that._ghost, configAttributes);
+        } else {
+            // For older browsers. There is a significant performance overhead with this method.
+            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
+            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
+
+            if (that._ghost.addEventListener) {
+                that._ghost.addEventListener('DOMAttrModified', function (event) {
+                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
+                }, false);
+            } else {
+                that._ghost.attachEvent('onpropertychange', function (event) {
+                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
+                });
+            }
+        }
+    }
+
+    function observeInsertion() {
+        var that = this;
+
+        if (window.MutationObserver) {
+            // Newer browsers support an efficient way to observe DOM modifications
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'childList') {
+                        for (var i = 0; i < mutation.addedNodes.length; i++) {
+                            var node = mutation.addedNodes[i];
+
+                            if (mutation.target !== that._video) {
+                                if (node === that._ghost) {
+                                    // Replace element with our video element
+                                    mutation.target.replaceChild(that._video, that._ghost);
+                                    initialize.call(that);
+                                } else if (isDescendant(mutation.target, that._ghost)) {
+                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    initialize.call(that);
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            var configMutations = {
+                childList: true,
+                attributes: false,
+                characterData: false,
+                subtree: true
+            };
+
+            observer.observe(document.body, configMutations);
+        } else {
+            // For older browsers. There is a significant performance overhead with this method.
+            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
+            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
+
+            addEventListener(that._ghost, 'DOMNodeInserted', function () {
+                that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                // That._video.appendChild(that._ghost);
+            }, false);
+        }
+    }
+
+    function isDescendant(parent, child) {
+        var node = child.parentNode;
+
+        while (node !== null) {
+            if (node === parent) {
+                return true;
+            }
+
+            node = node.parentNode;
+        }
+
+        return false;
+    }
+
+    return PhenixVideo;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (DetectBrowser) {
     'use strict';
@@ -268,12 +637,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports) {
 
@@ -281,6 +644,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -300,11 +669,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(1),
-    __webpack_require__(3),
     __webpack_require__(4),
+    __webpack_require__(5),
     __webpack_require__(0),
     __webpack_require__(12),
-    __webpack_require__(10)
+    __webpack_require__(11)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, obserervable, DetectBrowser, webRTC, PhenixRTC) {
     'use strict';
 
@@ -317,6 +686,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         getUserMedia: webRTC.getUserMedia,
         getStats: webRTC.getStats,
         attachMediaStream: webRTC.attachMediaStream,
+        attachUriStream: webRTC.attachUriStream,
         reattachMediaStream: webRTC.reattachMediaStream,
         browser: browser.browser,
         browserVersion: browser.version,
@@ -392,7 +762,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -424,7 +794,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 var g;
@@ -451,7 +821,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var require;var require;(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.adapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return require(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -4431,10 +4801,10 @@ module.exports = {
 
 },{}]},{},[2])(2)
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4455,8 +4825,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(5),
-    __webpack_require__(6)
+    __webpack_require__(6),
+    __webpack_require__(7)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (adapter, exportGlobal) {
     adapter.onLoaded = function () {
         exportGlobal(adapter);
@@ -4469,7 +4839,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4489,10 +4859,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(1),
-    __webpack_require__(3),
     __webpack_require__(4),
-    __webpack_require__(2),
-    __webpack_require__(11)
+    __webpack_require__(5),
+    __webpack_require__(3),
+    __webpack_require__(2)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
@@ -4701,7 +5071,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             return element;
         }
 
-        var phenixVideo = new PhenixVideo(element, stream);
+        var phenixVideo = new PhenixVideo(element, stream, true);
 
         phenixVideo.getElement().phenixPresenter = phenixVideo;
 
@@ -4824,359 +5194,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(2)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (WaitFor) {
-    'use strict';
-
-    var log = function () {
-        console.log.apply(console, arguments);
-    } || function () {
-        };
-
-    var logError = function () {
-        console.error.apply(console, arguments);
-    } || log;
-
-    function PhenixVideo(ghost, stream) {
-        var that = this;
-
-        this._ghost = ghost;
-        this._stream = stream;
-        this._events = {};
-
-        var loaded = function loaded(success) {
-            that._loaded = true;
-            that._enabled = success === true;
-
-            if (success) {
-                initialize.call(that);
-            } else {
-                logError('Failed to create Phenix video element');
-            }
-
-            if (that._onReady) {
-                that._onReady(that._enabled);
-            }
-        };
-
-        try {
-            this._video = createPhenixVideoElement();
-            this._video.className = this._ghost.className;
-            this._video.height = this._ghost.height;
-            this._video.width = this._ghost.width;
-
-            this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
-                'margin:0px !important;padding:0px !important;' +
-                'border-style:none !important;border-width:0px !important;' +
-                'max-width:0px !important;max-height:0px !important;outline:none !important';
-
-            this._video.onunload = function () {
-                that._loaded = false;
-            };
-
-            observeInsertion.call(this);
-
-            if (!document.body || !document.body.contains) {
-                log('document.body.contains is not supported');
-            }
-
-            if (document.body && document.body.contains && document.body.contains(this._ghost)) {
-                this._ghost.parentNode.replaceChild(this._video, this._ghost);
-            }
-
-            var waitFor = new WaitFor();
-
-            waitFor.waitForReady(this._video, loaded);
-        } catch (e) {
-            logError('Error while loading Phenix RTC' + e);
-            loaded(false);
-        }
-    }
-
-    PhenixVideo.prototype.hookUpEvents = function () {
-        var that = this;
-        var ghost = this._ghost;
-
-        this.addEventListener('error', function () {
-            dispatchEvent(ghost, 'error');
-        });
-        this.addEventListener('mute', function () {
-            ghost.muted = that._video.muted;
-            dispatchEvent(ghost, 'mute');
-        });
-        this.addEventListener('unmute', function () {
-            ghost.muted = that._video.muted;
-            dispatchEvent(ghost, 'unmute');
-        });
-        this.addEventListener('ended', function () {
-            ghost.ended = that._video.ended;
-            dispatchEvent(ghost, 'ended');
-        });
-        this.addEventListener('loadedmetadata', function () {
-            log('Video loaded metadata', that._video.videoWidth, that._video.videoHeight);
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'loadedmetadata');
-        });
-        this.addEventListener('loadeddata', function () {
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'loadeddata');
-        });
-        this.addEventListener('resize', function () {
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'resize');
-        });
-    };
-
-    PhenixVideo.prototype.onReady = function (callback) {
-        var that = this;
-
-        if (this._loaded) {
-            setTimeout(function () {
-                callback(that._enabled);
-            }, 1);
-        } else {
-            this._onReady = callback;
-        }
-    };
-
-    PhenixVideo.prototype.getElement = function () {
-        return this._video;
-    };
-
-    PhenixVideo.prototype.addEventListener = function (name, listener, useCapture) {
-        addEventListener.call(this, name, listener, useCapture);
-    };
-
-    PhenixVideo.prototype.removeEventListener = function (name, listener, useCapture) {
-        removeEventListener.call(this, name, listener, useCapture);
-    };
-
-    function createPhenixVideoElement() {
-        var video = document.createElement('object');
-
-        video.type = 'application/x-phenix-video';
-
-        return video;
-    }
-
-    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        var listeners = this._events[name];
-
-        if (!listeners) {
-            listeners = this._events[name] = [];
-
-            if (this._loaded) {
-                registerEvent.call(this, name);
-            }
-        }
-
-        listeners.push(listener);
-    }
-
-    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        var listeners = this._events[name];
-
-        if (listeners) {
-            var idx = listeners.indexOf(listener);
-
-            if (idx >= 0) {
-                listeners = listeners.splice(idx, 1);
-
-                if (listeners.length > 0) {
-                    this._events[name] = listeners;
-                } else {
-                    delete this._events[name];
-                }
-            }
-        }
-    }
-
-    function registerEvent(name) {
-        var that = this;
-
-        function listener() {
-            var listeners = that._events[name];
-
-            if (listeners) {
-                for (var i = 0; i < listeners.length; i++) {
-                    listeners[i].apply(that, arguments);
-                }
-            }
-        }
-
-        that._video.phenixSetEventListener(name, listener);
-    }
-
-    function dispatchEvent(source, name) {
-        var event; // The custom event that will be created
-
-        if (document.createEvent) {
-            event = document.createEvent('HTMLEvents');
-            event.initEvent(name, true, true);
-        } else {
-            event = document.createEventObject();
-            event.eventType = name;
-        }
-
-        event.eventName = name;
-
-        setTimeout(function () {
-            if (document.createEvent) {
-                source.dispatchEvent(event);
-            } else {
-                source.fireEvent('on' + event.eventType, event);
-            }
-        });
-    }
-
-    function initialize() {
-        var events = Object.keys(this._events);
-
-        for (var i = 0; i < events.length; i++) {
-            registerEvent.call(this, events[i]);
-        }
-
-        this.hookUpEvents();
-
-        propagateAttributeChanges.call(this);
-
-        this._video.id = this._ghost.id;
-        this._video.style.cssText = this._ghost.cssText;
-        this._video.className = this._ghost.className;
-        this._video.innerHtml = this._ghost.innerHtml;
-        this._video.width = this._ghost.width;
-        this._video.height = this._ghost.height;
-        this._video.autoplay = this._ghost.autoplay;
-        this._video.muted = this._ghost.muted;
-        this._video.defaultMuted = this._ghost.defaultMuted;
-        this._video.volume = this._ghost.volume;
-
-        if (this._stream) {
-            this._video.src = this._stream;
-        }
-    }
-
-    function propagateAttributeChanges() {
-        var that = this;
-        var readonly = ['style'];
-
-        if (window.MutationObserver) {
-            // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.type === 'attributes' && mutation.target === that._ghost && readonly.indexOf(mutation.attributeName) === -1) {
-                        that._video[mutation.attributeName] = that._ghost[mutation.attributeName];
-                    }
-                });
-            });
-
-            var configAttributes = {attributes: true};
-
-            observer.observe(that._ghost, configAttributes);
-        } else {
-            // For older browsers. There is a significant performance overhead with this method.
-            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
-            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
-
-            if (that._ghost.addEventListener) {
-                that._ghost.addEventListener('DOMAttrModified', function (event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                }, false);
-            } else {
-                that._ghost.attachEvent('onpropertychange', function (event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                });
-            }
-        }
-    }
-
-    function observeInsertion() {
-        var that = this;
-
-        if (window.MutationObserver) {
-            // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.type === 'childList') {
-                        for (var i = 0; i < mutation.addedNodes.length; i++) {
-                            var node = mutation.addedNodes[i];
-
-                            if (mutation.target !== that._video) {
-                                if (node === that._ghost) {
-                                    // Replace element with our video element
-                                    mutation.target.replaceChild(that._video, that._ghost);
-                                    initialize.call(that);
-                                } else if (isDescendant(mutation.target, that._ghost)) {
-                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                                    initialize.call(that);
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-
-            var configMutations = {
-                childList: true,
-                attributes: false,
-                characterData: false,
-                subtree: true
-            };
-
-            observer.observe(document.body, configMutations);
-        } else {
-            // For older browsers. There is a significant performance overhead with this method.
-            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
-            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
-
-            addEventListener(that._ghost, 'DOMNodeInserted', function () {
-                that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                // That._video.appendChild(that._ghost);
-            }, false);
-        }
-    }
-
-    function isDescendant(parent, child) {
-        var node = child.parentNode;
-
-        while (node !== null) {
-            if (node === parent) {
-                return true;
-            }
-
-            node = node.parentNode;
-        }
-
-        return false;
-    }
-
-    return PhenixVideo;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5198,8 +5215,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(1),
     __webpack_require__(0),
-    __webpack_require__(8)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, DetectBrowser, webRtcAdapter) { // eslint-disable-line no-unused-vars
+    __webpack_require__(9),
+    __webpack_require__(2)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, DetectBrowser, webRtcAdapter, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
     var log = function () {
@@ -5214,6 +5232,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     var getUserMedia = null;
     var getStats = null;
     var attachMediaStream = null;
+    var attachUriStream = null;
     var reattachMediaStream = null;
     var webrtcSupported = false;
 
@@ -5250,6 +5269,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
                 return element;
             };
+            attachUriStream = attachUriStreamToElement;
 
             reattachMediaStream = function (to, from) {
                 log('Reattaching media stream');
@@ -5278,6 +5298,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Opera detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -5290,6 +5311,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Webkit detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -5302,6 +5324,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Edge detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -5313,7 +5336,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         case 'Safari':
             log('Safari detected', browser);
 
-            attachMediaStream = attachStreamToElement;
+            attachMediaStream = function (element, stream) {
+                if (_.isObject(stream)) {
+                    element.__phenixHasPlayedWebRtc = true;
+                }
+
+                element = attachStreamToElement(element, stream);
+
+                return element;
+            };
+            attachUriStream = function (element, streamUri) {
+                if (element.__phenixHasPlayedWebRtc) {
+                    element = (new PhenixVideo(element, streamUri, false)).getElement();
+                } else {
+                    return attachUriStreamToElement(element, streamUri);
+                }
+
+                element.play();
+
+                return element;
+            };
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track).then(_.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -5422,6 +5464,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return element;
     }
 
+    function attachUriStreamToElement(element, streamUri) {
+        element.src = streamUri;
+
+        element.play();
+
+        return element;
+    }
+
     function reattachStreamToElement(to, from) {
         to.src = from.src;
 
@@ -5517,6 +5567,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,
+        attachUriStream: attachUriStream,
         reattachMediaStream: reattachMediaStream,
         webrtcSupported: webrtcSupported
     };

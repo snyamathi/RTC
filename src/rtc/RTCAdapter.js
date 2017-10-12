@@ -32,6 +32,7 @@ define([
         getUserMedia: webRTC.getUserMedia,
         getStats: webRTC.getStats,
         attachMediaStream: webRTC.attachMediaStream,
+        attachUriStream: webRTC.attachUriStream,
         reattachMediaStream: webRTC.reattachMediaStream,
         browser: browser.browser,
         browserVersion: browser.version,

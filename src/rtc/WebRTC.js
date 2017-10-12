@@ -16,8 +16,9 @@
 define([
     'phenix-web-lodash-light',
     './DetectBrowser',
-    'webrtc-adapter'
-], function (_, DetectBrowser, webRtcAdapter) { // eslint-disable-line no-unused-vars
+    'webrtc-adapter',
+    './PhenixVideo'
+], function (_, DetectBrowser, webRtcAdapter, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
     var log = function () {
@@ -32,6 +33,7 @@ define([
     var getUserMedia = null;
     var getStats = null;
     var attachMediaStream = null;
+    var attachUriStream = null;
     var reattachMediaStream = null;
     var webrtcSupported = false;
 
@@ -68,6 +70,7 @@ define([
 
                 return element;
             };
+            attachUriStream = attachUriStreamToElement;
 
             reattachMediaStream = function (to, from) {
                 log('Reattaching media stream');
@@ -96,6 +99,7 @@ define([
             log('Opera detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -108,6 +112,7 @@ define([
             log('Webkit detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -120,6 +125,7 @@ define([
             log('Edge detected', browser);
 
             attachMediaStream = attachStreamToElement;
+            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -131,7 +137,26 @@ define([
         case 'Safari':
             log('Safari detected', browser);
 
-            attachMediaStream = attachStreamToElement;
+            attachMediaStream = function (element, stream) {
+                if (_.isObject(stream)) {
+                    element.__phenixHasPlayedWebRtc = true;
+                }
+
+                element = attachStreamToElement(element, stream);
+
+                return element;
+            };
+            attachUriStream = function (element, streamUri) {
+                if (element.__phenixHasPlayedWebRtc) {
+                    element = (new PhenixVideo(element, streamUri, false)).getElement();
+                } else {
+                    return attachUriStreamToElement(element, streamUri);
+                }
+
+                element.play();
+
+                return element;
+            };
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track).then(_.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -240,6 +265,14 @@ define([
         return element;
     }
 
+    function attachUriStreamToElement(element, streamUri) {
+        element.src = streamUri;
+
+        element.play();
+
+        return element;
+    }
+
     function reattachStreamToElement(to, from) {
         to.src = from.src;
 
@@ -335,6 +368,7 @@ define([
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,
+        attachUriStream: attachUriStream,
         reattachMediaStream: reattachMediaStream,
         webrtcSupported: webrtcSupported
     };
