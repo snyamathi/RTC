@@ -70,7 +70,6 @@ define([
 
                 return element;
             };
-            attachUriStream = attachUriStreamToElement;
 
             reattachMediaStream = function (to, from) {
                 log('Reattaching media stream');
@@ -99,7 +98,6 @@ define([
             log('Opera detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -112,7 +110,6 @@ define([
             log('Webkit detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -125,7 +122,6 @@ define([
             log('Edge detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -368,7 +364,7 @@ define([
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,
-        attachUriStream: attachUriStream,
+        attachUriStream: attachUriStream || attachUriStreamToElement,
         reattachMediaStream: reattachMediaStream,
         webrtcSupported: webrtcSupported
     };

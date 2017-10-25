@@ -4523,7 +4523,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
                 return element;
             };
-            attachUriStream = attachUriStreamToElement;
 
             reattachMediaStream = function (to, from) {
                 log('Reattaching media stream');
@@ -4552,7 +4551,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Opera detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -4565,7 +4563,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Webkit detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(_.bind(handleGetStatsSuccess, this, pc, successCallback), track, errorCallback);
@@ -4578,7 +4575,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Edge detected', browser);
 
             attachMediaStream = attachStreamToElement;
-            attachUriStream = attachUriStreamToElement;
             reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
@@ -4821,7 +4817,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,
-        attachUriStream: attachUriStream,
+        attachUriStream: attachUriStream || attachUriStreamToElement,
         reattachMediaStream: reattachMediaStream,
         webrtcSupported: webrtcSupported
     };
