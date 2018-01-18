@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ define([
     'phenix-web-observable',
     './WaitFor',
     './PhenixVideo'
-], function (_, assert, observable, WaitFor, PhenixVideo) {
+], function(_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
-    var log = function () {
+    var log = function() {
         console.log.apply(console, arguments);
-    } || function () {
+    } || function() {
         };
 
-    var logError = function () {
+    var logError = function() {
         console.error.apply(console, arguments);
     } || log;
 
@@ -56,7 +56,7 @@ define([
         try {
             this._phenixRTC = createPhenixRTC(this._root);
 
-            this._phenixRTC.onunload = function () {
+            this._phenixRTC.onunload = function() {
                 that._loaded = false;
             };
 
@@ -68,11 +68,11 @@ define([
         }
     }
 
-    PhenixRTC.prototype.onReady = function (callback) {
+    PhenixRTC.prototype.onReady = function(callback) {
         var that = this;
 
         if (this._loaded) {
-            setTimeout(function () {
+            setTimeout(function() {
                 callback(that._enabled);
             }, 1);
         } else {
@@ -80,16 +80,16 @@ define([
         }
     };
 
-    PhenixRTC.prototype.onLoaded = function (callback) {
+    PhenixRTC.prototype.onLoaded = function(callback) {
         this._onLoaded = callback;
     };
 
-    PhenixRTC.prototype.isLoaded = function () {
+    PhenixRTC.prototype.isLoaded = function() {
         return this._loaded === true;
     };
 
     // Static function
-    PhenixRTC.isSupported = function () {
+    PhenixRTC.isSupported = function() {
         if (navigator.plugins) {
             var plugins = navigator.plugins;
 
@@ -113,69 +113,69 @@ define([
         return false;
     };
 
-    PhenixRTC.prototype.isEnabled = function () {
+    PhenixRTC.prototype.isEnabled = function() {
         verifyPhenixRTCInDOM.call(this);
 
         return this._phenixRTC && this._phenixRTC.phenixVersion !== undefined;
     };
 
-    PhenixRTC.prototype.getVersion = function () {
+    PhenixRTC.prototype.getVersion = function() {
         verifyPhenixRTCInDOM.call(this);
 
         return this._version;
     };
 
-    PhenixRTC.prototype.getRTCPeerConnectionConstructor = function () {
+    PhenixRTC.prototype.getRTCPeerConnectionConstructor = function() {
         verifyPhenixRTCInDOM.call(this);
 
         return wrapPhenixClass(this._phenixRTC.RTCPeerConnection);
     };
 
-    PhenixRTC.prototype.getRTCSessionDescriptionConstructor = function () {
+    PhenixRTC.prototype.getRTCSessionDescriptionConstructor = function() {
         verifyPhenixRTCInDOM.call(this);
 
         return wrapPhenixClass(this._phenixRTC.RTCSessionDescription);
     };
 
-    PhenixRTC.prototype.getRTCIceCandidateConstructor = function () {
+    PhenixRTC.prototype.getRTCIceCandidateConstructor = function() {
         verifyPhenixRTCInDOM.call(this);
 
         return wrapPhenixClass(this._phenixRTC.RTCIceCandidate);
     };
 
-    PhenixRTC.prototype.getSourcesDelegate = function () {
+    PhenixRTC.prototype.getSourcesDelegate = function() {
         var that = this;
 
-        return function (sourcesInfoCallback) {
+        return function(sourcesInfoCallback) {
             verifyPhenixRTCInDOM.call(that);
 
             return that._phenixRTC.getSources(sourcesInfoCallback);
         };
     };
 
-    PhenixRTC.prototype.getUserMediaDelegate = function () {
+    PhenixRTC.prototype.getUserMediaDelegate = function() {
         var that = this;
 
-        return function (constraints, successCallback, failureCallback) {
+        return function(constraints, successCallback, failureCallback) {
             verifyPhenixRTCInDOM.call(that);
 
             return that._phenixRTC.getUserMedia(constraints, successCallback, failureCallback);
         };
     };
 
-    PhenixRTC.prototype.getStatsDelegate = function () {
-        return function (pc, track, successCallback, errorCallback) {
+    PhenixRTC.prototype.getStatsDelegate = function() {
+        return function(pc, track, successCallback, errorCallback) {
             return pc.getStats(track, successCallback, errorCallback);
         };
     };
 
-    PhenixRTC.prototype.attachMediaStream = function (element, stream) {
+    PhenixRTC.prototype.attachMediaStream = function(element, stream) {
         verifyPhenixRTCInDOM.call(this);
 
         return attachMediaStream.call(this, element, stream);
     };
 
-    PhenixRTC.prototype.reattachMediaStream = function (to, from) {
+    PhenixRTC.prototype.reattachMediaStream = function(to, from) {
         verifyPhenixRTCInDOM.call(this);
 
         return this.attachMediaStream(to, from.src);

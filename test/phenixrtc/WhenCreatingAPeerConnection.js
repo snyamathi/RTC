@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ define([
     'lodash',
     'jquery',
     'rtc/PhenixRTC'
-], function (_, $, PhenixRTC) {
+], function(_, $, PhenixRTC) {
     'use strict';
 
     /**
@@ -33,11 +33,11 @@ define([
         }
     }
 
-    describe('When using the PhenixRTC adapter', function () {
+    describe('When using the PhenixRTC adapter', function() {
         var rtc = new PhenixRTC();
 
         if (rtc.isEnabled()) {
-            describe('When creating a PeerConnection', function () {
+            describe('When creating a PeerConnection', function() {
                 var pc;
                 var peerConnectionConfig = {
                     'iceServers': [
@@ -55,117 +55,117 @@ define([
                     ]
                 };
 
-                before(function () {
+                before(function() {
                     var RTCPeerConnection = rtc.getRTCPeerConnectionConstructor();
 
                     pc = new RTCPeerConnection(peerConnectionConfig, peerConnectionConstraints);
                 });
-                after(function () {
+                after(function() {
                     if (pc) {
                         pc.close();
                     }
                 });
 
-                it('is an object', function () {
+                it('is an object', function() {
                     expect(pc).to.be.an('object');
                 });
 
-                it('defines the iceConnectionState attribute', function () {
+                it('defines the iceConnectionState attribute', function() {
                     expect(pc.iceConnectionState).to.exist;
                     expect(pc).to.have.property('iceConnectionState');
                 });
-                it('defines the iceGatheringState attribute', function () {
+                it('defines the iceGatheringState attribute', function() {
                     expect(pc.iceGatheringState).to.exist;
                     expect(pc).to.have.property('iceGatheringState');
                 });
-                it('defines the localDescription attribute', function () {
+                it('defines the localDescription attribute', function() {
                     expect(pc.localDescription).to.be.null;
                     expect(pc).to.have.property('localDescription');
                 });
-                it('defines the remoteDescription attribute', function () {
+                it('defines the remoteDescription attribute', function() {
                     expect(pc.remoteDescription).to.be.null;
                     expect(pc).to.have.property('remoteDescription');
                 });
-                it('defines the signalingState attribute', function () {
+                it('defines the signalingState attribute', function() {
                     expect(pc.signalingState).to.exist;
                     expect(pc).to.have.property('signalingState');
                 });
 
-                it('defines the addstream event', function () {
+                it('defines the addstream event', function() {
                     expect(pc.onaddstream).to.be.undefined;
                 });
-                it('defines the datachannel event', function () {
+                it('defines the datachannel event', function() {
                     expect(pc.ondatachannel).to.be.undefined;
                 });
-                it('defines the icecandidate event', function () {
+                it('defines the icecandidate event', function() {
                     expect(pc.onicecandidate).to.be.undefined;
                 });
-                it('defines the iceconnectionstatechange event', function () {
+                it('defines the iceconnectionstatechange event', function() {
                     expect(pc.oniceconnectionstatechange).to.be.undefined;
                 });
-                it('defines the negotiationneeded event', function () {
+                it('defines the negotiationneeded event', function() {
                     expect(pc.onnegotiationneeded).to.be.undefined;
                 });
-                it('defines the removestream event', function () {
+                it('defines the removestream event', function() {
                     expect(pc.onremovestream).to.be.undefined;
                 });
-                it('defines the signalingstatechange event', function () {
+                it('defines the signalingstatechange event', function() {
                     expect(pc.onsignalingstatechange).to.be.undefined;
                 });
 
-                it('defines addIceCandidate()', function () {
+                it('defines addIceCandidate()', function() {
                     expect(pc.addIceCandidate).to.exist;
                 });
-                it('defines addStream()', function () {
+                it('defines addStream()', function() {
                     expect(pc.addStream).to.exist;
                 });
-                it('defines close()', function () {
+                it('defines close()', function() {
                     expect(pc.close).to.exist;
                 });
-                it('defines createAnswer()', function () {
+                it('defines createAnswer()', function() {
                     expect(pc.createAnswer).to.exist;
                 });
-                it('defines createOffer()', function () {
+                it('defines createOffer()', function() {
                     expect(pc.createOffer).to.exist;
                 });
-                it('defines getLocalStreams()', function () {
+                it('defines getLocalStreams()', function() {
                     expect(pc.getLocalStreams).to.exist;
                 });
-                it('defines getRemoteStreams()', function () {
+                it('defines getRemoteStreams()', function() {
                     expect(pc.getRemoteStreams).to.exist;
                 });
-                it('defines getStats()', function () {
+                it('defines getStats()', function() {
                     expect(pc.getStats).to.exist;
                 });
-                it('defines getStreamById()', function () {
+                it('defines getStreamById()', function() {
                     expect(pc.getStreamById).to.exist;
                 });
-                it('defines removeStream()', function () {
+                it('defines removeStream()', function() {
                     expect(pc.removeStream).to.exist;
                 });
-                it('defines setLocalDescription()', function () {
+                it('defines setLocalDescription()', function() {
                     expect(pc.setLocalDescription).to.exist;
                 });
-                it('defines setRemoteDescription()', function () {
+                it('defines setRemoteDescription()', function() {
                     expect(pc.setRemoteDescription).to.exist;
                 });
-                it('defines updateIce()', function () {
+                it('defines updateIce()', function() {
                     expect(pc.updateIce).to.exist;
                 });
 
-                it('is has not preformed any networking activities', function () {
+                it('is has not preformed any networking activities', function() {
                     expect(pc.iceGatheringState).to.be.equal('new');
                 });
-                it('is not connected', function () {
+                it('is not connected', function() {
                     expect(pc.iceConnectionState).to.be.equal('new');
                 });
 
-                describe('When setting the remote description', function () {
+                describe('When setting the remote description', function() {
                     var remoteSdp;
                     var remoteOffer = 'v=0';
                     var streams = [];
 
-                    before(function (done) {
+                    before(function(done) {
                         var RTCSessionDescription = rtc.getRTCSessionDescriptionConstructor();
 
                         remoteSdp = new RTCSessionDescription({
@@ -173,7 +173,7 @@ define([
                             sdp: remoteOffer
                         });
 
-                        addEventListener(pc, 'addstream', function (stream) {
+                        addEventListener(pc, 'addstream', function(stream) {
                             streams.push(stream);
                         });
 
@@ -189,28 +189,28 @@ define([
                         pc.setRemoteDescription(remoteSdp, success, failure);
                     });
 
-                    it('has a remote offer', function () {
+                    it('has a remote offer', function() {
                         expect(pc.signalingState).to.be.equal('have-remote-offer');
                     });
-                    it('is gathering ICE candidates', function () {
+                    it('is gathering ICE candidates', function() {
                         expect([ 'gathering', 'complete' ]).to.contain(pc.iceGatheringState);
                     });
-                    it('is attempting to connect', function () {
+                    it('is attempting to connect', function() {
                         expect([ 'new', 'checking', 'connected', 'completed' ]).to.contain(pc.iceConnectionState);
                     });
 
-                    it('updated the remote SDP', function () {
+                    it('updated the remote SDP', function() {
                         expect(pc.remoteDescription).to.exist;
                         expect(pc.remoteDescription.sdp).to.be.equal(remoteOffer);
                     });
 
-                    it('did raise an addstream event', function () {
+                    it('did raise an addstream event', function() {
                         expect(streams).to.be.length(1);
                     });
 
-                    describe('When creating the local answer', function () {
+                    describe('When creating the local answer', function() {
                         var localSdp;
-                        before(function (done) {
+                        before(function(done) {
                             function success(sdp) {
                                 localSdp = sdp;
                                 done();
@@ -224,13 +224,13 @@ define([
                             pc.createAnswer(success, failure);
                         });
 
-                        it('provides a local SDP', function () {
+                        it('provides a local SDP', function() {
                             expect(localSdp).to.exist;
                             expect(localSdp.sdp).to.be.a('string');
                         });
 
-                        describe('When setting the local description', function () {
-                            before(function (done) {
+                        describe('When setting the local description', function() {
+                            before(function(done) {
                                 function success() {
                                     done();
                                 }
@@ -243,17 +243,17 @@ define([
                                 pc.setLocalDescription(localSdp, success, failure);
                             });
 
-                            it('updated the local SDP', function () {
+                            it('updated the local SDP', function() {
                                 expect(pc.localDescription).to.exist;
                                 expect(pc.localDescription.sdp).to.be.equal(localSdp.sdp);
                             });
 
-                            it('connected to the remote peer', function () {
+                            it('connected to the remote peer', function() {
                                 expect(pc.signalingState).to.be.equal('stable');
                             });
 
-                            describe('When receiving a stream', function () {
-                                before(function (done) {
+                            describe('When receiving a stream', function() {
+                                before(function(done) {
                                     var maxTries = 100;
 
                                     function checkStreams() {
@@ -271,19 +271,19 @@ define([
                                     checkStreams();
                                 });
 
-                                it('did raise the addstream event once', function () {
+                                it('did raise the addstream event once', function() {
                                     expect(streams).to.be.length(1);
                                 });
 
-                                it('updates the local stream', function () {
+                                it('updates the local stream', function() {
                                     expect(pc.getLocalStreams()).to.be.length(1);
                                 });
 
-                                it('has no remote streams', function () {
+                                it('has no remote streams', function() {
                                     expect(pc.getRemoteStreams()).to.be.empty;
                                 });
 
-                                describe('When attaching the stream to a video element', function () {
+                                describe('When attaching the stream to a video element', function() {
                                     var el;
                                     var phenixEl;
                                     var onresize;
@@ -293,7 +293,7 @@ define([
                                     var onloadeddata;
                                     var onvolumechanged;
 
-                                    before(function () {
+                                    before(function() {
                                         el = document.createElement('video');
 
                                         onresize = sinon.stub();
@@ -314,92 +314,92 @@ define([
 
                                         $(phenixEl).appendTo(document.body);
                                     });
-                                    after(function () {
+                                    after(function() {
                                         $(phenixEl).remove();
                                         $(el).remove();
                                     });
 
-                                    it('removes the original element from the DOM', function () {
+                                    it('removes the original element from the DOM', function() {
                                         expect(document.body.contains(el)).to.be.false;
                                     });
-                                    it('adds the new element to the DOM', function () {
+                                    it('adds the new element to the DOM', function() {
                                         expect(document.body.contains(phenixEl)).to.be.true;
                                     });
 
-                                    it('defines the src attribute', function () {
+                                    it('defines the src attribute', function() {
                                         expect(phenixEl.src).to.exist;
                                         expect(phenixEl).to.have.property('src');
                                     });
-                                    it('defines the autoplay attribute', function () {
+                                    it('defines the autoplay attribute', function() {
                                         expect(phenixEl.autoplay).to.be.a('boolean');
                                         expect(phenixEl).to.have.property('autoplay');
                                     });
-                                    it('defines the muted attribute', function () {
+                                    it('defines the muted attribute', function() {
                                         expect(phenixEl.muted).to.be.a('boolean');
                                         expect(phenixEl).to.have.property('muted');
                                     });
-                                    it('defines the defaultMuted attribute', function () {
+                                    it('defines the defaultMuted attribute', function() {
                                         expect(phenixEl.defaultMuted).to.be.a('boolean');
                                         expect(phenixEl).to.have.property('defaultMuted');
                                     });
-                                    it('defines the ended attribute', function () {
+                                    it('defines the ended attribute', function() {
                                         expect(phenixEl.ended).to.be.a('boolean');
                                         expect(phenixEl).to.have.property('ended');
                                     });
 
-                                    it('defines the videoWidth attribute', function () {
+                                    it('defines the videoWidth attribute', function() {
                                         expect(phenixEl.videoWidth).to.be.a('number');
                                         expect(phenixEl).to.have.property('videoWidth');
                                     });
-                                    it('defines the videoHeight attribute', function () {
+                                    it('defines the videoHeight attribute', function() {
                                         expect(phenixEl.videoHeight).to.be.a('number');
                                         expect(phenixEl).to.have.property('videoHeight');
                                     });
-                                    it('defines the volume attribute', function () {
+                                    it('defines the volume attribute', function() {
                                         expect(phenixEl.volume).to.be.a('number');
                                         expect(phenixEl).to.have.property('volume');
                                     });
-                                    it('defines the phenixVersion attribute', function () {
+                                    it('defines the phenixVersion attribute', function() {
                                         expect(phenixEl.phenixVersion).to.be.a('string');
                                         expect(phenixEl).to.have.property('phenixVersion');
                                     });
-                                    it('defines the phenixFramesRendered attribute', function () {
+                                    it('defines the phenixFramesRendered attribute', function() {
                                         expect(phenixEl.phenixFramesRendered).to.be.a('number');
                                         expect(phenixEl.phenixFramesRendered).to.be.equal(0);
                                         expect(phenixEl).to.have.property('phenixFramesRendered');
                                     });
 
-                                    it('defines the resize event', function () {
+                                    it('defines the resize event', function() {
                                         expect(phenixEl.onresize).to.be.undefined;
                                     });
-                                    it('defines the timeupdate event', function () {
+                                    it('defines the timeupdate event', function() {
                                         expect(phenixEl.ontimeupdate).to.be.undefined;
                                     });
-                                    it('defines the error event', function () {
+                                    it('defines the error event', function() {
                                         expect(phenixEl.onerror).to.be.undefined;
                                     });
-                                    it('defines the loadedmetadata event', function () {
+                                    it('defines the loadedmetadata event', function() {
                                         expect(phenixEl.onloadedmetadata).to.be.undefined;
                                     });
-                                    it('defines the loadeddata event', function () {
+                                    it('defines the loadeddata event', function() {
                                         expect(phenixEl.onloadeddata).to.be.undefined;
                                     });
-                                    it('defines the volumechanged event', function () {
+                                    it('defines the volumechanged event', function() {
                                         expect(phenixEl.onvolumechanged).to.be.undefined;
                                     });
 
-                                    it('defines load()', function () {
+                                    it('defines load()', function() {
                                         expect(phenixEl.load).to.exist;
                                     });
-                                    it('defines play()', function () {
+                                    it('defines play()', function() {
                                         expect(phenixEl.play).to.exist;
                                     });
-                                    it('defines pause()', function () {
+                                    it('defines pause()', function() {
                                         expect(phenixEl.pause).to.exist;
                                     });
 
-                                    describe('After playing the first frame', function () {
-                                        before(function (done) {
+                                    describe('After playing the first frame', function() {
+                                        before(function(done) {
                                             var maxTries = 100;
 
                                             function checkProgress() {
@@ -417,43 +417,43 @@ define([
                                             checkProgress();
                                         });
 
-                                        it('has not ended', function () {
+                                        it('has not ended', function() {
                                             expect(phenixEl.ended).to.be.false;
                                         });
-                                        it('has updated videoWidth', function () {
+                                        it('has updated videoWidth', function() {
                                             expect(phenixEl.videoWidth).to.be.at.least(1);
                                         });
-                                        it('has updated videoHeight', function () {
+                                        it('has updated videoHeight', function() {
                                             expect(phenixEl.videoHeight).to.be.at.least(1);
                                         });
-                                        it('has not triggered the resize event', function () {
+                                        it('has not triggered the resize event', function() {
                                             onresize.should.have.not.been.called;
                                         });
-                                        it('has triggered the timeupdate event', function () {
+                                        it('has triggered the timeupdate event', function() {
                                             ontimeupdate.should.have.been.calledOnce;
                                         });
-                                        it('has not triggered the error event', function () {
+                                        it('has not triggered the error event', function() {
                                             onerror.should.have.not.been.called;
                                         });
-                                        it('has triggered the loadedmetadata event', function () {
+                                        it('has triggered the loadedmetadata event', function() {
                                             onloadedmetadata.should.have.been.calledOnce;
                                         });
-                                        it('has triggered the loadeddata event', function () {
+                                        it('has triggered the loadeddata event', function() {
                                             onloadeddata.should.have.been.calledOnce;
                                         });
-                                        it('has not triggered the volumechanged event', function () {
+                                        it('has not triggered the volumechanged event', function() {
                                             onvolumechanged.should.have.not.been.called;
                                         });
 
-                                        describe('After pausing the video', function () {
-                                            before(function () {
+                                        describe('After pausing the video', function() {
+                                            before(function() {
                                                 phenixEl.pause();
                                             });
 
-                                            it('does not render frames anymore', function (done) {
+                                            it('does not render frames anymore', function(done) {
                                                 var before = phenixEl.phenixFramesRendered;
 
-                                                setTimeout(function () {
+                                                setTimeout(function() {
                                                     try {
                                                         var after = phenixEl.phenixFramesRendered;
 
@@ -466,26 +466,26 @@ define([
                                                 }, 200);
                                             });
 
-                                            it('has not ended', function () {
+                                            it('has not ended', function() {
                                                 expect(phenixEl.ended).to.be.false;
                                             });
 
-                                            describe('When closing the peer connection', function () {
-                                                before(function () {
+                                            describe('When closing the peer connection', function() {
+                                                before(function() {
                                                     pc.close();
                                                 });
 
-                                                it('ends the video playback', function () {
+                                                it('ends the video playback', function() {
                                                     expect(phenixEl.ended).to.be.true;
                                                 });
 
-                                                it('disconnects from remote peer', function () {
+                                                it('disconnects from remote peer', function() {
                                                     expect(pc.signalingState).to.be.equal('closed');
                                                 });
-                                                it('does not longer gather ICE candidates', function () {
+                                                it('does not longer gather ICE candidates', function() {
                                                     expect(pc.iceGatheringState).to.be.equal('complete');
                                                 });
-                                                it('has shut down the ICE agent', function () {
+                                                it('has shut down the ICE agent', function() {
                                                     expect(pc.iceConnectionState).to.be.equal('closed');
                                                 });
                                             });

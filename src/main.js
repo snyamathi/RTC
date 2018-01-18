@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 define('phenix-rtc', [
     './rtc/RTCAdapter',
     './rtc/exportGlobal'
-], function (adapter, exportGlobal) {
-    adapter.onLoaded = function () {
+], function(adapter, exportGlobal) {
+    adapter.onLoaded = function() {
         exportGlobal(adapter);
     };
 

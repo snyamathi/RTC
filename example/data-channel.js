@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ requirejs([
     'jquery',
     'lodash',
     'phenix-rtc'
-], function ($, _, rtc) {
+], function($, _, rtc) {
     var init = function init() {
         var connectButton = document.getElementById('connectButton');
         var disconnectButton = document.getElementById('disconnectButton');
@@ -174,7 +174,7 @@ requirejs([
                 console.log('Receiver Signaling state: ' + pcReceiver.signalingState);
             };
 
-            pcSender.onicecandidate = function (event) {
+            pcSender.onicecandidate = function(event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
@@ -188,7 +188,7 @@ requirejs([
                 handleLocalAddCandidateSuccess();
             };
 
-            pcReceiver.onicecandidate = function (event) {
+            pcReceiver.onicecandidate = function(event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
@@ -253,7 +253,7 @@ requirejs([
         $('#sendButton').click(sendMessage);
     };
 
-    $(function () {
+    $(function() {
         init();
 
         // Plugin might load with delay

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ app.use(express.static(path.join(process.cwd(), 'dist')));
 app.use(express.static(path.join(process.cwd(), 'src')));
 app.use(express.static(path.join(process.cwd(), 'node_modules')));
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
     res.redirect('/PhenixRTC.html');
 });
 
-app.post('/log', function (req, res) {
+app.post('/log', function(req, res) {
     console.log(req.body);
     res.send(200);
 });

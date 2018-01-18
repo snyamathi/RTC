@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 define([
-    './DetectBrowser'
-], function (DetectBrowser) {
+    'phenix-web-detect-browser'
+], function(DetectBrowser) {
     'use strict';
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -25,16 +25,16 @@ define([
         this._timeout = timeout || 15000;
     }
 
-    var logError = function () {
+    var logError = function() {
         console.error.apply(console, arguments);
     } || console.log;
 
-    WaitFor.prototype.waitForReadyWithTimeout = function (element, loaded, timeout) {
+    WaitFor.prototype.waitForReadyWithTimeout = function(element, loaded, timeout) {
         var triggered = false;
         var waitFor = 1;
         var sum = waitFor;
 
-        var guardedLoaded = function (success) {
+        var guardedLoaded = function(success) {
             if (!triggered) {
                 triggered = true;
                 loaded(success);
@@ -66,14 +66,14 @@ define([
             }
         }
 
-        element.onload = function () {
+        element.onload = function() {
             guardedLoaded(true);
         };
 
         checkLoaded();
     };
 
-    WaitFor.prototype.waitForReady = function (element, loaded) {
+    WaitFor.prototype.waitForReady = function(element, loaded) {
         if (element.phenixVersion) { // Already loaded
             loaded(true);
         } else {

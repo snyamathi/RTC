@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ define([
     'lodash',
     'jquery',
     'rtc/PhenixRTC'
-], function (_, $, PhenixRTC) {
+], function(_, $, PhenixRTC) {
     'use strict';
 
     /**
@@ -33,14 +33,14 @@ define([
         }
     }
 
-    describe('Using the PhenixRTC adapter', function () {
+    describe('Using the PhenixRTC adapter', function() {
         var rtc = new PhenixRTC();
 
         if (rtc.isEnabled()) {
-            describe('When acquiring a fake user media stream', function () {
+            describe('When acquiring a fake user media stream', function() {
                 var mediaStream;
 
-                before(function (done) {
+                before(function(done) {
                     var constraints = {
                         video: true,
                         audio: true,
@@ -59,192 +59,192 @@ define([
                     rtc.getUserMediaDelegate()(constraints, successCallback, failureCallback);
                 });
 
-                it('defines the ended attribute', function () {
+                it('defines the ended attribute', function() {
                     expect(mediaStream.ended).to.be.a('boolean');
                     expect(mediaStream).to.have.property('ended');
                 });
-                it('defines the id attribute', function () {
+                it('defines the id attribute', function() {
                     expect(mediaStream.id).to.be.a('string');
                     expect(mediaStream).to.have.property('id');
                 });
-                it('defines the label attribute', function () {
+                it('defines the label attribute', function() {
                     expect(mediaStream.label).to.be.a('string');
                     expect(mediaStream).to.have.property('label');
                 });
 
-                it('defines the addtrack event', function () {
+                it('defines the addtrack event', function() {
                     expect(mediaStream.onaddtrack).to.be.undefined;
                 });
-                it('defines the ended event', function () {
+                it('defines the ended event', function() {
                     expect(mediaStream.onended).to.be.undefined;
                 });
-                it('defines the removetrack event', function () {
+                it('defines the removetrack event', function() {
                     expect(mediaStream.onremovetrack).to.be.undefined;
                 });
 
-                it('defines addTrack()', function () {
+                it('defines addTrack()', function() {
                     expect(mediaStream.addTrack).to.exist;
                 });
-                it('defines clone()', function () {
+                it('defines clone()', function() {
                     expect(mediaStream.clone).to.exist;
                 });
-                it('defines getAudioTracks()', function () {
+                it('defines getAudioTracks()', function() {
                     expect(mediaStream.getAudioTracks).to.exist;
                 });
-                it('defines getTrackById()', function () {
+                it('defines getTrackById()', function() {
                     expect(mediaStream.getTrackById).to.exist;
                 });
-                it('defines getTracks()', function () {
+                it('defines getTracks()', function() {
                     expect(mediaStream.getTracks).to.exist;
                 });
-                it('defines getVideoTracks()', function () {
+                it('defines getVideoTracks()', function() {
                     expect(mediaStream.getVideoTracks).to.exist;
                 });
-                it('defines removeTrack()', function () {
+                it('defines removeTrack()', function() {
                     expect(mediaStream.removeTrack).to.exist;
                 });
-                it('defines stop()', function () {
+                it('defines stop()', function() {
                     expect(mediaStream.stop).to.exist;
                 });
 
-                it('has not ended', function () {
+                it('has not ended', function() {
                     expect(mediaStream.ended).to.be.false;
                 });
-                it('has an id', function () {
+                it('has an id', function() {
                     expect(mediaStream.id).to.have.length.of.at.least(1);
                 });
-                it('has a label', function () {
+                it('has a label', function() {
                     expect(mediaStream.label).to.have.length.of.at.least(1);
                 });
-                it('contains two media tracks', function () {
+                it('contains two media tracks', function() {
                     expect(mediaStream.getTracks()).to.exist;
                     expect(mediaStream.getTracks().length).to.be.equal(2);
                 });
-                it('contains one audio track', function () {
+                it('contains one audio track', function() {
                     expect(mediaStream.getAudioTracks()).to.exist;
                     expect(mediaStream.getAudioTracks()).to.have.length(1);
                 });
-                it('contains one video track', function () {
+                it('contains one video track', function() {
                     expect(mediaStream.getVideoTracks()).to.exist;
                     expect(mediaStream.getVideoTracks()).to.have.length(1);
                 });
 
-                describe('When accessing the video track', function () {
+                describe('When accessing the video track', function() {
                     var track;
 
-                    before(function () {
+                    before(function() {
                         track = mediaStream.getVideoTracks()[0];
                     });
 
-                    it('defines the enabled attribute', function () {
+                    it('defines the enabled attribute', function() {
                         expect(track).to.have.property('enabled');
                     });
-                    it('defines the id attribute', function () {
+                    it('defines the id attribute', function() {
                         expect(track).to.have.property('id');
                     });
-                    it('defines the kind attribute', function () {
+                    it('defines the kind attribute', function() {
                         expect(track).to.have.property('kind');
                     });
-                    it('defines the label attribute', function () {
+                    it('defines the label attribute', function() {
                         expect(track).to.have.property('label');
                     });
-                    it('defines the muted attribute', function () {
+                    it('defines the muted attribute', function() {
                         expect(track).to.have.property('muted');
                     });
-                    it('defines the readyState attribute', function () {
+                    it('defines the readyState attribute', function() {
                         expect(track).to.have.property('readyState');
                     });
 
-                    it('defines the ended event', function () {
+                    it('defines the ended event', function() {
                         expect(track.onended).to.be.undefined;
                     });
-                    it('defines the mute event', function () {
+                    it('defines the mute event', function() {
                         expect(track.onmuted).to.be.undefined;
                     });
-                    it('defines the unmute event', function () {
+                    it('defines the unmute event', function() {
                         expect(track.onunmuted).to.be.undefined;
                     });
 
-                    it('defines clone()', function () {
+                    it('defines clone()', function() {
                         expect(track.clone).to.exist;
                     });
-                    it('defines stop()', function () {
+                    it('defines stop()', function() {
                         expect(track.stop).to.exist;
                     });
 
-                    it('is enabled', function () {
+                    it('is enabled', function() {
                         expect(track.enabled).to.be.true;
                     });
-                    it('is a video track', function () {
+                    it('is a video track', function() {
                         expect(track.kind).to.be.equal('video');
                     });
-                    it('is unmuted', function () {
+                    it('is unmuted', function() {
                         expect(track.muted).to.be.false;
                     });
-                    it('is live', function () {
+                    it('is live', function() {
                         expect(track.readyState).to.be.equal('live');
                     });
                 });
 
-                describe('When accessing the audio track', function () {
+                describe('When accessing the audio track', function() {
                     var track;
 
-                    before(function () {
+                    before(function() {
                         track = mediaStream.getAudioTracks()[0];
                     });
 
-                    it('defines the enabled attribute', function () {
+                    it('defines the enabled attribute', function() {
                         expect(track).to.have.property('enabled');
                     });
-                    it('defines the id attribute', function () {
+                    it('defines the id attribute', function() {
                         expect(track).to.have.property('id');
                     });
-                    it('defines the kind attribute', function () {
+                    it('defines the kind attribute', function() {
                         expect(track).to.have.property('kind');
                     });
-                    it('defines the label attribute', function () {
+                    it('defines the label attribute', function() {
                         expect(track).to.have.property('label');
                     });
-                    it('defines the muted attribute', function () {
+                    it('defines the muted attribute', function() {
                         expect(track).to.have.property('muted');
                     });
-                    it('defines the readyState attribute', function () {
+                    it('defines the readyState attribute', function() {
                         expect(track).to.have.property('readyState');
                         expect(track.readyState).to.be.a('string');
                     });
 
-                    it('defines the ended event', function () {
+                    it('defines the ended event', function() {
                         expect(track.onended).to.be.undefined;
                     });
-                    it('defines the mute event', function () {
+                    it('defines the mute event', function() {
                         expect(track.onmuted).to.be.undefined;
                     });
-                    it('defines the unmute event', function () {
+                    it('defines the unmute event', function() {
                         expect(track.onunmuted).to.be.undefined;
                     });
 
-                    it('defines clone()', function () {
+                    it('defines clone()', function() {
                         expect(track.clone).to.exist;
                     });
-                    it('defines stop()', function () {
+                    it('defines stop()', function() {
                         expect(track.stop).to.exist;
                     });
 
-                    it('is enabled', function () {
+                    it('is enabled', function() {
                         expect(track.enabled).to.be.true;
                     });
-                    it('is a audio track', function () {
+                    it('is a audio track', function() {
                         expect(track.kind).to.be.equal('audio');
                     });
-                    it('is unmuted', function () {
+                    it('is unmuted', function() {
                         expect(track.muted).to.be.false;
                     });
-                    it('is live', function () {
+                    it('is live', function() {
                         expect(track.readyState).to.be.equal('live');
                     });
                 });
 
-                describe('When attaching the fake stream to a video element', function () {
+                describe('When attaching the fake stream to a video element', function() {
                     var el;
                     var phenixEl;
                     var onresize;
@@ -254,7 +254,7 @@ define([
                     var onloadeddata;
                     var onvolumechanged;
 
-                    before(function () {
+                    before(function() {
                         el = document.createElement('video');
 
                         onresize = sinon.stub();
@@ -275,101 +275,101 @@ define([
 
                         phenixEl = rtc.attachMediaStream(el, mediaStream);
                     });
-                    after(function () {
+                    after(function() {
                         $(phenixEl).remove();
                         $(el).remove();
                     });
 
-                    it('has a presenter attached', function () {
+                    it('has a presenter attached', function() {
                         expect(phenixEl.phenixPresenter).to.exist;
                     });
-                    it('removes the original element from the DOM', function () {
+                    it('removes the original element from the DOM', function() {
                         expect(document.body.contains(el)).to.be.false;
                     });
-                    it('adds the new element to the DOM', function () {
+                    it('adds the new element to the DOM', function() {
                         expect(document.body.contains(phenixEl)).to.be.true;
                     });
 
-                    describe('When the native module is loaded', function () {
-                        before(function (done) {
+                    describe('When the native module is loaded', function() {
+                        before(function(done) {
                             phenixEl.phenixPresenter.onReady(done);
                         });
 
-                        it('defines the src attribute', function () {
+                        it('defines the src attribute', function() {
                             expect(phenixEl.src).to.exist;
                             expect(phenixEl.src.id).to.exist;
                             expect(phenixEl.src.id).to.be.equal(mediaStream.id);
                             expect(phenixEl).to.have.property('src');
                         });
-                        it('defines the autoplay attribute', function () {
+                        it('defines the autoplay attribute', function() {
                             expect(phenixEl.autoplay).to.be.a('boolean');
                             expect(phenixEl).to.have.property('autoplay');
                         });
-                        it('defines the muted attribute', function () {
+                        it('defines the muted attribute', function() {
                             expect(phenixEl.muted).to.be.a('boolean');
                             expect(phenixEl).to.have.property('muted');
                         });
-                        it('defines the defaultMuted attribute', function () {
+                        it('defines the defaultMuted attribute', function() {
                             expect(phenixEl.defaultMuted).to.be.a('boolean');
                             expect(phenixEl).to.have.property('defaultMuted');
                         });
-                        it('defines the ended attribute', function () {
+                        it('defines the ended attribute', function() {
                             expect(phenixEl.ended).to.be.a('boolean');
                             expect(phenixEl).to.have.property('ended');
                         });
 
-                        it('defines the videoWidth attribute', function () {
+                        it('defines the videoWidth attribute', function() {
                             expect(phenixEl.videoWidth).to.be.a('number');
                             expect(phenixEl).to.have.property('videoWidth');
                         });
-                        it('defines the videoHeight attribute', function () {
+                        it('defines the videoHeight attribute', function() {
                             expect(phenixEl.videoHeight).to.be.a('number');
                             expect(phenixEl).to.have.property('videoHeight');
                         });
-                        it('defines the volume attribute', function () {
+                        it('defines the volume attribute', function() {
                             expect(phenixEl.volume).to.be.a('number');
                             expect(phenixEl).to.have.property('volume');
                         });
-                        it('defines the phenixVersion attribute', function () {
+                        it('defines the phenixVersion attribute', function() {
                             expect(phenixEl.phenixVersion).to.be.a('string');
                             expect(phenixEl).to.have.property('phenixVersion');
                         });
-                        it('defines the phenixFramesRendered attribute', function () {
+                        it('defines the phenixFramesRendered attribute', function() {
                             expect(phenixEl.phenixFramesRendered).to.be.a('number');
                             expect(phenixEl).to.have.property('phenixFramesRendered');
                         });
 
-                        it('defines the resize event', function () {
+                        it('defines the resize event', function() {
                             expect(phenixEl.onresize).to.be.undefined;
                         });
-                        it('defines the timeupdate event', function () {
+                        it('defines the timeupdate event', function() {
                             expect(phenixEl.ontimeupdate).to.be.undefined;
                         });
-                        it('defines the error event', function () {
+                        it('defines the error event', function() {
                             expect(phenixEl.onerror).to.be.undefined;
                         });
-                        it('defines the loadedmetadata event', function () {
+                        it('defines the loadedmetadata event', function() {
                             expect(phenixEl.onloadedmetadata).to.be.undefined;
                         });
-                        it('defines the loadeddata event', function () {
+                        it('defines the loadeddata event', function() {
                             expect(phenixEl.onloadeddata).to.be.undefined;
                         });
-                        it('defines the volumechanged event', function () {
+                        it('defines the volumechanged event', function() {
                             expect(phenixEl.onvolumechanged).to.be.undefined;
                         });
 
-                        it('defines load()', function () {
+                        it('defines load()', function() {
                             expect(phenixEl.load).to.exist;
                         });
-                        it('defines play()', function () {
+                        it('defines play()', function() {
                             expect(phenixEl.play).to.exist;
                         });
-                        it('defines pause()', function () {
+                        it('defines pause()', function() {
                             expect(phenixEl.pause).to.exist;
                         });
 
-                        describe('After playing the first frames', function () {
-                            before(function (done) {
+                        describe('After playing the first frames', function() {
+                            before(function(done) {
                                 var maxTries = 100;
 
                                 function checkProgress() {
@@ -387,43 +387,43 @@ define([
                                 checkProgress();
                             });
 
-                            it('has not ended', function () {
+                            it('has not ended', function() {
                                 expect(phenixEl.ended).to.be.false;
                             });
-                            it('has updated videoWidth', function () {
+                            it('has updated videoWidth', function() {
                                 expect(phenixEl.videoWidth).to.be.at.least(1);
                             });
-                            it('has updated videoHeight', function () {
+                            it('has updated videoHeight', function() {
                                 expect(phenixEl.videoHeight).to.be.at.least(1);
                             });
-                            it('has not triggered the resize event', function () {
+                            it('has not triggered the resize event', function() {
                                 onresize.should.have.not.been.called;
                             });
-                            it('has triggered the timeupdate event', function () {
+                            it('has triggered the timeupdate event', function() {
                                 ontimeupdate.should.have.been.calledOnce;
                             });
-                            it('has not triggered the error event', function () {
+                            it('has not triggered the error event', function() {
                                 onerror.should.have.not.been.called;
                             });
-                            it('has triggered the loadedmetadata event', function () {
+                            it('has triggered the loadedmetadata event', function() {
                                 onloadedmetadata.should.have.been.calledOnce;
                             });
-                            it('has triggered the loadeddata event', function () {
+                            it('has triggered the loadeddata event', function() {
                                 onloadeddata.should.have.been.calledOnce;
                             });
-                            it('has not triggered the volumechanged event', function () {
+                            it('has not triggered the volumechanged event', function() {
                                 onvolumechanged.should.have.not.been.called;
                             });
 
-                            describe('After pausing the video', function () {
-                                before(function () {
+                            describe('After pausing the video', function() {
+                                before(function() {
                                     phenixEl.pause();
                                 });
 
-                                it('does not render frames anymore', function (done) {
+                                it('does not render frames anymore', function(done) {
                                     var before = phenixEl.phenixFramesRendered;
 
-                                    setTimeout(function () {
+                                    setTimeout(function() {
                                         try {
                                             var after = phenixEl.phenixFramesRendered;
 
@@ -436,7 +436,7 @@ define([
                                     }, 200);
                                 });
 
-                                it('has not ended', function () {
+                                it('has not ended', function() {
                                     expect(phenixEl.ended).to.be.false;
                                 });
                             });

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ define([
     'phenix-web-lodash-light',
     'phenix-web-assert',
     'phenix-web-observable',
-    './DetectBrowser',
+    'phenix-web-detect-browser',
     './WebRTC',
     './PhenixRTC'
-], function (_, assert, obserervable, DetectBrowser, webRTC, PhenixRTC) {
+], function(_, assert, obserervable, DetectBrowser, webRTC, PhenixRTC) {
     'use strict';
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -38,7 +38,7 @@ define([
         browserVersion: browser.version,
         webrtcSupported: webRTC.webrtcSupported,
         phenixSupported: false,
-        isPhenixEnabled: function () {
+        isPhenixEnabled: function() {
             return false;
         },
         onLoaded: undefined
@@ -62,13 +62,13 @@ define([
                 adapter.reattachMediaStream = phenixRTC.reattachMediaStream.bind(phenixRTC);
                 adapter.isPhenixEnabled = phenixRTC.isEnabled.bind(phenixRTC);
             } else {
-                adapter.attachMediaStream = function () {
+                adapter.attachMediaStream = function() {
                     phenixRTC.attachMediaStream.apply(phenixRTC, arguments);
                 };
-                adapter.reattachMediaStream = function () {
+                adapter.reattachMediaStream = function() {
                     phenixRTC.reattachMediaStream.apply(phenixRTC, arguments);
                 };
-                adapter.isPhenixEnabled = function () {
+                adapter.isPhenixEnabled = function() {
                     return phenixRTC.isEnabled();
                 };
             }
@@ -85,7 +85,7 @@ define([
         if (phenixRTC.isEnabled()) {
             enablePhenix();
         } else {
-            phenixRTC.onReady(function (enabled) {
+            phenixRTC.onReady(function(enabled) {
                 if (enabled) {
                     enablePhenix();
 
@@ -96,7 +96,7 @@ define([
             });
         }
 
-        phenixRTC.onLoaded(function () {
+        phenixRTC.onLoaded(function() {
             enablePhenix();
         });
     } else {

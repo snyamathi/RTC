@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 define([
     './WaitFor'
-], function (WaitFor) {
+], function(WaitFor) {
     'use strict';
 
-    var log = function () {
+    var log = function() {
         console.log.apply(console, arguments);
-    } || function () {
+    } || function() {
         };
 
-    var logError = function () {
+    var logError = function() {
         console.error.apply(console, arguments);
     } || log;
 
@@ -61,7 +61,7 @@ define([
                 'border-style:none !important;border-width:0px !important;' +
                 'max-width:0px !important;max-height:0px !important;outline:none !important';
 
-            this._video.onunload = function () {
+            this._video.onunload = function() {
                 that._loaded = false;
             };
 
@@ -88,47 +88,47 @@ define([
         }
     }
 
-    PhenixVideo.prototype.hookUpEvents = function () {
+    PhenixVideo.prototype.hookUpEvents = function() {
         var that = this;
         var ghost = this._ghost;
 
-        this.addEventListener('error', function () {
+        this.addEventListener('error', function() {
             dispatchEvent(ghost, 'error');
         });
-        this.addEventListener('mute', function () {
+        this.addEventListener('mute', function() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'mute');
         });
-        this.addEventListener('unmute', function () {
+        this.addEventListener('unmute', function() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'unmute');
         });
-        this.addEventListener('ended', function () {
+        this.addEventListener('ended', function() {
             ghost.ended = that._video.ended;
             dispatchEvent(ghost, 'ended');
         });
-        this.addEventListener('loadedmetadata', function () {
+        this.addEventListener('loadedmetadata', function() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadedmetadata');
         });
-        this.addEventListener('loadeddata', function () {
+        this.addEventListener('loadeddata', function() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadeddata');
         });
-        this.addEventListener('resize', function () {
+        this.addEventListener('resize', function() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'resize');
         });
     };
 
-    PhenixVideo.prototype.onReady = function (callback) {
+    PhenixVideo.prototype.onReady = function(callback) {
         var that = this;
 
         if (this._loaded) {
-            setTimeout(function () {
+            setTimeout(function() {
                 callback(that._enabled);
             }, 1);
         } else {
@@ -136,15 +136,15 @@ define([
         }
     };
 
-    PhenixVideo.prototype.getElement = function () {
+    PhenixVideo.prototype.getElement = function() {
         return this._video;
     };
 
-    PhenixVideo.prototype.addEventListener = function (name, listener, useCapture) {
+    PhenixVideo.prototype.addEventListener = function(name, listener, useCapture) {
         addEventListener.call(this, name, listener, useCapture);
     };
 
-    PhenixVideo.prototype.removeEventListener = function (name, listener, useCapture) {
+    PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
         removeEventListener.call(this, name, listener, useCapture);
     };
 
@@ -229,7 +229,7 @@ define([
 
         event.eventName = name;
 
-        setTimeout(function () {
+        setTimeout(function() {
             if (document.createEvent) {
                 source.dispatchEvent(event);
             } else {
@@ -271,8 +271,8 @@ define([
 
         if (window.MutationObserver) {
             // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
                     if (mutation.type === 'attributes' && mutation.target === that._ghost && readonly.indexOf(mutation.attributeName) === -1) {
                         that._video[mutation.attributeName] = that._ghost[mutation.attributeName];
                     }
@@ -288,11 +288,11 @@ define([
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
             if (that._ghost.addEventListener) {
-                that._ghost.addEventListener('DOMAttrModified', function (event) {
+                that._ghost.addEventListener('DOMAttrModified', function(event) {
                     that._video[event.target.tagName] = that._ghost[event.target.tagName];
                 }, false);
             } else {
-                that._ghost.attachEvent('onpropertychange', function (event) {
+                that._ghost.attachEvent('onpropertychange', function(event) {
                     that._video[event.target.tagName] = that._ghost[event.target.tagName];
                 });
             }
@@ -304,8 +304,8 @@ define([
 
         if (window.MutationObserver) {
             // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
                     if (mutation.type === 'childList') {
                         for (var i = 0; i < mutation.addedNodes.length; i++) {
                             var node = mutation.addedNodes[i];
@@ -338,7 +338,7 @@ define([
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
-            addEventListener(that._ghost, 'DOMNodeInserted', function () {
+            addEventListener(that._ghost, 'DOMNodeInserted', function() {
                 that._ghost.parentNode.replaceChild(that._video, that._ghost);
                 // That._video.appendChild(that._ghost);
             }, false);

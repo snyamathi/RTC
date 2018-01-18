@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2017.4.1",
+  "version": "2018.1.1",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -23,12 +23,14 @@
     "ci-coverage": "node scripts/ci-coverage.js",
     "start": "node example/httpserver.js",
     "lint": "eslint ./ —-cache",
-    "lint-fix": "eslint ./ --fix"
+    "lint-fix": "eslint ./ --fix",
+    "add-copyright": "./../phenix/scripts/add-copyright.sh ./"
   },
   "dependencies": {
-    "phenix-web-assert": "^2017.4.0",
-    "phenix-web-lodash-light": "^2017.4.0",
-    "phenix-web-observable": "^2017.4.0"
+    "phenix-web-assert": "^2017.4.3",
+    "phenix-web-detect-browser": "^2017.4.1",
+    "phenix-web-lodash-light": "^2017.4.3",
+    "phenix-web-observable": "^2017.4.3"
   },
   "engines": {
     "node": "8.4.0"

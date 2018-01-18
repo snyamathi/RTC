@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,8 @@ var configs = [{
             'webrtc-adapter': 'webrtc-adapter/out/adapter.js',
             'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
-            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable')
+            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
         }
     }
 }, {
@@ -50,7 +51,8 @@ var configs = [{
             'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js',
             'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
-            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable')
+            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
         }
     }
 }, {
@@ -63,7 +65,8 @@ var configs = [{
     externals: [{
         'phenix-web-lodash-light': true,
         'phenix-web-assert': true,
-        'phenix-web-observable': true
+        'phenix-web-observable': true,
+        'phenix-web-detect-browser': true
     }]
 }, {
     output: {filename: 'phenix-rtc-no-edge.js'},
@@ -75,7 +78,8 @@ var configs = [{
     externals: [{
         'phenix-web-lodash-light': true,
         'phenix-web-assert': true,
-        'phenix-web-observable': true
+        'phenix-web-observable': true,
+        'phenix-web-detect-browser': true
     }]
 }];
 

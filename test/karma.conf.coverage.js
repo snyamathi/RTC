@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ var path = require('path');
 var browsers = [ 'Chrome' ];
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
-module.exports = function (config) {
+module.exports = function(config) {
     config.set({
         // Base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '../src',

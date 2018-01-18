@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ requirejs([
     'phenix-web-lodash-light',
     'jquery',
     'phenix-rtc'
-], function (_, $, rtc) {
+], function(_, $, rtc) {
     var init = function init() {
         var localVideoEl = $('#localVideo')[0];
         var remoteVideoEl = $('#remoteVideo')[0];
@@ -98,9 +98,9 @@ requirejs([
                 var update = function update() {
                     stateEl.val(pc.signalingState + '/' + pc.iceGatheringState + '/' + pc.iceConnectionState);
 
-                    rtc.getStats(pc, null /* all*/, function (stats) {
+                    rtc.getStats(pc, null /* all*/, function(stats) {
                         if (typeof stats.result === 'function') {
-                            _.forEach(stats.result(), function (statsReport) {
+                            _.forEach(stats.result(), function(statsReport) {
                                 if (statsReport.type === 'ssrc') {
                                     var ssrc = statsReport.stat('ssrc');
                                     var bytesTx = statsReport.stat('bytesSent');
@@ -148,7 +148,7 @@ requirejs([
                                 }
                             });
                         } else {
-                            stats.forEach(function (statsReport) {
+                            stats.forEach(function(statsReport) {
                                 if (statsReport['ssrcIds']) {
                                     statsReport['ssrc'] = statsReport['ssrcIds'][0];
                                 }
@@ -208,7 +208,7 @@ requirejs([
                                 }
                             });
                         }
-                    }, function (e) {
+                    }, function(e) {
                         log('getStats failed: ' + e);
                     });
 
@@ -266,6 +266,8 @@ requirejs([
                 pcSender.addStream(stream);
 
                 function onCreateOfferSuccess(offerSdp) {
+                    offerSdp.sdp = replaceAllExceptH264(offerSdp.sdp);
+
                     log('Created offer: ' + offerSdp.sdp);
                     pcSenderOfferSdp = offerSdp;
 
@@ -276,6 +278,7 @@ requirejs([
                             log('Set remote description (offer)');
 
                             function onCreateAnswerSuccess(answerSdp) {
+                                // AnswerSdp.sdp = swapH264(answerSdp.sdp);
                                 log('Created answer: ' + answerSdp.sdp);
                                 pcReceiverAnswerSdp = answerSdp;
 
@@ -344,7 +347,7 @@ requirejs([
                 log('Receiver Signaling state: ' + pcReceiver.signalingState);
             };
 
-            _.addEventListener(pcSender, 'icecandidate', function (event) {
+            _.addEventListener(pcSender, 'icecandidate', function(event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
@@ -356,7 +359,7 @@ requirejs([
                 pcReceiver.addIceCandidate(candidate);
             });
 
-            _.addEventListener(pcReceiver, 'icecandidate', function (event) {
+            _.addEventListener(pcReceiver, 'icecandidate', function(event) {
                 var candidate = event.candidate;
 
                 if (candidate) {
@@ -386,7 +389,7 @@ requirejs([
                 if (userMediaStream.stop) {
                     userMediaStream.stop();
                 } else if (userMediaStream.getTracks) {
-                    userMediaStream.getTracks().forEach(function (track) {
+                    userMediaStream.getTracks().forEach(function(track) {
                         track.stop();
                     });
                 }
@@ -441,13 +444,13 @@ requirejs([
             }
         };
 
-        localVideoEl.onloadedmetadata = function () {
+        localVideoEl.onloadedmetadata = function() {
             onLoadedMetaData(localVideoEl);
         };
-        remoteVideoEl.onloadedmetadata = function () {
+        remoteVideoEl.onloadedmetadata = function() {
             onLoadedMetaData(remoteVideoEl);
         };
-        remoteVideoEl.onresize = function () {
+        remoteVideoEl.onresize = function() {
             log('remote video resize event');
         };
 
@@ -500,7 +503,7 @@ requirejs([
         });
     }
 
-    $(function () {
+    $(function() {
         init();
 
         // Plugin might load with delay
@@ -508,4 +511,49 @@ requirejs([
             rtc.onload = init;
         }
     });
+
+    var h264Query = /:(.*?(?= H264))/g;
+    var videoMLineNumbersQuery = /m=video.*/g;
+
+    function swapH264Ignored(sdp) {
+        var h264Id = sdp.match(h264Query)[0].substring(1, 4);
+        var stringToReplace = sdp.match(videoMLineNumbersQuery)[0].split('UDP/TLS/RTP/SAVPF ')[1];
+        var originalString = stringToReplace;
+
+        stringToReplace.replace(h264Id + ' ', '');
+        stringToReplace = h264Id + ' ' + stringToReplace;
+
+        sdp = sdp.replace(originalString, stringToReplace);
+
+        return sdp;
+    }
+
+    function replaceAllExceptH264(sdp) {
+        log('Before replace sdp is [%s]', sdp);
+
+        var h264Id = sdp.match(h264Query)[0].substring(1, 4);
+        var stringToReplace = sdp.match(videoMLineNumbersQuery)[0].split('UDP/TLS/RTP/SAVPF ')[1];
+        var originalString = stringToReplace;
+        var codecs = stringToReplace.split(' ');
+
+        _.forEach(codecs, function(codec) {
+            if (codec === h264Id) {
+                return;
+            }
+
+            var codecLinesQuery = new RegExp("a=(.*[^fingerprint])" + codec + ".*\r\n", "gm");
+            var linesToReplace = sdp.match(codecLinesQuery);
+
+            _.forEach(linesToReplace, function(line) {
+                sdp = sdp.replace(line, '');
+            });
+        });
+
+        stringToReplace.replace(h264Id + ' ', '');
+        stringToReplace = h264Id;
+
+        sdp = sdp.replace(originalString, stringToReplace);
+
+        return sdp;
+    }
 });

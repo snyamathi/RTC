@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 define([
     'phenix-web-lodash-light',
-    './DetectBrowser',
+    'phenix-web-detect-browser',
     'webrtc-adapter',
     './PhenixVideo'
-], function (_, DetectBrowser, webRtcAdapter, PhenixVideo) { // eslint-disable-line no-unused-vars
+], function(_, DetectBrowser, webRtcAdapter, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var log = function () {
+    var log = function() {
         console.log.apply(console, arguments);
     };
 
@@ -55,10 +55,14 @@ define([
             log('Firefox detected', browser);
 
             // Attach a media stream to an element.
-            attachMediaStream = function (element, stream) {
+            attachMediaStream = function(element, stream) {
                 log('Attaching media stream');
 
                 var muted = element.muted;
+
+                if (browser.version > 57) {
+                    element.srcObject = stream;
+                }
 
                 element.mozSrcObject = stream;
                 element.play();
@@ -71,10 +75,14 @@ define([
                 return element;
             };
 
-            reattachMediaStream = function (to, from) {
+            reattachMediaStream = function(to, from) {
                 log('Reattaching media stream');
 
                 var muted = to.muted;
+
+                if (browser.version > 57) {
+                    to.srcObject = from.srcObject;
+                }
 
                 to.mozSrcObject = from.mozSrcObject;
                 to.play();
@@ -133,7 +141,7 @@ define([
         case 'Safari':
             log('Safari detected', browser);
 
-            attachMediaStream = function (element, stream) {
+            attachMediaStream = function(element, stream) {
                 if (_.isObject(stream)) {
                     element.__phenixHasPlayedWebRtc = true;
                 }
@@ -142,7 +150,7 @@ define([
 
                 return element;
             };
-            attachUriStream = function (element, streamUri) {
+            attachUriStream = function(element, streamUri) {
                 if (element.__phenixHasPlayedWebRtc) {
                     element = (new PhenixVideo(element, streamUri, false)).getElement();
                 } else {
@@ -175,13 +183,13 @@ define([
     }
 
     function handleGetUserMediaSuccess(constraints, successCallback, errorCallback, stream) {
-        setTimeout(function () {
+        setTimeout(function() {
             var tracks = stream.getTracks();
 
             for (var i = 0; i < tracks.length; i++) {
                 var track = tracks[i];
 
-                track.onended = function (event) {
+                track.onended = function(event) {
                     log(event.timeStamp, 'Track', track.id, track.label, 'ended');
                 };
 
@@ -222,10 +230,10 @@ define([
     }
 
     function navigatorMediaDevicesEnumerateDevicesWrapper(callback) {
-        navigator.mediaDevices.enumerateDevices().then(function (devices) {
+        navigator.mediaDevices.enumerateDevices().then(function(devices) {
             var sources = [];
 
-            devices.forEach(function (device) {
+            devices.forEach(function(device) {
                 if (device.kind === 'audioinput') {
                     sources.push({
                         kind: 'audio',
@@ -283,7 +291,7 @@ define([
         // TODO (DCY) add vendor specific logic to map all stats to same similar object
         switch (browser.browser) {
         case 'Edge':
-            stats.forEach(function (stat) {
+            stats.forEach(function(stat) {
                 stat.mediaType = getMediaTypeByCodecFromSdp(pc, stat.codecId);
                 stat.bytesSent = estimateBytesFromNumberOfPacketsAndMediaType(stat.packetsSent, stat.mediaType);
                 stat.bytesReceived = estimateBytesFromNumberOfPacketsAndMediaType(stat.packetsReceived, stat.mediaType);
@@ -291,7 +299,7 @@ define([
 
             break;
         case 'Safari':
-            stats.forEach(function (stat) {
+            stats.forEach(function(stat) {
                 if (_.includes(stat.id.toLowerCase(), 'audio') && _.includes(stat.id.toLowerCase(), 'rtp')) {
                     stat.mediaType = 'audio';
                 }
@@ -369,7 +377,7 @@ define([
         webrtcSupported: webrtcSupported
     };
 
-    adapter.exportGlobal = function () {
+    adapter.exportGlobal = function() {
         window.RTCPeerConnection = adapter.RTCPeerConnection;
         window.RTCSessionDescription = adapter.RTCSessionDescription;
         window.RTCIceCandidate = adapter.RTCIceCandidate;
