@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ requirejs.config({
         'webrtc-adapter': '/webrtc-adapter/out/adapter',
         'phenix-web-lodash-light': 'phenix-web-lodash-light/dist/phenix-web-lodash-light.min',
         'phenix-web-assert': 'phenix-web-assert/dist/phenix-web-assert.min',
-        'phenix-web-observable': 'phenix-web-observable/dist/phenix-web-observable.min'
+        'phenix-web-observable': 'phenix-web-observable/dist/phenix-web-observable.min',
+        'phenix-web-detect-browser': 'phenix-web-detect-browser/dist/phenix-web-detect-browser.min'
     }
 });
 

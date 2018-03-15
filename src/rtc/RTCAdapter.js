@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ define([
         RTCSessionDescription: webRTC.RTCSessionDescription,
         RTCIceCandidate: webRTC.RTCIceCandidate,
         getSources: webRTC.getSources,
+        getDestinations: webRTC.getDestinations,
         getUserMedia: webRTC.getUserMedia,
         getStats: webRTC.getStats,
         attachMediaStream: webRTC.attachMediaStream,

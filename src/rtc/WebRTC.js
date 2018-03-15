@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ define([
     var RTCSessionDescription = window.RTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate;
     var getSources = null;
+    var getDestinations = null;
     var getUserMedia = null;
     var getStats = null;
     var attachMediaStream = null;
@@ -39,7 +40,11 @@ define([
 
     function shimRTC() {
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-            getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
+            getSources = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'input');
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            getDestinations = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'output');
         }
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -229,18 +234,22 @@ define([
         }
     }
 
-    function navigatorMediaDevicesEnumerateDevicesWrapper(callback) {
+    function navigatorMediaDevicesEnumerateDevicesByTypeWrapper(type, callback) {
+        if (type !== 'input' && type !== 'output') {
+            throw new Error('Unsupported device type ' + type);
+        }
+
         navigator.mediaDevices.enumerateDevices().then(function(devices) {
             var sources = [];
 
             devices.forEach(function(device) {
-                if (device.kind === 'audioinput') {
+                if (device.kind === 'audio' + type) {
                     sources.push({
                         kind: 'audio',
                         id: device.deviceId,
                         label: device.label
                     });
-                } else if (device.kind === 'videoinput') {
+                } else if (device.kind === 'video' + type) {
                     sources.push({
                         kind: 'video',
                         id: device.deviceId,
@@ -369,6 +378,7 @@ define([
         RTCSessionDescription: RTCSessionDescription,
         RTCIceCandidate: RTCIceCandidate,
         getSources: getSources,
+        getDestinations: getDestinations,
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,

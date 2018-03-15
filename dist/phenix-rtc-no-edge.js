@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -610,6 +610,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         RTCSessionDescription: webRTC.RTCSessionDescription,
         RTCIceCandidate: webRTC.RTCIceCandidate,
         getSources: webRTC.getSources,
+        getDestinations: webRTC.getDestinations,
         getUserMedia: webRTC.getUserMedia,
         getStats: webRTC.getStats,
         attachMediaStream: webRTC.attachMediaStream,
@@ -3014,6 +3015,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     var RTCSessionDescription = window.RTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate;
     var getSources = null;
+    var getDestinations = null;
     var getUserMedia = null;
     var getStats = null;
     var attachMediaStream = null;
@@ -3023,7 +3025,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
     function shimRTC() {
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-            getSources = navigatorMediaDevicesEnumerateDevicesWrapper;
+            getSources = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'input');
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            getDestinations = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'output');
         }
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -3213,18 +3219,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
     }
 
-    function navigatorMediaDevicesEnumerateDevicesWrapper(callback) {
+    function navigatorMediaDevicesEnumerateDevicesByTypeWrapper(type, callback) {
+        if (type !== 'input' && type !== 'output') {
+            throw new Error('Unsupported device type ' + type);
+        }
+
         navigator.mediaDevices.enumerateDevices().then(function(devices) {
             var sources = [];
 
             devices.forEach(function(device) {
-                if (device.kind === 'audioinput') {
+                if (device.kind === 'audio' + type) {
                     sources.push({
                         kind: 'audio',
                         id: device.deviceId,
                         label: device.label
                     });
-                } else if (device.kind === 'videoinput') {
+                } else if (device.kind === 'video' + type) {
                     sources.push({
                         kind: 'video',
                         id: device.deviceId,
@@ -3353,6 +3363,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         RTCSessionDescription: RTCSessionDescription,
         RTCIceCandidate: RTCIceCandidate,
         getSources: getSources,
+        getDestinations: getDestinations,
         getUserMedia: getUserMedia,
         getStats: getStats,
         attachMediaStream: attachMediaStream,
