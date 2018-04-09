@@ -15,37 +15,39 @@
  */
 define([
     'lodash',
-    'rtc/WebRTC'
-], function(_, webRtcAdapter) {
+    'rtc/WebRTCShim'
+], function(_, webRtcAdapterShim) {
     'use strict';
 
     describe('When loading the WebRTC adapter', function() {
+        var adapter = webRtcAdapterShim();
+
         it('defines RTCPeerConnection', function() {
-            expect(webRtcAdapter).to.have.property('RTCPeerConnection');
+            expect(adapter).to.have.property('RTCPeerConnection');
         });
         it('defines RTCSessionDescription', function() {
-            expect(webRtcAdapter).to.have.property('RTCSessionDescription');
+            expect(adapter).to.have.property('RTCSessionDescription');
         });
         it('defines RTCIceCandidate', function() {
-            expect(webRtcAdapter).to.have.property('RTCIceCandidate');
+            expect(adapter).to.have.property('RTCIceCandidate');
         });
         it('defines getSources', function() {
-            expect(webRtcAdapter).to.have.property('getSources');
+            expect(adapter).to.have.property('getSources');
         });
         it('defines getUserMedia', function() {
-            expect(webRtcAdapter).to.have.property('getUserMedia');
+            expect(adapter).to.have.property('getUserMedia');
         });
         it('defines attachMediaStream', function() {
-            expect(webRtcAdapter).to.have.property('attachMediaStream');
+            expect(adapter).to.have.property('attachMediaStream');
         });
         it('defines reattachMediaStream', function() {
-            expect(webRtcAdapter).to.have.property('reattachMediaStream');
+            expect(adapter).to.have.property('reattachMediaStream');
         });
         it('defines webrtcSupported boolean flag', function() {
-            expect(webRtcAdapter.webrtcSupported).to.be.a('boolean');
+            expect(adapter.webrtcSupported).to.be.a('boolean');
         });
         it('defines the api to export it global', function() {
-            expect(webRtcAdapter.exportGlobal).to.be.a('function');
+            expect(adapter.exportGlobal).to.be.a('function');
         });
     });
 });

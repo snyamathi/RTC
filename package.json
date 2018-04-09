@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.1.2",
+  "version": "2018.2.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "phenix-web-assert": "^2018.1.1",
-    "phenix-web-detect-browser": "^2018.1.4",
+    "phenix-web-detect-browser": "^2018.2.0",
     "phenix-web-lodash-light": "^2018.1.1",
     "phenix-web-observable": "^2018.1.1"
   },

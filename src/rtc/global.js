@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['./global'], function(envGlobal) {
+define([], function() {
     'use strict';
 
-    var exportGlobal = function exportGlobal(adapter) {
-        envGlobal.RTCPeerConnection = adapter.RTCPeerConnection;
-        envGlobal.RTCSessionDescription = adapter.RTCSessionDescription;
-        envGlobal.RTCIceCandidate = adapter.RTCIceCandidate;
+    var getGlobal = function getGlobal() {
+        if (typeof window === "object") { // eslint-disable-line no-restricted-globals
+            return window; // eslint-disable-line no-restricted-globals
+        }
+
+        if (typeof global === "object") {
+            return global; // eslint-disable-line no-undef
+        }
+
+        return {};
     };
 
-    return exportGlobal;
+    return getGlobal();
 });

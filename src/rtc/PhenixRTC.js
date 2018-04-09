@@ -100,9 +100,9 @@ define([
             }
         }
 
-        if (navigator.userAgent.match(/MSIE/) || navigator.userAgent.match(/Trident/)) {
+        if (navigator.userAgent && (navigator.userAgent.match(/MSIE/) || navigator.userAgent.match(/Trident/))) {
             try {
-                new window.ActiveXObject('PhenixP2P.RTC');
+                new window.ActiveXObject('PhenixP2P.RTC'); // eslint-disable-line no-restricted-globals
 
                 return true;
             } catch (e) {

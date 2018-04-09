@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 define([
-    './WaitFor'
-], function(WaitFor) {
+    'phenix-web-lodash-light',
+    './WaitFor',
+    './global'
+], function(_, WaitFor, envGlobal) {
     'use strict';
 
     var log = function() {
@@ -269,7 +271,7 @@ define([
         var that = this;
         var readonly = ['style'];
 
-        if (window.MutationObserver) {
+        if (_.get(envGlobal, ['MutationObserver'])) {
             // Newer browsers support an efficient way to observe DOM modifications
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
@@ -302,7 +304,7 @@ define([
     function observeInsertion() {
         var that = this;
 
-        if (window.MutationObserver) {
+        if (_.get(envGlobal, ['MutationObserver'])) {
             // Newer browsers support an efficient way to observe DOM modifications
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {

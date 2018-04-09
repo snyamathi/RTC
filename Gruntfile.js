@@ -38,6 +38,7 @@ module.exports = function(grunt) {
             minify: {
                 files: {
                     'dist/phenix-rtc.min.js': ['dist/phenix-rtc.js'],
+                    'dist/phenix-rtc-react-native.min.js': ['dist/phenix-rtc-react-native.js'],
                     'dist/phenix-rtc-bundled.min.js': ['dist/phenix-rtc-bundled.js'],
                     'dist/phenix-rtc-no-edge.min.js': ['dist/phenix-rtc-no-edge.js'],
                     'dist/phenix-rtc-no-edge-bundled.min.js': ['dist/phenix-rtc-no-edge-bundled.js']

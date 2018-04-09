@@ -56,6 +56,30 @@ var configs = [{
         }
     }
 }, {
+    output: {filename: 'phenix-rtc-react-native-bundled.js'},
+    resolve: {
+        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
+            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim'),
+            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
+            'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
+            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
+        }
+    }
+}, {
+    output: {filename: 'phenix-rtc-react-native.js'},
+    resolve: {
+        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
+            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')
+        }
+    },
+    externals: [{
+        'phenix-web-lodash-light': true,
+        'phenix-web-assert': true,
+        'phenix-web-observable': true,
+        'phenix-web-detect-browser': true
+    }]
+}, {
     output: {filename: 'phenix-rtc.js'},
     resolve: {
         alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle

@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['./global'], function(envGlobal) {
+define([], function() {
     'use strict';
 
-    var exportGlobal = function exportGlobal(adapter) {
-        envGlobal.RTCPeerConnection = adapter.RTCPeerConnection;
-        envGlobal.RTCSessionDescription = adapter.RTCSessionDescription;
-        envGlobal.RTCIceCandidate = adapter.RTCIceCandidate;
+    var webrtcAdapterShim = function webrtcAdapterShim() {
+
     };
 
-    return exportGlobal;
+    return webrtcAdapterShim;
 });

@@ -17,8 +17,9 @@ define([
     'phenix-web-lodash-light',
     'phenix-web-detect-browser',
     'webrtc-adapter',
+    './global',
     './PhenixVideo'
-], function(_, DetectBrowser, webRtcAdapter, PhenixVideo) { // eslint-disable-line no-unused-vars
+], function(_, DetectBrowser, webRtcAdapter, envGlobal, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
     var log = function() {
@@ -26,9 +27,9 @@ define([
     };
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
-    var RTCPeerConnection = window.RTCPeerConnection;
-    var RTCSessionDescription = window.RTCSessionDescription;
-    var RTCIceCandidate = window.RTCIceCandidate;
+    var RTCPeerConnection = envGlobal.RTCPeerConnection;
+    var RTCSessionDescription = envGlobal.RTCSessionDescription;
+    var RTCIceCandidate = envGlobal.RTCIceCandidate;
     var getSources = null;
     var getDestinations = null;
     var getUserMedia = null;
@@ -39,6 +40,10 @@ define([
     var webrtcSupported = false;
 
     function shimRTC() {
+        RTCPeerConnection = envGlobal.RTCPeerConnection;
+        RTCSessionDescription = envGlobal.RTCSessionDescription;
+        RTCIceCandidate = envGlobal.RTCIceCandidate;
+
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
             getSources = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'input');
         }
@@ -47,11 +52,11 @@ define([
             getDestinations = _.bind(navigatorMediaDevicesEnumerateDevicesByTypeWrapper, null, 'output');
         }
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        if ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || envGlobal.getUserMedia) {
             getUserMedia = navigatorGetUserMedia;
         }
 
-        if (!window.RTCPeerConnection) {
+        if (!envGlobal.RTCPeerConnection) {
             return log('[%s] browser version [%s] does not appear to be WebRTC-capable', browser.browser, browser.version);
         }
 
@@ -174,6 +179,25 @@ define([
             webrtcSupported = true;
 
             break;
+        case 'ReactNative':
+            log('React Native detected', browser);
+
+            attachMediaStream = function() {
+                log('attachMediaStream not supported in React Native environment');
+            };
+            attachUriStream = function() {
+                log('attachUriStream not supported in React Native environment');
+            };
+            reattachMediaStream = function() {
+                log('reattachMediaStream not supported in React Native environment');
+            };
+            getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
+                pc.getStats(track).then(_.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
+            };
+
+            webrtcSupported = true;
+
+            break;
         default:
             log('Browser does not appear to be WebRTC-capable', browser);
 
@@ -184,7 +208,13 @@ define([
     function navigatorGetUserMedia(constraints, successCallback, errorCallback) {
         var onSuccess = _.bind(handleGetUserMediaSuccess, this, constraints, successCallback, errorCallback);
 
-        navigator.getUserMedia(constraints, onSuccess, errorCallback);
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia(constraints, onSuccess, errorCallback);
+        }
+
+        if (envGlobal.getUserMedia) {
+            envGlobal.getUserMedia(constraints, onSuccess, errorCallback);
+        }
     }
 
     function handleGetUserMediaSuccess(constraints, successCallback, errorCallback, stream) {
@@ -237,6 +267,10 @@ define([
     function navigatorMediaDevicesEnumerateDevicesByTypeWrapper(type, callback) {
         if (type !== 'input' && type !== 'output') {
             throw new Error('Unsupported device type ' + type);
+        }
+
+        if (!navigator.mediaDevices) {
+            return;
         }
 
         navigator.mediaDevices.enumerateDevices().then(function(devices) {
@@ -371,27 +405,29 @@ define([
         }
     }
 
-    shimRTC();
+    return function getShim() {
+        shimRTC();
 
-    var adapter = {
-        RTCPeerConnection: RTCPeerConnection,
-        RTCSessionDescription: RTCSessionDescription,
-        RTCIceCandidate: RTCIceCandidate,
-        getSources: getSources,
-        getDestinations: getDestinations,
-        getUserMedia: getUserMedia,
-        getStats: getStats,
-        attachMediaStream: attachMediaStream,
-        attachUriStream: attachUriStream || attachUriStreamToElement,
-        reattachMediaStream: reattachMediaStream,
-        webrtcSupported: webrtcSupported
+        var adapter = {
+            RTCPeerConnection: RTCPeerConnection,
+            RTCSessionDescription: RTCSessionDescription,
+            RTCIceCandidate: RTCIceCandidate,
+            getSources: getSources,
+            getDestinations: getDestinations,
+            getUserMedia: getUserMedia,
+            getStats: getStats,
+            attachMediaStream: attachMediaStream,
+            attachUriStream: attachUriStream || attachUriStreamToElement,
+            reattachMediaStream: reattachMediaStream,
+            webrtcSupported: webrtcSupported
+        };
+
+        adapter.exportGlobal = function() {
+            envGlobal.RTCPeerConnection = adapter.RTCPeerConnection;
+            envGlobal.RTCSessionDescription = adapter.RTCSessionDescription;
+            envGlobal.RTCIceCandidate = adapter.RTCIceCandidate;
+        };
+
+        return adapter;
     };
-
-    adapter.exportGlobal = function() {
-        window.RTCPeerConnection = adapter.RTCPeerConnection;
-        window.RTCSessionDescription = adapter.RTCSessionDescription;
-        window.RTCIceCandidate = adapter.RTCIceCandidate;
-    };
-
-    return adapter;
 });
