@@ -6922,12 +6922,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function navigatorGetUserMedia(constraints, successCallback, errorCallback) {
         var onSuccess = _.bind(handleGetUserMediaSuccess, this, constraints, successCallback, errorCallback);
 
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia(constraints, onSuccess, errorCallback);
+        if (navigator && _.isFunction(navigator.getUserMedia)) {
+            return navigator.getUserMedia(constraints, onSuccess, errorCallback);
         }
 
-        if (envGlobal.getUserMedia) {
-            envGlobal.getUserMedia(constraints, onSuccess, errorCallback);
+        if (envGlobal && _.isFunction(envGlobal.getUserMedia)) {
+            return envGlobal.getUserMedia(constraints, onSuccess, errorCallback);
         }
     }
 
