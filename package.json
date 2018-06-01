@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.2.1",
+  "version": "2018.2.2",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -27,10 +27,11 @@
     "add-copyright": "./../phenix/scripts/add-copyright.sh ./"
   },
   "dependencies": {
-    "phenix-web-assert": "^2018.1.1",
-    "phenix-web-detect-browser": "^2018.2.0",
-    "phenix-web-lodash-light": "^2018.1.1",
-    "phenix-web-observable": "^2018.1.1"
+    "phenix-web-assert": "^2018.2.1",
+    "phenix-web-detect-browser": "^2018.2.1",
+    "phenix-web-disposable": "^2018.2.1",
+    "phenix-web-lodash-light": "^2018.2.1",
+    "phenix-web-observable": "^2018.2.1"
   },
   "engines": {
     "node": "8.4.0"

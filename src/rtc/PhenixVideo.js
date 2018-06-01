@@ -15,9 +15,10 @@
  */
 define([
     'phenix-web-lodash-light',
+    'phenix-web-disposable',
     './WaitFor',
     './global'
-], function(_, WaitFor, envGlobal) {
+], function(_, disposable, WaitFor, envGlobal) {
     'use strict';
 
     var log = function() {
@@ -36,6 +37,7 @@ define([
         this._stream = stream;
         this._isUsingPlugin = isUsingPlugin;
         this._events = {};
+        this._disposables = new disposable.DisposableList();
 
         var loaded = function loaded(success) {
             that._loaded = true;
@@ -58,10 +60,15 @@ define([
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
 
+            this._ghostInitStyleCssText = this._ghost.style.cssText;
             this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
                 'margin:0px !important;padding:0px !important;' +
                 'border-style:none !important;border-width:0px !important;' +
                 'max-width:0px !important;max-height:0px !important;outline:none !important';
+
+            this._disposables.add(new disposable.Disposable(function() {
+                that._ghost.style.cssText = that._ghostInitStyleCssText;
+            }));
 
             this._video.onunload = function() {
                 that._loaded = false;
@@ -75,6 +82,12 @@ define([
 
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
+
+                this._disposables.add(new disposable.Disposable(function() {
+                    if (that._video.parentNode) {
+                        that._video.parentNode.replaceChild(that._ghost, that._video);
+                    }
+                }));
             }
 
             if (!isUsingPlugin) {
@@ -93,37 +106,64 @@ define([
     PhenixVideo.prototype.hookUpEvents = function() {
         var that = this;
         var ghost = this._ghost;
-
-        this.addEventListener('error', function() {
+        var onError = function onError() {
             dispatchEvent(ghost, 'error');
-        });
-        this.addEventListener('mute', function() {
+        };
+
+        var onMute = function onMute() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'mute');
-        });
-        this.addEventListener('unmute', function() {
+        };
+
+        var onUnmute = function onUnmute() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'unmute');
-        });
-        this.addEventListener('ended', function() {
+        };
+
+        var onEnded = function onEnded() {
             ghost.ended = that._video.ended;
             dispatchEvent(ghost, 'ended');
-        });
-        this.addEventListener('loadedmetadata', function() {
+        };
+
+        var onLoadedMetadata = function onLoadedMetadata() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadedmetadata');
-        });
-        this.addEventListener('loadeddata', function() {
+        };
+
+        var onLoadedData = function onLoadedData() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadeddata');
-        });
-        this.addEventListener('resize', function() {
+        };
+
+        var onResize = function onResize() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'resize');
+        };
+
+        this.addEventListener('error', onError);
+        this.addEventListener('mute', onMute);
+        this.addEventListener('unmute', onUnmute);
+        this.addEventListener('ended', onEnded);
+        this.addEventListener('loadedmetadata', onLoadedMetadata);
+        this.addEventListener('loadeddata', onLoadedData);
+        this.addEventListener('resize', onResize);
+
+        var eventDisposable = new disposable.Disposable(function() {
+            that.removeEventListener('error', onError);
+            that.removeEventListener('mute', onMute);
+            that.removeEventListener('unmute', onUnmute);
+            that.removeEventListener('ended', onEnded);
+            that.removeEventListener('loadedmetadata', onLoadedMetadata);
+            that.removeEventListener('loadeddata', onLoadedData);
+            that.removeEventListener('resize', onResize);
         });
+
+        this._disposables.add(eventDisposable);
+
+        return eventDisposable;
     };
 
     PhenixVideo.prototype.onReady = function(callback) {
@@ -148,6 +188,10 @@ define([
 
     PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
         removeEventListener.call(this, name, listener, useCapture);
+    };
+
+    PhenixVideo.prototype.destroy = function() {
+        this._disposables.dispose();
     };
 
     function createPhenixVideoElement(isUsingPlugin) {
@@ -284,19 +328,31 @@ define([
             var configAttributes = {attributes: true};
 
             observer.observe(that._ghost, configAttributes);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
         } else {
             // For older browsers. There is a significant performance overhead with this method.
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
+            var handleModifiedEvent = function handleModifiedEvent(event) {
+                that._video[event.target.tagName] = that._ghost[event.target.tagName];
+            };
+
             if (that._ghost.addEventListener) {
-                that._ghost.addEventListener('DOMAttrModified', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                }, false);
+                that._ghost.addEventListener('DOMAttrModified', handleModifiedEvent, false);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.removeEventListener('DOMAttrModified', handleModifiedEvent, false);
+                }));
             } else {
-                that._ghost.attachEvent('onpropertychange', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                });
+                that._ghost.attachEvent('onpropertychange', handleModifiedEvent);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.detachEvent('DOMAttrModified', handleModifiedEvent);
+                }));
             }
         }
     }
@@ -335,15 +391,24 @@ define([
             };
 
             observer.observe(document.body, configMutations);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
         } else {
             // For older browsers. There is a significant performance overhead with this method.
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
-            addEventListener(that._ghost, 'DOMNodeInserted', function() {
+            var domInsertedListener = function() {
                 that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                // That._video.appendChild(that._ghost);
-            }, false);
+            };
+
+            addEventListener('DOMNodeInserted', domInsertedListener, false);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                removeEventListener('DOMNodeInserted', domInsertedListener, false);
+            }));
         }
     }
 

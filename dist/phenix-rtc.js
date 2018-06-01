@@ -1,28 +1,13 @@
-/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("phenix-web-lodash-light"), require("phenix-web-detect-browser"), require("phenix-web-assert"), require("phenix-web-observable"));
+		module.exports = factory(require("phenix-web-lodash-light"), require("phenix-web-assert"), require("phenix-web-detect-browser"), require("phenix-web-observable"));
 	else if(typeof define === 'function' && define.amd)
-		define(["phenix-web-lodash-light", "phenix-web-detect-browser", "phenix-web-assert", "phenix-web-observable"], factory);
+		define(["phenix-web-lodash-light", "phenix-web-assert", "phenix-web-detect-browser", "phenix-web-observable"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("phenix-web-lodash-light"), require("phenix-web-detect-browser"), require("phenix-web-assert"), require("phenix-web-observable")) : factory(root["phenix-web-lodash-light"], root["phenix-web-detect-browser"], root["phenix-web-assert"], root["phenix-web-observable"]);
+		var a = typeof exports === 'object' ? factory(require("phenix-web-lodash-light"), require("phenix-web-assert"), require("phenix-web-detect-browser"), require("phenix-web-observable")) : factory(root["phenix-web-lodash-light"], root["phenix-web-assert"], root["phenix-web-detect-browser"], root["phenix-web-observable"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -88,11 +73,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -128,49 +119,10 @@ return /******/ (function(modules) { // webpackBootstrap
     return getGlobal();
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -189,10 +141,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(1),
-    __webpack_require__(5),
-    __webpack_require__(0)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, WaitFor, envGlobal) {
+    __webpack_require__(0),
+    __webpack_require__(12),
+    __webpack_require__(6),
+    __webpack_require__(1)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, disposable, WaitFor, envGlobal) {
     'use strict';
 
     var log = function() {
@@ -211,6 +164,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._stream = stream;
         this._isUsingPlugin = isUsingPlugin;
         this._events = {};
+        this._disposables = new disposable.DisposableList();
 
         var loaded = function loaded(success) {
             that._loaded = true;
@@ -233,10 +187,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
 
+            this._ghostInitStyleCssText = this._ghost.style.cssText;
             this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
                 'margin:0px !important;padding:0px !important;' +
                 'border-style:none !important;border-width:0px !important;' +
                 'max-width:0px !important;max-height:0px !important;outline:none !important';
+
+            this._disposables.add(new disposable.Disposable(function() {
+                that._ghost.style.cssText = that._ghostInitStyleCssText;
+            }));
 
             this._video.onunload = function() {
                 that._loaded = false;
@@ -250,6 +209,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
+
+                this._disposables.add(new disposable.Disposable(function() {
+                    if (that._video.parentNode) {
+                        that._video.parentNode.replaceChild(that._ghost, that._video);
+                    }
+                }));
             }
 
             if (!isUsingPlugin) {
@@ -268,37 +233,64 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     PhenixVideo.prototype.hookUpEvents = function() {
         var that = this;
         var ghost = this._ghost;
-
-        this.addEventListener('error', function() {
+        var onError = function onError() {
             dispatchEvent(ghost, 'error');
-        });
-        this.addEventListener('mute', function() {
+        };
+
+        var onMute = function onMute() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'mute');
-        });
-        this.addEventListener('unmute', function() {
+        };
+
+        var onUnmute = function onUnmute() {
             ghost.muted = that._video.muted;
             dispatchEvent(ghost, 'unmute');
-        });
-        this.addEventListener('ended', function() {
+        };
+
+        var onEnded = function onEnded() {
             ghost.ended = that._video.ended;
             dispatchEvent(ghost, 'ended');
-        });
-        this.addEventListener('loadedmetadata', function() {
+        };
+
+        var onLoadedMetadata = function onLoadedMetadata() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadedmetadata');
-        });
-        this.addEventListener('loadeddata', function() {
+        };
+
+        var onLoadedData = function onLoadedData() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'loadeddata');
-        });
-        this.addEventListener('resize', function() {
+        };
+
+        var onResize = function onResize() {
             ghost.width = that._video.width;
             ghost.height = that._video.height;
             dispatchEvent(ghost, 'resize');
+        };
+
+        this.addEventListener('error', onError);
+        this.addEventListener('mute', onMute);
+        this.addEventListener('unmute', onUnmute);
+        this.addEventListener('ended', onEnded);
+        this.addEventListener('loadedmetadata', onLoadedMetadata);
+        this.addEventListener('loadeddata', onLoadedData);
+        this.addEventListener('resize', onResize);
+
+        var eventDisposable = new disposable.Disposable(function() {
+            that.removeEventListener('error', onError);
+            that.removeEventListener('mute', onMute);
+            that.removeEventListener('unmute', onUnmute);
+            that.removeEventListener('ended', onEnded);
+            that.removeEventListener('loadedmetadata', onLoadedMetadata);
+            that.removeEventListener('loadeddata', onLoadedData);
+            that.removeEventListener('resize', onResize);
         });
+
+        this._disposables.add(eventDisposable);
+
+        return eventDisposable;
     };
 
     PhenixVideo.prototype.onReady = function(callback) {
@@ -323,6 +315,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
     PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
         removeEventListener.call(this, name, listener, useCapture);
+    };
+
+    PhenixVideo.prototype.destroy = function() {
+        this._disposables.dispose();
     };
 
     function createPhenixVideoElement(isUsingPlugin) {
@@ -459,19 +455,31 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             var configAttributes = {attributes: true};
 
             observer.observe(that._ghost, configAttributes);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
         } else {
             // For older browsers. There is a significant performance overhead with this method.
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
+            var handleModifiedEvent = function handleModifiedEvent(event) {
+                that._video[event.target.tagName] = that._ghost[event.target.tagName];
+            };
+
             if (that._ghost.addEventListener) {
-                that._ghost.addEventListener('DOMAttrModified', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                }, false);
+                that._ghost.addEventListener('DOMAttrModified', handleModifiedEvent, false);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.removeEventListener('DOMAttrModified', handleModifiedEvent, false);
+                }));
             } else {
-                that._ghost.attachEvent('onpropertychange', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                });
+                that._ghost.attachEvent('onpropertychange', handleModifiedEvent);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.detachEvent('DOMAttrModified', handleModifiedEvent);
+                }));
             }
         }
     }
@@ -510,15 +518,24 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             };
 
             observer.observe(document.body, configMutations);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
         } else {
             // For older browsers. There is a significant performance overhead with this method.
             // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
-            addEventListener(that._ghost, 'DOMNodeInserted', function() {
+            var domInsertedListener = function() {
                 that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                // That._video.appendChild(that._ghost);
-            }, false);
+            };
+
+            addEventListener('DOMNodeInserted', domInsertedListener, false);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                removeEventListener('DOMNodeInserted', domInsertedListener, false);
+            }));
         }
     }
 
@@ -541,7 +558,46 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ }),
 /* 5 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -560,7 +616,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(2)
+    __webpack_require__(4)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(DetectBrowser) {
     'use strict';
 
@@ -632,12 +688,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
-
-/***/ }),
 /* 7 */
 /***/ (function(module, exports) {
 
@@ -663,13 +713,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(1),
-    __webpack_require__(6),
-    __webpack_require__(7),
-    __webpack_require__(2),
     __webpack_require__(0),
-    __webpack_require__(13),
-    __webpack_require__(12)
+    __webpack_require__(3),
+    __webpack_require__(7),
+    __webpack_require__(4),
+    __webpack_require__(1),
+    __webpack_require__(16),
+    __webpack_require__(15)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, obserervable, DetectBrowser, envGlobal, webRTCShim, PhenixRTC) {
     'use strict';
 
@@ -773,7 +823,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = function(envGlobal) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = function(envGlobal) {
     'use strict';
 
     var exportGlobal = function exportGlobal(adapter) {
@@ -788,6 +838,141 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(3)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert) {
+    'use strict';
+
+    /**
+     * Create a new disposable object.
+     *
+     * @param cleanup The callback to perform whatever cleanup is required when this object is disposed.
+     * @constructor
+     */
+    function Disposable(cleanup) {
+        assert.isFunction(cleanup, 'cleanup');
+
+        this._cleanup = cleanup;
+    }
+
+    Disposable.prototype.dispose = function() {
+        return this._cleanup.call();
+    };
+
+    Disposable.prototype.toString = function() {
+        return _.toString(this);
+    };
+
+    return Disposable;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_) {
+    'use strict';
+
+    function DisposableList() {
+        this._list = [];
+    }
+
+    DisposableList.prototype.add = function(disposable) {
+        if (!disposable || !_.isFunction(disposable.dispose)) {
+            throw new Error('"disposable" must be a disposable or implement dispose');
+        }
+
+        this._list.push(disposable);
+    };
+
+    DisposableList.prototype.dispose = function() {
+        var results = [];
+
+        _.forEach(this._list, function(disposable) {
+            results.push(disposable.dispose());
+        });
+
+        this._list = [];
+
+        return results;
+    };
+
+    DisposableList.prototype.toString = function() {
+        return _.toString(this);
+    };
+
+    return DisposableList;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(10),
+    __webpack_require__(11)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(Disposable, DisposableList) {
+    return {
+        Disposable: Disposable,
+        DisposableList: DisposableList
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var require;var require;(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.adapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return require(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -4767,10 +4952,10 @@ module.exports = {
 
 },{}]},{},[2])(2)
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4792,8 +4977,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(8),
-    __webpack_require__(9)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(adapter, exportGlobal) {
+    __webpack_require__(9),
+    __webpack_require__(2)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(adapter, exportGlobal, PhenixVideo) {
+    adapter.PhenixVideo = PhenixVideo;
     adapter.onLoaded = function() {
         exportGlobal(adapter);
     };
@@ -4805,7 +4992,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4824,11 +5011,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(1),
-    __webpack_require__(6),
+    __webpack_require__(0),
+    __webpack_require__(3),
     __webpack_require__(7),
-    __webpack_require__(5),
-    __webpack_require__(4)
+    __webpack_require__(6),
+    __webpack_require__(2)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
@@ -5160,7 +5347,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -5179,11 +5366,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(1),
-    __webpack_require__(2),
-    __webpack_require__(10),
     __webpack_require__(0),
-    __webpack_require__(4)
+    __webpack_require__(4),
+    __webpack_require__(13),
+    __webpack_require__(1),
+    __webpack_require__(2)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, DetectBrowser, webRtcAdapter, envGlobal, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 

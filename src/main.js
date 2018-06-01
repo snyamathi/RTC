@@ -16,8 +16,10 @@
 'use strict';
 define('phenix-rtc', [
     './rtc/RTCAdapter',
-    './rtc/exportGlobal'
-], function(adapter, exportGlobal) {
+    './rtc/exportGlobal',
+    './rtc/PhenixVideo'
+], function(adapter, exportGlobal, PhenixVideo) {
+    adapter.PhenixVideo = PhenixVideo;
     adapter.onLoaded = function() {
         exportGlobal(adapter);
     };

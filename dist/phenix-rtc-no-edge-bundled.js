@@ -1,18 +1,3 @@
-/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -112,7 +97,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(16)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (LodashLight) {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(LodashLight) {
     'use strict';
 
     return LodashLight;
@@ -139,8 +124,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(11)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (assert) {
+    __webpack_require__(12)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(assert) {
     return assert;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -182,14 +167,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     return getGlobal();
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,9 +189,419 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(12)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (detectBrowser) {
-    return detectBrowser;
+    __webpack_require__(0),
+    __webpack_require__(5),
+    __webpack_require__(9),
+    __webpack_require__(2)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, disposable, WaitFor, envGlobal) {
+    'use strict';
+
+    var log = function() {
+        console.log.apply(console, arguments);
+    } || function() {
+        };
+
+    var logError = function() {
+        console.error.apply(console, arguments);
+    } || log;
+
+    function PhenixVideo(ghost, stream, isUsingPlugin) {
+        var that = this;
+
+        this._ghost = ghost;
+        this._stream = stream;
+        this._isUsingPlugin = isUsingPlugin;
+        this._events = {};
+        this._disposables = new disposable.DisposableList();
+
+        var loaded = function loaded(success) {
+            that._loaded = true;
+            that._enabled = success === true;
+
+            if (success) {
+                initialize.call(that);
+            } else {
+                logError('Failed to create Phenix video element');
+            }
+
+            if (that._onReady) {
+                that._onReady(that._enabled);
+            }
+        };
+
+        try {
+            this._video = createPhenixVideoElement(isUsingPlugin);
+            this._video.className = this._ghost.className;
+            this._video.height = this._ghost.height;
+            this._video.width = this._ghost.width;
+
+            this._ghostInitStyleCssText = this._ghost.style.cssText;
+            this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
+                'margin:0px !important;padding:0px !important;' +
+                'border-style:none !important;border-width:0px !important;' +
+                'max-width:0px !important;max-height:0px !important;outline:none !important';
+
+            this._disposables.add(new disposable.Disposable(function() {
+                that._ghost.style.cssText = that._ghostInitStyleCssText;
+            }));
+
+            this._video.onunload = function() {
+                that._loaded = false;
+            };
+
+            observeInsertion.call(this);
+
+            if (!document.body || !document.body.contains) {
+                log('document.body.contains is not supported');
+            }
+
+            if (document.body && document.body.contains && document.body.contains(this._ghost)) {
+                this._ghost.parentNode.replaceChild(this._video, this._ghost);
+
+                this._disposables.add(new disposable.Disposable(function() {
+                    if (that._video.parentNode) {
+                        that._video.parentNode.replaceChild(that._ghost, that._video);
+                    }
+                }));
+            }
+
+            if (!isUsingPlugin) {
+                return loaded(true);
+            }
+
+            var waitFor = new WaitFor();
+
+            waitFor.waitForReady(this._video, loaded);
+        } catch (e) {
+            logError('Error while loading Phenix RTC' + e);
+            loaded(false);
+        }
+    }
+
+    PhenixVideo.prototype.hookUpEvents = function() {
+        var that = this;
+        var ghost = this._ghost;
+        var onError = function onError() {
+            dispatchEvent(ghost, 'error');
+        };
+
+        var onMute = function onMute() {
+            ghost.muted = that._video.muted;
+            dispatchEvent(ghost, 'mute');
+        };
+
+        var onUnmute = function onUnmute() {
+            ghost.muted = that._video.muted;
+            dispatchEvent(ghost, 'unmute');
+        };
+
+        var onEnded = function onEnded() {
+            ghost.ended = that._video.ended;
+            dispatchEvent(ghost, 'ended');
+        };
+
+        var onLoadedMetadata = function onLoadedMetadata() {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'loadedmetadata');
+        };
+
+        var onLoadedData = function onLoadedData() {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'loadeddata');
+        };
+
+        var onResize = function onResize() {
+            ghost.width = that._video.width;
+            ghost.height = that._video.height;
+            dispatchEvent(ghost, 'resize');
+        };
+
+        this.addEventListener('error', onError);
+        this.addEventListener('mute', onMute);
+        this.addEventListener('unmute', onUnmute);
+        this.addEventListener('ended', onEnded);
+        this.addEventListener('loadedmetadata', onLoadedMetadata);
+        this.addEventListener('loadeddata', onLoadedData);
+        this.addEventListener('resize', onResize);
+
+        var eventDisposable = new disposable.Disposable(function() {
+            that.removeEventListener('error', onError);
+            that.removeEventListener('mute', onMute);
+            that.removeEventListener('unmute', onUnmute);
+            that.removeEventListener('ended', onEnded);
+            that.removeEventListener('loadedmetadata', onLoadedMetadata);
+            that.removeEventListener('loadeddata', onLoadedData);
+            that.removeEventListener('resize', onResize);
+        });
+
+        this._disposables.add(eventDisposable);
+
+        return eventDisposable;
+    };
+
+    PhenixVideo.prototype.onReady = function(callback) {
+        var that = this;
+
+        if (this._loaded) {
+            setTimeout(function() {
+                callback(that._enabled);
+            }, 1);
+        } else {
+            this._onReady = callback;
+        }
+    };
+
+    PhenixVideo.prototype.getElement = function() {
+        return this._video;
+    };
+
+    PhenixVideo.prototype.addEventListener = function(name, listener, useCapture) {
+        addEventListener.call(this, name, listener, useCapture);
+    };
+
+    PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
+        removeEventListener.call(this, name, listener, useCapture);
+    };
+
+    PhenixVideo.prototype.destroy = function() {
+        this._disposables.dispose();
+    };
+
+    function createPhenixVideoElement(isUsingPlugin) {
+        var video = document.createElement('video');
+
+        if (isUsingPlugin) {
+            video = document.createElement('object');
+
+            video.type = 'application/x-phenix-video';
+        }
+
+        return video;
+    }
+
+    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.addEventListener(name, listener, useCapture);
+        }
+
+        var listeners = this._events[name];
+
+        if (!listeners) {
+            listeners = this._events[name] = [];
+
+            if (this._loaded) {
+                registerEvent.call(this, name);
+            }
+        }
+
+        listeners.push(listener);
+    }
+
+    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
+        if (!this._isUsingPlugin) {
+            return this._video.removeEventListener(name, listener, useCapture);
+        }
+
+        var listeners = this._events[name];
+
+        if (listeners) {
+            var idx = listeners.indexOf(listener);
+
+            if (idx >= 0) {
+                listeners = listeners.splice(idx, 1);
+
+                if (listeners.length > 0) {
+                    this._events[name] = listeners;
+                } else {
+                    delete this._events[name];
+                }
+            }
+        }
+    }
+
+    function registerEvent(name) {
+        var that = this;
+
+        function listener() {
+            var listeners = that._events[name];
+
+            if (listeners) {
+                for (var i = 0; i < listeners.length; i++) {
+                    listeners[i].apply(that, arguments);
+                }
+            }
+        }
+
+        that._video.phenixSetEventListener(name, listener);
+    }
+
+    function dispatchEvent(source, name) {
+        var event; // The custom event that will be created
+
+        if (document.createEvent) {
+            event = document.createEvent('HTMLEvents');
+            event.initEvent(name, true, true);
+        } else {
+            event = document.createEventObject();
+            event.eventType = name;
+        }
+
+        event.eventName = name;
+
+        setTimeout(function() {
+            if (document.createEvent) {
+                source.dispatchEvent(event);
+            } else {
+                source.fireEvent('on' + event.eventType, event);
+            }
+        });
+    }
+
+    function initialize() {
+        var events = Object.keys(this._events);
+
+        for (var i = 0; i < events.length; i++) {
+            registerEvent.call(this, events[i]);
+        }
+
+        this.hookUpEvents();
+
+        propagateAttributeChanges.call(this);
+
+        this._video.id = this._ghost.id;
+        this._video.style.cssText = this._ghost.cssText;
+        this._video.className = this._ghost.className;
+        this._video.innerHtml = this._ghost.innerHtml;
+        this._video.width = this._ghost.width;
+        this._video.height = this._ghost.height;
+        this._video.autoplay = this._ghost.autoplay;
+        this._video.muted = this._ghost.muted;
+        this._video.defaultMuted = this._ghost.defaultMuted;
+        this._video.volume = this._ghost.volume;
+
+        if (this._stream) {
+            this._video.src = this._stream;
+        }
+    }
+
+    function propagateAttributeChanges() {
+        var that = this;
+        var readonly = ['style'];
+
+        if (_.get(envGlobal, ['MutationObserver'])) {
+            // Newer browsers support an efficient way to observe DOM modifications
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.target === that._ghost && readonly.indexOf(mutation.attributeName) === -1) {
+                        that._video[mutation.attributeName] = that._ghost[mutation.attributeName];
+                    }
+                });
+            });
+
+            var configAttributes = {attributes: true};
+
+            observer.observe(that._ghost, configAttributes);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
+        } else {
+            // For older browsers. There is a significant performance overhead with this method.
+            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
+            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
+
+            var handleModifiedEvent = function handleModifiedEvent(event) {
+                that._video[event.target.tagName] = that._ghost[event.target.tagName];
+            };
+
+            if (that._ghost.addEventListener) {
+                that._ghost.addEventListener('DOMAttrModified', handleModifiedEvent, false);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.removeEventListener('DOMAttrModified', handleModifiedEvent, false);
+                }));
+            } else {
+                that._ghost.attachEvent('onpropertychange', handleModifiedEvent);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._ghost.detachEvent('DOMAttrModified', handleModifiedEvent);
+                }));
+            }
+        }
+    }
+
+    function observeInsertion() {
+        var that = this;
+
+        if (_.get(envGlobal, ['MutationObserver'])) {
+            // Newer browsers support an efficient way to observe DOM modifications
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        for (var i = 0; i < mutation.addedNodes.length; i++) {
+                            var node = mutation.addedNodes[i];
+
+                            if (mutation.target !== that._video) {
+                                if (node === that._ghost) {
+                                    // Replace element with our video element
+                                    mutation.target.replaceChild(that._video, that._ghost);
+                                    initialize.call(that);
+                                } else if (isDescendant(mutation.target, that._ghost)) {
+                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    initialize.call(that);
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            var configMutations = {
+                childList: true,
+                attributes: false,
+                characterData: false,
+                subtree: true
+            };
+
+            observer.observe(document.body, configMutations);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
+        } else {
+            // For older browsers. There is a significant performance overhead with this method.
+            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
+            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
+
+            var domInsertedListener = function() {
+                that._ghost.parentNode.replaceChild(that._video, that._ghost);
+            };
+
+            addEventListener('DOMNodeInserted', domInsertedListener, false);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                removeEventListener('DOMNodeInserted', domInsertedListener, false);
+            }));
+        }
+    }
+
+    function isDescendant(parent, child) {
+        var node = child.parentNode;
+
+        while (node !== null) {
+            if (node === parent) {
+                return true;
+            }
+
+            node = node.parentNode;
+        }
+
+        return false;
+    }
+
+    return PhenixVideo;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -230,10 +625,66 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(13)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(detectBrowser) {
+    return detectBrowser;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(14),
+    __webpack_require__(15)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(Disposable, DisposableList) {
+    return {
+        Disposable: Disposable,
+        DisposableList: DisposableList
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(15)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, disposable) {
+    __webpack_require__(5)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, disposable) {
     'use strict';
 
     function Observable(initialValue, beforeChange) {
@@ -389,7 +840,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function executeSubscriptionCallbacks() {
         var that = this;
 
-        _.forOwn(that.subscribeCallbacks, function (callback) {
+        _.forOwn(that.subscribeCallbacks, function(callback) {
             if (_.isFunction(callback)) {
                 callback(that.latestValue);
             }
@@ -401,7 +852,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -420,10 +871,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(4),
+    __webpack_require__(6),
     __webpack_require__(17),
     __webpack_require__(18)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (Observable, ObservableArray, ObservableMonitor) {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(Observable, ObservableArray, ObservableMonitor) {
     'use strict';
 
     return {
@@ -435,7 +886,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports) {
 
 var g;
@@ -462,7 +913,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -481,378 +932,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(0),
-    __webpack_require__(8),
-    __webpack_require__(2)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, WaitFor, envGlobal) {
-    'use strict';
-
-    var log = function() {
-        console.log.apply(console, arguments);
-    } || function() {
-        };
-
-    var logError = function() {
-        console.error.apply(console, arguments);
-    } || log;
-
-    function PhenixVideo(ghost, stream, isUsingPlugin) {
-        var that = this;
-
-        this._ghost = ghost;
-        this._stream = stream;
-        this._isUsingPlugin = isUsingPlugin;
-        this._events = {};
-
-        var loaded = function loaded(success) {
-            that._loaded = true;
-            that._enabled = success === true;
-
-            if (success) {
-                initialize.call(that);
-            } else {
-                logError('Failed to create Phenix video element');
-            }
-
-            if (that._onReady) {
-                that._onReady(that._enabled);
-            }
-        };
-
-        try {
-            this._video = createPhenixVideoElement(isUsingPlugin);
-            this._video.className = this._ghost.className;
-            this._video.height = this._ghost.height;
-            this._video.width = this._ghost.width;
-
-            this._ghost.style.cssText = 'visibility:hidden !important;width:0px !important;height:0px !important;' +
-                'margin:0px !important;padding:0px !important;' +
-                'border-style:none !important;border-width:0px !important;' +
-                'max-width:0px !important;max-height:0px !important;outline:none !important';
-
-            this._video.onunload = function() {
-                that._loaded = false;
-            };
-
-            observeInsertion.call(this);
-
-            if (!document.body || !document.body.contains) {
-                log('document.body.contains is not supported');
-            }
-
-            if (document.body && document.body.contains && document.body.contains(this._ghost)) {
-                this._ghost.parentNode.replaceChild(this._video, this._ghost);
-            }
-
-            if (!isUsingPlugin) {
-                return loaded(true);
-            }
-
-            var waitFor = new WaitFor();
-
-            waitFor.waitForReady(this._video, loaded);
-        } catch (e) {
-            logError('Error while loading Phenix RTC' + e);
-            loaded(false);
-        }
-    }
-
-    PhenixVideo.prototype.hookUpEvents = function() {
-        var that = this;
-        var ghost = this._ghost;
-
-        this.addEventListener('error', function() {
-            dispatchEvent(ghost, 'error');
-        });
-        this.addEventListener('mute', function() {
-            ghost.muted = that._video.muted;
-            dispatchEvent(ghost, 'mute');
-        });
-        this.addEventListener('unmute', function() {
-            ghost.muted = that._video.muted;
-            dispatchEvent(ghost, 'unmute');
-        });
-        this.addEventListener('ended', function() {
-            ghost.ended = that._video.ended;
-            dispatchEvent(ghost, 'ended');
-        });
-        this.addEventListener('loadedmetadata', function() {
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'loadedmetadata');
-        });
-        this.addEventListener('loadeddata', function() {
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'loadeddata');
-        });
-        this.addEventListener('resize', function() {
-            ghost.width = that._video.width;
-            ghost.height = that._video.height;
-            dispatchEvent(ghost, 'resize');
-        });
-    };
-
-    PhenixVideo.prototype.onReady = function(callback) {
-        var that = this;
-
-        if (this._loaded) {
-            setTimeout(function() {
-                callback(that._enabled);
-            }, 1);
-        } else {
-            this._onReady = callback;
-        }
-    };
-
-    PhenixVideo.prototype.getElement = function() {
-        return this._video;
-    };
-
-    PhenixVideo.prototype.addEventListener = function(name, listener, useCapture) {
-        addEventListener.call(this, name, listener, useCapture);
-    };
-
-    PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
-        removeEventListener.call(this, name, listener, useCapture);
-    };
-
-    function createPhenixVideoElement(isUsingPlugin) {
-        var video = document.createElement('video');
-
-        if (isUsingPlugin) {
-            video = document.createElement('object');
-
-            video.type = 'application/x-phenix-video';
-        }
-
-        return video;
-    }
-
-    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.addEventListener(name, listener, useCapture);
-        }
-
-        var listeners = this._events[name];
-
-        if (!listeners) {
-            listeners = this._events[name] = [];
-
-            if (this._loaded) {
-                registerEvent.call(this, name);
-            }
-        }
-
-        listeners.push(listener);
-    }
-
-    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.removeEventListener(name, listener, useCapture);
-        }
-
-        var listeners = this._events[name];
-
-        if (listeners) {
-            var idx = listeners.indexOf(listener);
-
-            if (idx >= 0) {
-                listeners = listeners.splice(idx, 1);
-
-                if (listeners.length > 0) {
-                    this._events[name] = listeners;
-                } else {
-                    delete this._events[name];
-                }
-            }
-        }
-    }
-
-    function registerEvent(name) {
-        var that = this;
-
-        function listener() {
-            var listeners = that._events[name];
-
-            if (listeners) {
-                for (var i = 0; i < listeners.length; i++) {
-                    listeners[i].apply(that, arguments);
-                }
-            }
-        }
-
-        that._video.phenixSetEventListener(name, listener);
-    }
-
-    function dispatchEvent(source, name) {
-        var event; // The custom event that will be created
-
-        if (document.createEvent) {
-            event = document.createEvent('HTMLEvents');
-            event.initEvent(name, true, true);
-        } else {
-            event = document.createEventObject();
-            event.eventType = name;
-        }
-
-        event.eventName = name;
-
-        setTimeout(function() {
-            if (document.createEvent) {
-                source.dispatchEvent(event);
-            } else {
-                source.fireEvent('on' + event.eventType, event);
-            }
-        });
-    }
-
-    function initialize() {
-        var events = Object.keys(this._events);
-
-        for (var i = 0; i < events.length; i++) {
-            registerEvent.call(this, events[i]);
-        }
-
-        this.hookUpEvents();
-
-        propagateAttributeChanges.call(this);
-
-        this._video.id = this._ghost.id;
-        this._video.style.cssText = this._ghost.cssText;
-        this._video.className = this._ghost.className;
-        this._video.innerHtml = this._ghost.innerHtml;
-        this._video.width = this._ghost.width;
-        this._video.height = this._ghost.height;
-        this._video.autoplay = this._ghost.autoplay;
-        this._video.muted = this._ghost.muted;
-        this._video.defaultMuted = this._ghost.defaultMuted;
-        this._video.volume = this._ghost.volume;
-
-        if (this._stream) {
-            this._video.src = this._stream;
-        }
-    }
-
-    function propagateAttributeChanges() {
-        var that = this;
-        var readonly = ['style'];
-
-        if (_.get(envGlobal, ['MutationObserver'])) {
-            // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.target === that._ghost && readonly.indexOf(mutation.attributeName) === -1) {
-                        that._video[mutation.attributeName] = that._ghost[mutation.attributeName];
-                    }
-                });
-            });
-
-            var configAttributes = {attributes: true};
-
-            observer.observe(that._ghost, configAttributes);
-        } else {
-            // For older browsers. There is a significant performance overhead with this method.
-            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
-            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
-
-            if (that._ghost.addEventListener) {
-                that._ghost.addEventListener('DOMAttrModified', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                }, false);
-            } else {
-                that._ghost.attachEvent('onpropertychange', function(event) {
-                    that._video[event.target.tagName] = that._ghost[event.target.tagName];
-                });
-            }
-        }
-    }
-
-    function observeInsertion() {
-        var that = this;
-
-        if (_.get(envGlobal, ['MutationObserver'])) {
-            // Newer browsers support an efficient way to observe DOM modifications
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'childList') {
-                        for (var i = 0; i < mutation.addedNodes.length; i++) {
-                            var node = mutation.addedNodes[i];
-
-                            if (mutation.target !== that._video) {
-                                if (node === that._ghost) {
-                                    // Replace element with our video element
-                                    mutation.target.replaceChild(that._video, that._ghost);
-                                    initialize.call(that);
-                                } else if (isDescendant(mutation.target, that._ghost)) {
-                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                                    initialize.call(that);
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-
-            var configMutations = {
-                childList: true,
-                attributes: false,
-                characterData: false,
-                subtree: true
-            };
-
-            observer.observe(document.body, configMutations);
-        } else {
-            // For older browsers. There is a significant performance overhead with this method.
-            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
-            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
-
-            addEventListener(that._ghost, 'DOMNodeInserted', function() {
-                that._ghost.parentNode.replaceChild(that._video, that._ghost);
-                // That._video.appendChild(that._ghost);
-            }, false);
-        }
-    }
-
-    function isDescendant(parent, child) {
-        var node = child.parentNode;
-
-        while (node !== null) {
-            if (node === parent) {
-                return true;
-            }
-
-            node = node.parentNode;
-        }
-
-        return false;
-    }
-
-    return PhenixVideo;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(3)
+    __webpack_require__(4)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(DetectBrowser) {
     'use strict';
 
@@ -924,7 +1004,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -945,8 +1025,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(5),
-    __webpack_require__(3),
+    __webpack_require__(7),
+    __webpack_require__(4),
     __webpack_require__(2),
     __webpack_require__(22),
     __webpack_require__(21)
@@ -1035,7 +1115,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1067,7 +1147,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1087,8 +1167,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_) {
-    var Assert = function () {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_) {
+    var Assert = function() {
 
     };
 
@@ -1171,7 +1251,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
     };
 
-    Assert.prototype.isInstanceOf = function (object, clazz, name) {
+    Assert.prototype.isInstanceOf = function(object, clazz, name) {
         Assert.prototype.isString('name', name);
 
         if (!_.isObject(object)) {
@@ -1183,7 +1263,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
     };
 
-    Assert.prototype.isNotUndefined = function (value, name) {
+    Assert.prototype.isNotUndefined = function(value, name) {
         Assert.prototype.isString('name', name);
 
         if (_.isUndefined(value)) {
@@ -1191,7 +1271,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
     };
 
-    Assert.prototype.isValidType = function (type, types, name) {
+    Assert.prototype.isValidType = function(type, types, name) {
         Assert.prototype.isStringNotEmpty(name, 'name');
 
         type = _.getEnumName(types, type);
@@ -1203,11 +1283,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return type;
     };
 
-    Assert.prototype.isArrayOfString = function (value, name) {
+    Assert.prototype.isArrayOfString = function(value, name) {
         Assert.prototype.isString(name, 'name');
         Assert.prototype.isArray(value, name);
 
-        _.forEach(value, function (val, key) {
+        _.forEach(value, function(val, key) {
             Assert.prototype.isString(val, name + '[' + key + ']');
         });
     };
@@ -1217,7 +1297,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1235,14 +1315,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = function (_) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = function(_) {
     'use strict';
 
     function DetectBrowser(userAgent) {
         this._userAgent = userAgent || '';
     }
 
-    DetectBrowser.prototype.detect = function () {
+    DetectBrowser.prototype.detect = function() {
         var browser = 'Unknown';
         var version = '?';
         var browserMatch = this._userAgent.match(/(Chrome|Chromium|Firefox|Opera|Safari)+\//);
@@ -1315,7 +1395,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1336,7 +1416,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert) {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert) {
     'use strict';
 
     /**
@@ -1351,71 +1431,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._cleanup = cleanup;
     }
 
-    Disposable.prototype.dispose = function () {
+    Disposable.prototype.dispose = function() {
         return this._cleanup.call();
     };
 
-    Disposable.prototype.toString = function () {
+    Disposable.prototype.toString = function() {
         return _.toString(this);
     };
 
     return Disposable;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(0)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_) {
-    'use strict';
-
-    function DisposableList() {
-        this._list = [];
-    }
-
-    DisposableList.prototype.add = function (disposable) {
-        if (!disposable || !_.isFunction(disposable.dispose)) {
-            throw new Error('"disposable" must be a disposable or implement dispose');
-        }
-
-        this._list.push(disposable);
-    };
-
-    DisposableList.prototype.dispose = function () {
-        var results = [];
-
-        _.forEach(this._list, function (disposable) {
-            results.push(disposable.dispose());
-        });
-
-        this._list = [];
-
-        return results;
-    };
-
-    DisposableList.prototype.toString = function () {
-        return _.toString(this);
-    };
-
-    return DisposableList;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1439,13 +1463,39 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(13),
-    __webpack_require__(14)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (Disposable, DisposableList) {
-    return {
-        Disposable: Disposable,
-        DisposableList: DisposableList
+    __webpack_require__(0)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_) {
+    'use strict';
+
+    function DisposableList() {
+        this._list = [];
+    }
+
+    DisposableList.prototype.add = function(disposable) {
+        if (!disposable || !_.isFunction(disposable.dispose)) {
+            throw new Error('"disposable" must be a disposable or implement dispose');
+        }
+
+        this._list.push(disposable);
     };
+
+    DisposableList.prototype.dispose = function() {
+        var results = [];
+
+        _.forEach(this._list, function(disposable) {
+            results.push(disposable.dispose());
+        });
+
+        this._list = [];
+
+        return results;
+    };
+
+    DisposableList.prototype.toString = function() {
+        return _.toString(this);
+    };
+
+    return DisposableList;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1469,11 +1519,23 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
     'use strict';
 
-    var _ = function () {
+    var _ = function() {
 
+    };
+
+    _.clone = function clone(value) {
+        if (_.isArray(value)) {
+            return value.slice();
+        }
+
+        if (_.isObject(value)) {
+            return _.assign({}, value);
+        }
+
+        return value;
     };
 
     _.get = function get(objectToTraverse, path, defaultValue) {
@@ -1491,7 +1553,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             throw new Error('Unsupported path type ' + typeof path);
         }
 
-        var valueAtPath = _.reduce(properties, function (valueAtPath, prop) {
+        var valueAtPath = _.reduce(properties, function(valueAtPath, prop) {
             if (_.isObject(valueAtPath) || _.isArray(valueAtPath)) {
                 return valueAtPath[prop];
             }
@@ -1518,7 +1580,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             throw new Error('Unsupported path type ' + typeof path);
         }
 
-        _.forEach(properties, function (prop, index) {
+        _.forEach(properties, function(prop, index) {
             setNextValue(currentLocation, prop, getNextValue(properties, index, currentLocation, value));
 
             currentLocation = currentLocation[prop];
@@ -1596,22 +1658,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return newArray;
     };
 
-    _.values = function (collection) {
+    _.values = function(collection) {
         if (!_.isObject(collection) || _.isArray(collection)) {
             throw new Error('Collection must be an object.');
         }
 
-        return _.map(collection, function (value) {
+        return _.map(collection, function(value) {
             return value;
         });
     };
 
-    _.keys = function (collection) {
+    _.keys = function(collection) {
         if (!_.isObject(collection) || _.isArray(collection)) {
             throw new Error('Collection must be an object.');
         }
 
-        return _.map(collection, function (value, key) {
+        return _.map(collection, function(value, key) {
             return key;
         });
     };
@@ -1650,7 +1712,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
     };
 
-    _.argumentsToArray = function (args) {
+    _.argumentsToArray = function(args) {
         if (!_.isObject(args) || !args.length) {
             throw new Error('Collection must be arguments');
         }
@@ -1671,10 +1733,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
         sources.shift();
 
-        _.forEach(sources, function (source, index) {
+        _.forEach(sources, function(source, index) {
             assertIsObject(source, 'source ' + index);
 
-            _.forOwn(source, function (value, key) {
+            _.forOwn(source, function(value, key) {
                 target[key] = value;
             });
         });
@@ -1718,11 +1780,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         var result = initialValue === _.noop() ? null : initialValue;
 
         if (collection.constructor === Array) {
-            _.forEach(collection, function (item, index) {
+            _.forEach(collection, function(item, index) {
                 result = callback(result, item, index);
             });
         } else {
-            _.forOwn(collection, function (value, key) {
+            _.forOwn(collection, function(value, key) {
                 result = callback(result, value, key);
             });
         }
@@ -1736,7 +1798,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return collection[Math.floor(Math.random() * collection.length)];
     };
 
-    _.uniqueId = function () {
+    _.uniqueId = function() {
         return (_.now() * Math.random()).toString();
     };
 
@@ -1835,7 +1897,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         } else if (_.isObject(collectionA) && _.isObject(collectionB) && !_.isArray(collectionA) && !_.isArray(collectionB)) {
             _.forOwn(collectionA, getDifferences);
 
-            _.forOwn(collectionB, function (value, key) {
+            _.forOwn(collectionB, function(value, key) {
                 if (!visitedKeys.hasOwnProperty(key)) {
                     differences.push(key);
                 }
@@ -1884,7 +1946,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return obj;
     };
 
-    _.noop = function () {
+    _.noop = function() {
         return undefined;
     };
 
@@ -1935,16 +1997,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     _.getEnumName = function getEnumName(enums, nameOrId) {
         var enumObject = null;
 
-        var enumArray = _.map(enums, function (value) {
+        var enumArray = _.map(enums, function(value) {
             return value;
         });
 
         if (_.isNumber(nameOrId)) {
-            enumObject = _.find(enumArray, function (current) {
+            enumObject = _.find(enumArray, function(current) {
                 return current.id === nameOrId;
             });
         } else if (_.isString(nameOrId)) {
-            enumObject = _.find(enumArray, function (current) {
+            enumObject = _.find(enumArray, function(current) {
                 return current.name.toLowerCase() === nameOrId.toLowerCase();
             });
         }
@@ -1989,7 +2051,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
         var cache = [];
 
-        return toStringStr + JSON.stringify(data, function (key, value) {
+        return toStringStr + JSON.stringify(data, function(key, value) {
             if (_.isObject(value) && !_.isNullOrUndefined(value)) {
                 if (_.includes(cache, value)) {
                     return '<recursive>';
@@ -2087,7 +2149,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         var properties = stringPath.split('.');
         var path = [];
 
-        _.forEach(properties, function (prop) {
+        _.forEach(properties, function(prop) {
             path = path.concat(buildSubPathFromString(prop));
         });
 
@@ -2187,8 +2249,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(4)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert, Observable) {
+    __webpack_require__(6)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, Observable) {
     'use strict';
 
     function ObservableArray(initialValues, beforeChange) {
@@ -2242,7 +2304,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     ObservableArray.prototype.remove = function remove(valueOrFunction) {
         var array = this.observableArray.getValue();
 
-        var filterFunction = function (value) {
+        var filterFunction = function(value) {
             return _.isFunction(valueOrFunction) ? valueOrFunction(value) : value === valueOrFunction;
         };
 
@@ -2295,7 +2357,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function (_, assert) {
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert) {
     'use strict';
 
     function ObservableMonitor(observable) {
@@ -4174,7 +4236,7 @@ module.exports = {
 
 },{}]},{},[2])(2)
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
 /* 20 */
@@ -4198,9 +4260,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(9),
-    __webpack_require__(10)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(adapter, exportGlobal) {
+    __webpack_require__(10),
+    __webpack_require__(11),
+    __webpack_require__(3)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(adapter, exportGlobal, PhenixVideo) {
+    adapter.PhenixVideo = PhenixVideo;
     adapter.onLoaded = function() {
         exportGlobal(adapter);
     };
@@ -4233,9 +4297,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(5),
-    __webpack_require__(8),
-    __webpack_require__(7)
+    __webpack_require__(7),
+    __webpack_require__(9),
+    __webpack_require__(3)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
@@ -4587,10 +4651,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
-    __webpack_require__(3),
+    __webpack_require__(4),
     __webpack_require__(19),
     __webpack_require__(2),
-    __webpack_require__(7)
+    __webpack_require__(3)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, DetectBrowser, webRtcAdapter, envGlobal, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
