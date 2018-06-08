@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.2.2",
+  "version": "2018.2.3",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -30,6 +30,7 @@
     "phenix-web-assert": "^2018.2.1",
     "phenix-web-detect-browser": "^2018.2.1",
     "phenix-web-disposable": "^2018.2.1",
+    "phenix-web-event": "^2018.2.1",
     "phenix-web-lodash-light": "^2018.2.1",
     "phenix-web-observable": "^2018.2.1"
   },

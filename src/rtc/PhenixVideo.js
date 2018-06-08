@@ -17,8 +17,9 @@ define([
     'phenix-web-lodash-light',
     'phenix-web-disposable',
     './WaitFor',
-    './global'
-], function(_, disposable, WaitFor, envGlobal) {
+    './global',
+    './FlashPlayer'
+], function(_, disposable, WaitFor, envGlobal, FlashPlayer) {
     'use strict';
 
     var log = function() {
@@ -30,14 +31,17 @@ define([
         console.error.apply(console, arguments);
     } || log;
 
-    function PhenixVideo(ghost, stream, isUsingPlugin) {
+    function PhenixVideo(ghost, stream, pluginType, options) {
         var that = this;
 
         this._ghost = ghost;
         this._stream = stream;
-        this._isUsingPlugin = isUsingPlugin;
+        this._isPhenixPlugin = pluginType === 'phenix';
+        this._isFlash = pluginType === 'flash';
+        this._options = options || {};
         this._events = {};
         this._disposables = new disposable.DisposableList();
+        this._flashPlayer = null;
 
         var loaded = function loaded(success) {
             that._loaded = true;
@@ -55,7 +59,7 @@ define([
         };
 
         try {
-            this._video = createPhenixVideoElement(isUsingPlugin);
+            this._video = createPhenixVideoElement.call(this);
             this._video.className = this._ghost.className;
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
@@ -83,6 +87,10 @@ define([
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
 
+                if (this._isFlash && this._flashPlayer) {
+                    this._video = this._flashPlayer.finishInitializationInDom();
+                }
+
                 this._disposables.add(new disposable.Disposable(function() {
                     if (that._video.parentNode) {
                         that._video.parentNode.replaceChild(that._ghost, that._video);
@@ -90,7 +98,7 @@ define([
                 }));
             }
 
-            if (!isUsingPlugin) {
+            if (!this._isPhenixPlugin) {
                 return loaded(true);
             }
 
@@ -194,56 +202,78 @@ define([
         this._disposables.dispose();
     };
 
-    function createPhenixVideoElement(isUsingPlugin) {
+    function createPhenixVideoElement() {
         var video = document.createElement('video');
 
-        if (isUsingPlugin) {
+        if (this._isPhenixPlugin) {
             video = document.createElement('object');
 
             video.type = 'application/x-phenix-video';
         }
 
+        if (this._isFlash) {
+            this._flashPlayer = new FlashPlayer(this._ghost, this._stream, this._options);
+
+            var that = this;
+
+            this._disposables.add(new disposable.Disposable(function() {
+                that._flashPlayer.destroy();
+            }));
+
+            video = this._flashPlayer.getElement();
+        }
+
         return video;
     }
 
-    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.addEventListener(name, listener, useCapture);
+    function addEventListener(name, listener, useCapture) {
+        if (this._isFlash) {
+            return this._flashPlayer.addEventListener(name, listener);
         }
 
-        var listeners = this._events[name];
+        if (this._isPhenixPlugin) {
+            var listeners = this._events[name];
 
-        if (!listeners) {
-            listeners = this._events[name] = [];
+            if (!listeners) {
+                listeners = this._events[name] = [];
 
-            if (this._loaded) {
-                registerEvent.call(this, name);
-            }
-        }
-
-        listeners.push(listener);
-    }
-
-    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.removeEventListener(name, listener, useCapture);
-        }
-
-        var listeners = this._events[name];
-
-        if (listeners) {
-            var idx = listeners.indexOf(listener);
-
-            if (idx >= 0) {
-                listeners = listeners.splice(idx, 1);
-
-                if (listeners.length > 0) {
-                    this._events[name] = listeners;
-                } else {
-                    delete this._events[name];
+                if (this._loaded) {
+                    registerEvent.call(this, name);
                 }
             }
+
+            return listeners.push(listener);
         }
+
+        return this._video.addEventListener(name, listener, useCapture);
+    }
+
+    function removeEventListener(name, listener, useCapture) {
+        if (this._isFlash) {
+            return this._flashPlayer.removeEventListener(name, listener);
+        }
+
+        if (this._isPhenixPlugin) {
+            var listeners = this._events[name];
+
+            if (listeners) {
+                var idx = listeners.indexOf(listener);
+
+                if (idx >= 0) {
+                    listeners = listeners.splice(idx, 1);
+
+                    if (listeners.length > 0) {
+                        this._events[name] = listeners;
+                    } else {
+                        delete this._events[name];
+                    }
+                }
+            }
+
+            return;
+        }
+
+        return this._video.removeEventListener(name, listener, useCapture);
     }
 
     function registerEvent(name) {
@@ -296,7 +326,7 @@ define([
         propagateAttributeChanges.call(this);
 
         this._video.id = this._ghost.id;
-        this._video.style.cssText = this._ghost.cssText;
+        this._video.style.cssText = this._ghostInitStyleCssText;
         this._video.className = this._ghost.className;
         this._video.innerHtml = this._ghost.innerHtml;
         this._video.width = this._ghost.width;
@@ -306,7 +336,7 @@ define([
         this._video.defaultMuted = this._ghost.defaultMuted;
         this._video.volume = this._ghost.volume;
 
-        if (this._stream) {
+        if (this._stream && !this._isFlash) {
             this._video.src = this._stream;
         }
     }
@@ -374,7 +404,10 @@ define([
                                     mutation.target.replaceChild(that._video, that._ghost);
                                     initialize.call(that);
                                 } else if (isDescendant(mutation.target, that._ghost)) {
-                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    if (that._ghost.parentNode) {
+                                        that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    }
+
                                     initialize.call(that);
                                 }
                             }
@@ -401,13 +434,15 @@ define([
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
             var domInsertedListener = function() {
-                that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                if (that._ghost.parentNode) {
+                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                }
             };
 
-            addEventListener('DOMNodeInserted', domInsertedListener, false);
+            that.addEventListener('DOMNodeInserted', domInsertedListener, false);
 
             that._disposables.add(new disposable.Disposable(function() {
-                removeEventListener('DOMNodeInserted', domInsertedListener, false);
+                that.removeEventListener('DOMNodeInserted', domInsertedListener, false);
             }));
         }
     }

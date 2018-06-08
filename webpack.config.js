@@ -37,33 +37,39 @@ var configs = [{
     output: {filename: 'phenix-rtc-bundled.js'},
     resolve: {
         alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': 'webrtc-adapter/out/adapter.js',
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
+            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
+            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
+            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
+            'webrtc-adapter': 'webrtc-adapter/out/adapter.js'
         }
     }
 }, {
     output: {filename: 'phenix-rtc-no-edge-bundled.js'},
     resolve: {
         alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js',
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
+            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
+            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
+            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
+            'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'
         }
     }
 }, {
     output: {filename: 'phenix-rtc-react-native-bundled.js'},
     resolve: {
         alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim'),
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
+            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
+            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
+            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
+            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
             'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser')
+            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')
         }
     }
 }, {
@@ -74,10 +80,12 @@ var configs = [{
         }
     },
     externals: [{
-        'phenix-web-lodash-light': true,
         'phenix-web-assert': true,
-        'phenix-web-observable': true,
-        'phenix-web-detect-browser': true
+        'phenix-web-detect-browser': true,
+        'phenix-web-disposable': true,
+        'phenix-web-event': true,
+        'phenix-web-lodash-light': true,
+        'phenix-web-observable': true
     }]
 }, {
     output: {filename: 'phenix-rtc.js'},
@@ -87,10 +95,12 @@ var configs = [{
         }
     },
     externals: [{
-        'phenix-web-lodash-light': true,
         'phenix-web-assert': true,
-        'phenix-web-observable': true,
-        'phenix-web-detect-browser': true
+        'phenix-web-detect-browser': true,
+        'phenix-web-disposable': true,
+        'phenix-web-event': true,
+        'phenix-web-lodash-light': true,
+        'phenix-web-observable': true
     }]
 }, {
     output: {filename: 'phenix-rtc-no-edge.js'},
@@ -100,10 +110,12 @@ var configs = [{
         }
     },
     externals: [{
-        'phenix-web-lodash-light': true,
         'phenix-web-assert': true,
-        'phenix-web-observable': true,
-        'phenix-web-detect-browser': true
+        'phenix-web-detect-browser': true,
+        'phenix-web-disposable': true,
+        'phenix-web-event': true,
+        'phenix-web-lodash-light': true,
+        'phenix-web-observable': true
     }]
 }];
 

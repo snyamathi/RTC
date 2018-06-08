@@ -1,3 +1,18 @@
+/**
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -73,7 +88,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 20);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -96,7 +111,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(16)
+    __webpack_require__(19)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(LodashLight) {
     'use strict';
 
@@ -124,7 +139,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(12)
+    __webpack_require__(13)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(assert) {
     return assert;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
@@ -167,10 +182,66 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     return getGlobal();
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(14)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(detectBrowser) {
+    return detectBrowser;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(15),
+    __webpack_require__(16)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(Disposable, DisposableList) {
+    return {
+        Disposable: Disposable,
+        DisposableList: DisposableList
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -190,10 +261,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
-    __webpack_require__(5),
-    __webpack_require__(9),
-    __webpack_require__(2)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, disposable, WaitFor, envGlobal) {
+    __webpack_require__(4),
+    __webpack_require__(6),
+    __webpack_require__(2),
+    __webpack_require__(24)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, disposable, WaitFor, envGlobal, FlashPlayer) {
     'use strict';
 
     var log = function() {
@@ -205,14 +277,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         console.error.apply(console, arguments);
     } || log;
 
-    function PhenixVideo(ghost, stream, isUsingPlugin) {
+    function PhenixVideo(ghost, stream, pluginType, options) {
         var that = this;
 
         this._ghost = ghost;
         this._stream = stream;
-        this._isUsingPlugin = isUsingPlugin;
+        this._isPhenixPlugin = pluginType === 'phenix';
+        this._isFlash = pluginType === 'flash';
+        this._options = options || {};
         this._events = {};
         this._disposables = new disposable.DisposableList();
+        this._flashPlayer = null;
 
         var loaded = function loaded(success) {
             that._loaded = true;
@@ -230,7 +305,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         };
 
         try {
-            this._video = createPhenixVideoElement(isUsingPlugin);
+            this._video = createPhenixVideoElement.call(this);
             this._video.className = this._ghost.className;
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
@@ -258,6 +333,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
 
+                if (this._isFlash && this._flashPlayer) {
+                    this._video = this._flashPlayer.finishInitializationInDom();
+                }
+
                 this._disposables.add(new disposable.Disposable(function() {
                     if (that._video.parentNode) {
                         that._video.parentNode.replaceChild(that._ghost, that._video);
@@ -265,7 +344,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
                 }));
             }
 
-            if (!isUsingPlugin) {
+            if (!this._isPhenixPlugin) {
                 return loaded(true);
             }
 
@@ -369,56 +448,78 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._disposables.dispose();
     };
 
-    function createPhenixVideoElement(isUsingPlugin) {
+    function createPhenixVideoElement() {
         var video = document.createElement('video');
 
-        if (isUsingPlugin) {
+        if (this._isPhenixPlugin) {
             video = document.createElement('object');
 
             video.type = 'application/x-phenix-video';
         }
 
+        if (this._isFlash) {
+            this._flashPlayer = new FlashPlayer(this._ghost, this._stream, this._options);
+
+            var that = this;
+
+            this._disposables.add(new disposable.Disposable(function() {
+                that._flashPlayer.destroy();
+            }));
+
+            video = this._flashPlayer.getElement();
+        }
+
         return video;
     }
 
-    function addEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.addEventListener(name, listener, useCapture);
+    function addEventListener(name, listener, useCapture) {
+        if (this._isFlash) {
+            return this._flashPlayer.addEventListener(name, listener);
         }
 
-        var listeners = this._events[name];
+        if (this._isPhenixPlugin) {
+            var listeners = this._events[name];
 
-        if (!listeners) {
-            listeners = this._events[name] = [];
+            if (!listeners) {
+                listeners = this._events[name] = [];
 
-            if (this._loaded) {
-                registerEvent.call(this, name);
-            }
-        }
-
-        listeners.push(listener);
-    }
-
-    function removeEventListener(name, listener, useCapture) { // eslint-disable-line no-unused-vars
-        if (!this._isUsingPlugin) {
-            return this._video.removeEventListener(name, listener, useCapture);
-        }
-
-        var listeners = this._events[name];
-
-        if (listeners) {
-            var idx = listeners.indexOf(listener);
-
-            if (idx >= 0) {
-                listeners = listeners.splice(idx, 1);
-
-                if (listeners.length > 0) {
-                    this._events[name] = listeners;
-                } else {
-                    delete this._events[name];
+                if (this._loaded) {
+                    registerEvent.call(this, name);
                 }
             }
+
+            return listeners.push(listener);
         }
+
+        return this._video.addEventListener(name, listener, useCapture);
+    }
+
+    function removeEventListener(name, listener, useCapture) {
+        if (this._isFlash) {
+            return this._flashPlayer.removeEventListener(name, listener);
+        }
+
+        if (this._isPhenixPlugin) {
+            var listeners = this._events[name];
+
+            if (listeners) {
+                var idx = listeners.indexOf(listener);
+
+                if (idx >= 0) {
+                    listeners = listeners.splice(idx, 1);
+
+                    if (listeners.length > 0) {
+                        this._events[name] = listeners;
+                    } else {
+                        delete this._events[name];
+                    }
+                }
+            }
+
+            return;
+        }
+
+        return this._video.removeEventListener(name, listener, useCapture);
     }
 
     function registerEvent(name) {
@@ -471,7 +572,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         propagateAttributeChanges.call(this);
 
         this._video.id = this._ghost.id;
-        this._video.style.cssText = this._ghost.cssText;
+        this._video.style.cssText = this._ghostInitStyleCssText;
         this._video.className = this._ghost.className;
         this._video.innerHtml = this._ghost.innerHtml;
         this._video.width = this._ghost.width;
@@ -481,7 +582,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._video.defaultMuted = this._ghost.defaultMuted;
         this._video.volume = this._ghost.volume;
 
-        if (this._stream) {
+        if (this._stream && !this._isFlash) {
             this._video.src = this._stream;
         }
     }
@@ -549,7 +650,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
                                     mutation.target.replaceChild(that._video, that._ghost);
                                     initialize.call(that);
                                 } else if (isDescendant(mutation.target, that._ghost)) {
-                                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    if (that._ghost.parentNode) {
+                                        that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                                    }
+
                                     initialize.call(that);
                                 }
                             }
@@ -576,13 +680,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
 
             var domInsertedListener = function() {
-                that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                if (that._ghost.parentNode) {
+                    that._ghost.parentNode.replaceChild(that._video, that._ghost);
+                }
             };
 
-            addEventListener('DOMNodeInserted', domInsertedListener, false);
+            that.addEventListener('DOMNodeInserted', domInsertedListener, false);
 
             that._disposables.add(new disposable.Disposable(function() {
-                removeEventListener('DOMNodeInserted', domInsertedListener, false);
+                that.removeEventListener('DOMNodeInserted', domInsertedListener, false);
             }));
         }
     }
@@ -606,63 +712,98 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(13)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(detectBrowser) {
-    return detectBrowser;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 Phenix Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(14),
-    __webpack_require__(15)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(Disposable, DisposableList) {
-    return {
-        Disposable: Disposable,
-        DisposableList: DisposableList
-    };
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(3)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(DetectBrowser) {
+    'use strict';
+
+    var browser = new DetectBrowser(navigator.userAgent).detect();
+    var ReadyStateComplete = 4;
+
+    function WaitFor(timeout) {
+        this._timeout = timeout || 15000;
+    }
+
+    var logError = function() {
+        console.error.apply(console, arguments);
+    } || console.log;
+
+    WaitFor.prototype.waitForReadyWithTimeout = function(element, loaded, timeout) {
+        var triggered = false;
+        var waitFor = 1;
+        var sum = waitFor;
+
+        var guardedLoaded = function(success) {
+            if (!triggered) {
+                triggered = true;
+                loaded(success);
+            }
+        };
+
+        var checkLoaded = function checkLoaded() {
+            if (element.readyState === ReadyStateComplete) { // IE
+                guardedLoaded(true);
+            } else if (element.phenixVersion) { // Property is available
+                guardedLoaded(true);
+            } else {
+                waitFor = Math.min(waitFor + 1000, 2 * waitFor);
+                sum += waitFor;
+
+                if (sum > timeout) {
+                    logError('Timed out while waiting for <object> to load');
+                    guardedLoaded(false);
+                } else {
+                    setTimeout(checkLoaded, waitFor);
+                }
+            }
+        };
+
+        if (!(element.hasOwnProperty && element.hasOwnProperty('onload'))) {
+            //  There are no events in IE to detect when it is loaded
+            if (browser.browser !== 'IE') {
+                logError('No means of detecting when <object> is loaded');
+            }
+        }
+
+        element.onload = function() {
+            guardedLoaded(true);
+        };
+
+        checkLoaded();
+    };
+
+    WaitFor.prototype.waitForReady = function(element, loaded) {
+        if (element.phenixVersion) { // Already loaded
+            loaded(true);
+        } else {
+            this.waitForReadyWithTimeout(element, loaded, this._timeout);
+        }
+    };
+
+    return WaitFor;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -683,7 +824,100 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(5)
+    __webpack_require__(4)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, disposable) {
+    'use strict';
+
+    function Event() {
+        this._listeners = [];
+    }
+
+    Event.prototype.fire = function(args, context) {
+        fireEvent.call(this, args, context);
+    };
+
+    Event.prototype.fireAsync = function(args, context, callback) {
+        fireEvent.call(this, args, context, callback || function() {});
+    };
+
+    Event.prototype.listen = function(listener) {
+        var that = this;
+
+        assert.isFunction(listener, 'listener');
+
+        that._listeners.push(listener);
+
+        return new disposable.Disposable(function() {
+            that._listeners = _.remove(that._listeners, function(item) {
+                return item === listener;
+            });
+        });
+    };
+
+    Event.prototype.size = function() {
+        return this._listeners.length;
+    };
+
+    Event.prototype.dispose = function() {
+        this._listeners = [];
+    };
+
+    Event.prototype.toString = function() {
+        return 'Event|' + this.size();
+    };
+
+    function fireEvent(args, context, asyncCallback) {
+        var that = this;
+
+        if (_.isNullOrUndefined(args)) {
+            args = [];
+        }
+
+        assert.isArray(args, 'args');
+
+        var notifyListeners = function notifyListeners() {
+            _.forEach(that._listeners, function(listener) {
+                listener.apply(context, args);
+            });
+        };
+
+        if (asyncCallback) {
+            setTimeout(function() {
+                notifyListeners();
+                asyncCallback();
+            }, 0);
+        } else {
+            notifyListeners();
+        }
+    }
+
+    return Event;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(1),
+    __webpack_require__(4)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, disposable) {
     'use strict';
 
@@ -852,7 +1086,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -871,9 +1105,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * limitations under the License.
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(6),
-    __webpack_require__(17),
-    __webpack_require__(18)
+    __webpack_require__(8),
+    __webpack_require__(20),
+    __webpack_require__(21)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(Observable, ObservableArray, ObservableMonitor) {
     'use strict';
 
@@ -886,7 +1120,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports) {
 
 var g;
@@ -913,98 +1147,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(4)
-], __WEBPACK_AMD_DEFINE_RESULT__ = function(DetectBrowser) {
-    'use strict';
-
-    var browser = new DetectBrowser(navigator.userAgent).detect();
-    var ReadyStateComplete = 4;
-
-    function WaitFor(timeout) {
-        this._timeout = timeout || 15000;
-    }
-
-    var logError = function() {
-        console.error.apply(console, arguments);
-    } || console.log;
-
-    WaitFor.prototype.waitForReadyWithTimeout = function(element, loaded, timeout) {
-        var triggered = false;
-        var waitFor = 1;
-        var sum = waitFor;
-
-        var guardedLoaded = function(success) {
-            if (!triggered) {
-                triggered = true;
-                loaded(success);
-            }
-        };
-
-        var checkLoaded = function checkLoaded() {
-            if (element.readyState === ReadyStateComplete) { // IE
-                guardedLoaded(true);
-            } else if (element.phenixVersion) { // Property is available
-                guardedLoaded(true);
-            } else {
-                waitFor = Math.min(waitFor + 1000, 2 * waitFor);
-                sum += waitFor;
-
-                if (sum > timeout) {
-                    logError('Timed out while waiting for <object> to load');
-                    guardedLoaded(false);
-                } else {
-                    setTimeout(checkLoaded, waitFor);
-                }
-            }
-        };
-
-        if (!(element.hasOwnProperty && element.hasOwnProperty('onload'))) {
-            //  There are no events in IE to detect when it is loaded
-            if (browser.browser !== 'IE') {
-                logError('No means of detecting when <object> is loaded');
-            }
-        }
-
-        element.onload = function() {
-            guardedLoaded(true);
-        };
-
-        checkLoaded();
-    };
-
-    WaitFor.prototype.waitForReady = function(element, loaded) {
-        if (element.phenixVersion) { // Already loaded
-            loaded(true);
-        } else {
-            this.waitForReadyWithTimeout(element, loaded, this._timeout);
-        }
-    };
-
-    return WaitFor;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1025,11 +1168,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(7),
-    __webpack_require__(4),
+    __webpack_require__(9),
+    __webpack_require__(3),
     __webpack_require__(2),
-    __webpack_require__(22),
-    __webpack_require__(21)
+    __webpack_require__(26),
+    __webpack_require__(25)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, obserervable, DetectBrowser, envGlobal, webRTCShim, PhenixRTC) {
     'use strict';
 
@@ -1115,7 +1258,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1147,7 +1290,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1297,7 +1440,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1395,7 +1538,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1444,7 +1587,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1500,7 +1643,115 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 16 */
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(1),
+    __webpack_require__(7)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, Event) {
+    'use strict';
+
+    function NamedEvents() {
+        this._events = {};
+    }
+
+    NamedEvents.prototype.fire = function(name, args, context) {
+        assert.isStringNotEmpty(name, 'name');
+
+        if (_.includes(_.keys(this._events), name)) {
+            this._events[name].fire(args, context);
+        }
+    };
+
+    NamedEvents.prototype.fireAsync = function(name, args, context) {
+        assert.isStringNotEmpty(name, 'name');
+
+        if (_.includes(_.keys(this._events), name)) {
+            this._events[name].fireAsync(args, context);
+        }
+    };
+
+    NamedEvents.prototype.listen = function listen(name, listener) {
+        assert.isStringNotEmpty(name, 'name');
+
+        var event = _.includes(_.keys(this._events), name) ? this._events[name] : (this._events[name] = new Event());
+
+        return event.listen(listener);
+    };
+
+    NamedEvents.prototype.size = function size(name) {
+        if (_.includes(_.keys(this._events), name)) {
+            return this._events[name].size();
+        }
+
+        return 0;
+    };
+
+    NamedEvents.prototype.dispose = function dispose() {
+        _.forOwn(this._events, function(event) {
+            event.dispose();
+        });
+
+        this._events = {};
+    };
+
+    NamedEvents.prototype.toString = function toString() {
+        return 'NamedEvents|' + _.keys(this._events).length;
+    };
+
+    return NamedEvents;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 Phenix Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(7),
+    __webpack_require__(17)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(Event, NamedEvents) {
+    return {
+        Event: Event,
+        NamedEvents: NamedEvents
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -2228,7 +2479,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -2249,7 +2500,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(6)
+    __webpack_require__(8)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, Observable) {
     'use strict';
 
@@ -2336,7 +2587,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -2398,7 +2649,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var require;var require;(function(f){if(true){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.adapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return require(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -4236,10 +4487,10 @@ module.exports = {
 
 },{}]},{},[2])(2)
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4260,9 +4511,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(10),
     __webpack_require__(11),
-    __webpack_require__(3)
+    __webpack_require__(12),
+    __webpack_require__(5)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(adapter, exportGlobal, PhenixVideo) {
     adapter.PhenixVideo = PhenixVideo;
     adapter.onLoaded = function() {
@@ -4276,7 +4527,528 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 21 */
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+    __webpack_require__(0),
+    __webpack_require__(3),
+    __webpack_require__(4),
+    __webpack_require__(18),
+    __webpack_require__(6),
+    __webpack_require__(2)
+], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, DetectBrowser, disposable, event, WaitFor, envGlobal) {
+    'use strict';
+
+    var log = function() {
+        console.log.apply(console, arguments);
+    } || function() {};
+
+    var logError = function() {
+        console.error.apply(console, arguments);
+    } || log;
+
+    var defaultPropertyValues = {
+        width: 480,
+        height: 360,
+        videoWidth: 480,
+        videoHeight: 360,
+        muted: false,
+        volume: 1,
+        currentTime: 0,
+        duration: Infinity,
+        readyState: 0,
+        ended: false,
+        buffered: null,
+        autoplay: true
+    };
+
+    var browser = new DetectBrowser(navigator.userAgent).detect();
+    var isIEAndRequiresFlashObject = browser.browser === 'IE' && /(trident|microsoft)/i.test(_.get(envGlobal.navigator, ['appName'], ''));
+    var isEdgeAndRequiresFlashObject = browser.browser === 'Edge' && _.get(envGlobal.navigator, 'msLaunchUri') && !_.get(envGlobal.document, 'documentMode');
+    var missingFlashMessage = 'You are using a browser that does not have Flash player enabled or installed. Please turn on your Flash player plugin or download the latest version from https://get.adobe.com/flashplayer/';
+
+    function FlashPlayer(ghost, streamInfo, options) {
+        this._disposables = new disposable.DisposableList();
+        this._events = new event.NamedEvents();
+        this._isVideo = ghost.tagName === 'video';
+        this._swfSrc = options.swfSrc;
+        this._id = options.streamId;
+        this._width = ghost.clientWidth;
+        this._height = ghost.clientHeight;
+        this._element = null;
+        this._eventDisposables = [];
+        this._flashVars = [
+            'uid=' + this._id,
+            'autoplay=' + (_.isUndefined(ghost.autoplay) ? true : ghost.autoplay),
+            'allowScriptAccess=sameDomain',
+            'preload=true',
+            'src=' + JSON.stringify(streamInfo)
+        ];
+
+        var that = this;
+
+        this._disposables.add(new disposable.Disposable(function() {
+            triggerFlashEvent.call(that, 'fire_stop');
+        }));
+
+        try {
+            if (isIEAndRequiresFlashObject || isEdgeAndRequiresFlashObject) {
+                this._element = createMicrosoftFlashElement.call(this);
+            } else {
+                this._element = setupCrossBrowserFlashElement.call(this);
+            }
+
+            setupElement.call(this);
+        } catch (e) {
+            logError('Error while loading Flash Player' + e);
+        }
+    }
+
+    FlashPlayer.prototype.finishInitializationInDom = function() {
+        return finishInitialization.call(this);
+    };
+
+    FlashPlayer.prototype.getElement = function() {
+        return this._element;
+    };
+
+    FlashPlayer.prototype.addEventListener = function(name, listener) {
+        var eventDisposableIndex = findEventListenerIndex.call(this, name, listener);
+
+        if (eventDisposableIndex > -1) {
+            return;
+        }
+
+        var disposable = this._events.listen(name, listener);
+
+        this._disposables.add(disposable);
+
+        this._eventDisposables.push({
+            name: name,
+            listener: listener,
+            disposable: disposable
+        });
+    };
+
+    FlashPlayer.prototype.removeEventListener = function(name, listener) {
+        var eventDisposableIndex = findEventListenerIndex.call(this, name, listener);
+
+        if (eventDisposableIndex > -1) {
+            var eventDisposable = this._eventDisposables.splice(eventDisposableIndex, 1)[0];
+
+            eventDisposable.disposable.dispose();
+        }
+    };
+
+    FlashPlayer.prototype.destroy = function() {
+        this._disposables.dispose();
+    };
+
+    function findEventListenerIndex(name, listener) {
+        return _.findIndex(this._eventDisposables, function(eventDisposable) {
+            return eventDisposable.name === name && eventDisposable.listener === listener;
+        });
+    }
+
+    function createMicrosoftFlashElement() {
+        return document.createElement('div');
+    }
+
+    function setupCrossBrowserFlashElement() {
+        var element = document.createElement('embed');
+
+        element.setAttribute('id', '__' + this._id);
+        element.setAttribute('name', '__' + this._id);
+        element.setAttribute('play', 'true');
+        element.setAttribute('loop', 'false');
+        element.setAttribute('quality', 'high');
+        element.setAttribute('bgcolor', '#000000');
+        element.setAttribute('wmode', 'transparent');
+        element.setAttribute('allowScriptAccess', 'sameDomain');
+        element.setAttribute('allowFullScreen', 'true');
+        element.setAttribute('type', 'application/x-shockwave-flash');
+        element.setAttribute('pluginspage', '//www.macromedia.com/go/getflashplayer');
+        element.setAttribute('src', this._swfSrc);
+        element.setAttribute('flashvars', this._flashVars.join('&'));
+
+        if (this._isVideo) {
+            element.setAttribute('width', this._width.toString());
+            element.setAttribute('height', this._height.toString());
+        }
+
+        return element;
+    }
+
+    function finishInitialization() {
+        if (!isIEAndRequiresFlashObject && !isEdgeAndRequiresFlashObject) {
+            return this._element;
+        }
+
+        var id = (isEdgeAndRequiresFlashObject ? '__' + this._id : this._id) + _.uniqueId();
+        var embedObject = document.createElement('object');
+        var missingFlashMessageElement = document.createElement('div');
+        var childrenElements = [
+            createParameterElement('movie', this._swfSrc + '?x=' + _.now()),
+            createParameterElement('flashvars', this._flashVars.join('&')),
+            createParameterElement('quality', 2),
+            createParameterElement('bgcolor', '#000000'),
+            createParameterElement('wmode', 'transparent'),
+            createParameterElement('allowScriptAccess', 'sameDomain'),
+            createParameterElement('allowFullScreen', 'true'),
+            missingFlashMessageElement
+        ];
+
+        missingFlashMessageElement.innerHTML = missingFlashMessage;
+
+        if (isEdgeAndRequiresFlashObject) {
+            embedObject.setAttribute('type', 'application/x-shockwave-flash');
+            embedObject.setAttribute('data', this._swfSrc);
+            embedObject.setAttribute('id', id);
+            embedObject.setAttribute('width', '__' + this._width.toString());
+            embedObject.setAttribute('height', '__' + this._height.toString());
+        } else {
+            embedObject.setAttribute('classid', 'clsid:D27CDB6E-AE6D-11cf-96B8-444553540000');
+            embedObject.setAttribute('codebase', '//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab');
+            embedObject.setAttribute('id', id);
+            embedObject.setAttribute('width', this._width.toString());
+            embedObject.setAttribute('height', this._height.toString());
+        }
+
+        if (embedObject.object) {
+            _.forEach(childrenElements, function(element) {
+                if (!_.isNullOrUndefined(_.get(embedObject.object, [element.name]))) {
+                    embedObject.object[element.name] = element.value;
+                }
+            });
+
+            embedObject.appendChild(missingFlashMessageElement);
+        } else {
+            _.forEach(childrenElements, function(element) {
+                var existingChildElement = _.find(embedObject.children, function(childElement) {
+                    return childElement.name === element.name;
+                });
+
+                if (existingChildElement) {
+                    return embedObject.replaceChild(element, existingChildElement);
+                }
+
+                return embedObject.appendChild(element);
+            });
+        }
+
+        this._element.outerHTML = embedObject.outerHTML;
+
+        // Issue with IE. When you replace the outerHTML the reference to that element does not correctly reflect the changes.
+        // If you want to get the new embed object in the dom you need to query for it.
+        if (envGlobal.document.getElementById) {
+            this._element = envGlobal.document.getElementById(id);
+
+            setupElement.call(this);
+        }
+
+        return this._element;
+    }
+
+    function createParameterElement(name, value) {
+        var parameter = document.createElement('param');
+
+        parameter.setAttribute('name', name);
+        parameter.setAttribute('value', value);
+
+        return parameter;
+    }
+
+    function setupElement() {
+        _.assign(this._element, defaultPropertyValues, {
+            id: this._id,
+            width: this._width,
+            height: this._height,
+            videoWidth: this._width,
+            videoHeight: this._height
+        });
+
+        setupAccessors.call(this);
+        propagateAttributeChanges.call(this);
+    }
+
+    function setupAccessors() {
+        var that = this;
+
+        envGlobal['__event__' + this._id] = function(eventName, message) {
+            var event = createEvent(eventName, that._element);
+
+            if (message) {
+                try {
+                    event.data = JSON.parse(message);
+                    event.details.data = event.data;
+                } catch (e) {
+                    event.message = message;
+                }
+            }
+
+            switch (eventName) {
+            case 'ended':
+                break;
+            case 'error':
+                that._element.error = event.data;
+
+                break;
+            case 'loadeddata':
+            case 'loadedmetadata':
+            case 'loadstart':
+                if (that._element.dispatchEvent) {
+                    that._element.dispatchEvent(event);
+                }
+
+                break;
+            case 'pause':
+                that._element.paused = true;
+
+                break;
+            case 'play':
+                that._element.paused = false;
+
+                break;
+            case 'playing':
+                that._element.paused = false;
+
+                break;
+            case 'progress':
+            case 'seeked':
+            case 'seeking':
+            case 'stalled':
+            case 'suspend':
+                if (that._element.dispatchEvent) {
+                    that._element.dispatchEvent(event);
+                }
+
+                break;
+            case 'timeupdate':
+                that._element.currentTime = getValueFromFlash.call(that, 'currentTime');
+
+                if (that._element.dispatchEvent) {
+                    that._element.dispatchEvent(event);
+                }
+
+                break;
+            case 'volumechange':
+                break;
+            case 'waiting':
+                break;
+            default:
+                break;
+            }
+
+            that._events.fireAsync(eventName, [event]);
+        };
+
+        var nativeFullScreen = this._element.requestFullscreen || this._element.mozRequestFullScreen || this._element.webkitRequestFullScreen || this._element.msRequestFullscreen;
+
+        this._disposables.add(new disposable.Disposable(function() {
+            delete envGlobal['__event__' + that._id];
+        }));
+
+        this._element.play = function() {
+            triggerFlashEvent.call(that, 'fire_play');
+        };
+        this._element.load = function() {
+            triggerFlashEvent.call(that, 'fire_load');
+        };
+        this._element.seek = function() {
+            triggerFlashEvent.call(that, 'fire_seek');
+        };
+        this._element.pause = function() {
+            triggerFlashEvent.call(that, 'fire_pause');
+        };
+        this._element.requestFullscreen = function() {
+            that._isFullscreen = true;
+            addListenerForExitFullScreen.call(that);
+
+            that._previousHeight = that._element.style.height;
+            that._previousWidth = that._element.style.width;
+            that._previousPosition = that._element.style.position;
+            that._element.style.position = 'absolute';
+            that._element.style.height = '100%';
+            that._element.style.width = '100%';
+
+            if (typeof envGlobal.ActiveXObject !== "undefined") { // Older IE.
+                var wscript = new envGlobal("WScript.Shell");
+
+                if (wscript !== null) {
+                    wscript.SendKeys("{F11}");
+                }
+            }
+
+            nativeFullScreen.call(that._element);
+        };
+
+        var triggerFlashSetSize = function() {
+            triggerFlashEvent.call(that, 'set_size', that._isFullscreen ? screen.width : that._element.clientWidth, that._isFullscreen ? screen.height : that._element.clientHeight);
+        };
+
+        _.addEventListener(envGlobal, 'resize', triggerFlashSetSize);
+
+        this._disposables.add(new disposable.Disposable(function() {
+            _.removeEventListener(envGlobal, 'resize', triggerFlashSetSize);
+        }));
+    }
+
+    function setFlashValue(name, value) {
+        var setter = this._element['set_' + name] || _.noop;
+
+        return setter.call(this._element, value);
+    }
+
+    function getValueFromFlash(name) {
+        var getter = this._element['get_' + name] || _.noop;
+
+        return getter.call(this._element);
+    }
+
+    function triggerFlashEvent(eventName) {
+        var triggerEvent = this._element[eventName];
+
+        [].shift.apply(arguments);
+
+        if (triggerEvent) {
+            return triggerEvent.apply(this._element, arguments);
+        }
+    }
+
+    function createEvent(eventName, target) {
+        var eventFrags = eventName.match(/([a-z]+\.([a-z]+))/i);
+        var detail = {target: target};
+
+        if (eventFrags !== null) {
+            eventName = eventFrags[1];
+            detail.namespace = eventFrags[2];
+        }
+
+        if (browser.browser === 'IE' && browser.version > 8) {
+            var evt = envGlobal.document.createEvent("CustomEvent");
+
+            evt.initCustomEvent(eventName, false, false, detail);
+
+            return evt;
+        }
+
+        if (!envGlobal.CustomEvent) {
+            return detail;
+        }
+
+        return new envGlobal.CustomEvent(eventName, {detail: detail});
+    }
+
+    function propagateAttributeChanges() {
+        var that = this;
+        var ignored = ['currentTime', 'paused', 'error', 'src'];
+
+        if (_.get(envGlobal, ['MutationObserver'])) {
+            // Newer browsers support an efficient way to observe DOM modifications
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.target === that._element && !_.includes(ignored, mutation.attributeName)) {
+                        setFlashValue.call(that, mutation.attributeName, that._element[mutation.attributeName]);
+                    }
+                });
+            });
+
+            var configAttributes = {attributes: true};
+
+            observer.observe(that._element, configAttributes);
+
+            that._disposables.add(new disposable.Disposable(function() {
+                observer.disconnect();
+            }));
+        } else {
+            // For older browsers. There is a significant performance overhead with this method.
+            // See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events
+            log('Falling back to use of DOM event listeners. This results in degraded performance for further DOM modifications and does not work for IE prior to version 9. See https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Mutation_events for details.');
+
+            var handleModifiedEvent = function handleModifiedEvent(event) {
+                if (!_.includes(ignored, event.target.tagName)) {
+                    setFlashValue.call(that, event.target.tagName, that._element[event.target.tagName]);
+                }
+            };
+
+            if (that._element.addEventListener) {
+                that._element.addEventListener('DOMAttrModified', handleModifiedEvent, false);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._element.removeEventListener('DOMAttrModified', handleModifiedEvent, false);
+                }));
+            } else {
+                that._element.attachEvent('onpropertychange', handleModifiedEvent);
+
+                that._disposables.add(new disposable.Disposable(function() {
+                    that._element.detachEvent('DOMAttrModified', handleModifiedEvent);
+                }));
+            }
+        }
+    }
+
+    function addListenerForExitFullScreen() {
+        var that = this;
+
+        function exitHandler() {
+            if(!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement && !document.fullscreenElement) {
+                document.removeEventListener('webkitfullscreenchange', exitHandler);
+                document.removeEventListener('mozfullscreenchange', exitHandler);
+                document.removeEventListener('fullscreenchange', exitHandler);
+                document.removeEventListener('MSFullscreenChange', exitHandler);
+                document.removeEventListener('keydown', checkForExit);
+
+                that._isFullscreen = false;
+                that._element.style.position = that._previousPosition;
+                that._element.style.height = that._previousHeight;
+                that._element.style.width = that._previousWidth;
+            }
+        }
+
+        function checkForExit(event) {
+            var keyEvent = event || envGlobal.event;
+            var isEscape = false;
+
+            if ("key" in keyEvent) {
+                isEscape = (keyEvent.key === "Escape" || keyEvent.key === "Esc");
+            } else {
+                isEscape = (keyEvent.keyCode === 27);
+            }
+
+            if (isEscape) {
+                exitHandler();
+            }
+        }
+
+        document.addEventListener('webkitfullscreenchange', exitHandler, false);
+        document.addEventListener('mozfullscreenchange', exitHandler, false);
+        document.addEventListener('fullscreenchange', exitHandler, false);
+        document.addEventListener('MSFullscreenChange', exitHandler, false);
+        document.addEventListener('keydown', checkForExit, false);
+    }
+
+    return FlashPlayer;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4297,9 +5069,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
-    __webpack_require__(7),
     __webpack_require__(9),
-    __webpack_require__(3)
+    __webpack_require__(6),
+    __webpack_require__(5)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, assert, observable, WaitFor, PhenixVideo) {
     'use strict';
 
@@ -4631,7 +5403,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 22 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -4651,10 +5423,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  */
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
-    __webpack_require__(4),
-    __webpack_require__(19),
+    __webpack_require__(3),
+    __webpack_require__(22),
     __webpack_require__(2),
-    __webpack_require__(3)
+    __webpack_require__(5)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, DetectBrowser, webRtcAdapter, envGlobal, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
