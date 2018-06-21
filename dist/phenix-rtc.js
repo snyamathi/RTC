@@ -4964,6 +4964,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         autoplay: true
     };
 
+    var mutedElementListenerInterval = 300;
     var browser = new DetectBrowser(navigator.userAgent).detect();
     var isIEAndRequiresFlashObject = browser.browser === 'IE' && /(trident|microsoft)/i.test(_.get(envGlobal.navigator, ['appName'], ''));
     var isEdgeAndRequiresFlashObject = browser.browser === 'Edge' && _.get(envGlobal.navigator, 'msLaunchUri') && !_.get(envGlobal.document, 'documentMode');
@@ -4974,9 +4975,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._events = new event.NamedEvents();
         this._isVideo = ghost.tagName === 'video';
         this._swfSrc = options.swfSrc;
-        this._id = options.streamId;
+        this._id = ghost.id || options.streamId;
         this._width = ghost.clientWidth;
         this._height = ghost.clientHeight;
+        this._ghost = ghost;
         this._element = null;
         this._eventDisposables = [];
         this._flashVars = [
@@ -5171,6 +5173,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
         setupAccessors.call(this);
         propagateAttributeChanges.call(this);
+        setupVolumeAndMutedListeners.call(this);
     }
 
     function setupAccessors() {
@@ -5293,6 +5296,83 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._disposables.add(new disposable.Disposable(function() {
             _.removeEventListener(envGlobal, 'resize', triggerFlashSetSize);
         }));
+    }
+
+    // Muted is not an attribute and will not be triggered by MutationObserver changes
+    function setupVolumeAndMutedListeners() {
+        var mutedListener = getMutedListener.call(this);
+        var volumeListener = getVolumeListener.call(this);
+
+        var intervalId = setInterval(function() {
+            mutedListener();
+            volumeListener();
+        }, mutedElementListenerInterval);
+
+        this._disposables.add(new disposable.Disposable(function() {
+            clearInterval(intervalId);
+        }));
+    }
+
+    function getMutedListener() {
+        var that = this;
+        var ghostLastMutedState = that._ghost.muted;
+        var elementLastMutedState = that._element.muted;
+
+        return function() {
+            var newGhostMutedState = that._element.muted;
+            var newElementMutedState = that._element.muted;
+
+            if (newGhostMutedState === ghostLastMutedState && newElementMutedState === elementLastMutedState) {
+                return;
+            }
+
+            if (newGhostMutedState !== ghostLastMutedState) {
+                ghostLastMutedState = newGhostMutedState;
+                elementLastMutedState = newGhostMutedState;
+                newElementMutedState = newGhostMutedState;
+            }
+
+            if (newElementMutedState !== elementLastMutedState) {
+                ghostLastMutedState = newGhostMutedState;
+                elementLastMutedState = newGhostMutedState;
+            }
+
+            that._element.muted = newElementMutedState;
+            that._ghost.muted = newElementMutedState;
+
+            setFlashValue.call(that, 'muted', newElementMutedState);
+        };
+    }
+
+    function getVolumeListener() {
+        var that = this;
+        var ghostLastVolume = that._ghost.volume;
+        var elementLastVolume = that._element.volume;
+
+        return function() {
+            var newGhostVolume = that._element.volume;
+            var newElementVolume = that._element.volume;
+
+            if (newGhostVolume === ghostLastVolume && newElementVolume === elementLastVolume) {
+                return;
+            }
+
+            if (newGhostVolume !== ghostLastVolume) {
+                ghostLastVolume = newGhostVolume;
+                elementLastVolume = newGhostVolume;
+                newElementVolume = newGhostVolume;
+            }
+
+            if (newElementVolume !== elementLastVolume) {
+                ghostLastVolume = newGhostVolume;
+                elementLastVolume = newGhostVolume;
+            }
+
+            that._element.volume = newElementVolume;
+            that._ghost.volume = newElementVolume;
+
+            setFlashValue.call(that, 'volume', newElementVolume);
+        };
     }
 
     function setFlashValue(name, value) {
