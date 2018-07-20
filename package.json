@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.2.4",
+  "version": "2018.3.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -18,13 +18,15 @@
     "check-coverage": "istanbul check-coverage --config=test/coverage.yml",
     "grunt": "grunt -d",
     "bundle": "grunt build -d",
+    "postbundle": "npm run add-copyright",
     "ci-test": "node scripts/ci-test.js",
     "ci-bundle": "node scripts/ci-bundle.js",
     "ci-coverage": "node scripts/ci-coverage.js",
     "start": "node example/httpserver.js",
     "lint": "eslint ./ —-cache",
     "lint-fix": "eslint ./ --fix",
-    "add-copyright": "./../phenix/scripts/add-copyright.sh ./"
+    "check-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule 'notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.txt}]' ./",
+    "add-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule 'notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.txt}]' ./ --fix"
   },
   "dependencies": {
     "phenix-web-assert": "^2018.2.1",
@@ -46,6 +48,7 @@
     "chai": "4.1.0",
     "eslint": "4.1.1",
     "eslint-plugin-mocha": "4.11.0",
+    "eslint-plugin-notice": "0.7.7",
     "eslint-plugin-requirejs": "3.1.1",
     "express": "4.14.0",
     "grunt": "0.4.5",
@@ -72,6 +75,7 @@
     "lodash": "4.17.4",
     "mocha": "2.5.3",
     "phantomjs-prebuilt": "2.1.11",
+    "puppeteer": "1.6.0",
     "requirejs": "2.3.2",
     "sinon": "2.4.1",
     "sinon-chai": "2.12.0",

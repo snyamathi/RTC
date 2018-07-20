@@ -6740,7 +6740,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._flashVars = [
             'uid=' + this._id,
             'autoplay=' + (_.isUndefined(ghost.autoplay) ? true : ghost.autoplay),
-            'allowScriptAccess=sameDomain',
+            'allowScriptAccess=always',
             'preload=true',
             'src=' + JSON.stringify(streamInfo)
         ];
@@ -6824,7 +6824,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         element.setAttribute('quality', 'high');
         element.setAttribute('bgcolor', '#000000');
         element.setAttribute('wmode', 'transparent');
-        element.setAttribute('allowScriptAccess', 'sameDomain');
+        element.setAttribute('allowScriptAccess', 'always');
         element.setAttribute('allowFullScreen', 'true');
         element.setAttribute('type', 'application/x-shockwave-flash');
         element.setAttribute('pluginspage', '//www.macromedia.com/go/getflashplayer');
@@ -6853,7 +6853,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             createParameterElement('quality', 2),
             createParameterElement('bgcolor', '#000000'),
             createParameterElement('wmode', 'transparent'),
-            createParameterElement('allowScriptAccess', 'sameDomain'),
+            createParameterElement('allowScriptAccess', 'always'),
             createParameterElement('allowFullScreen', 'true'),
             missingFlashMessageElement
         ];

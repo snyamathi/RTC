@@ -66,7 +66,7 @@ define([
         this._flashVars = [
             'uid=' + this._id,
             'autoplay=' + (_.isUndefined(ghost.autoplay) ? true : ghost.autoplay),
-            'allowScriptAccess=sameDomain',
+            'allowScriptAccess=always',
             'preload=true',
             'src=' + JSON.stringify(streamInfo)
         ];
@@ -150,7 +150,7 @@ define([
         element.setAttribute('quality', 'high');
         element.setAttribute('bgcolor', '#000000');
         element.setAttribute('wmode', 'transparent');
-        element.setAttribute('allowScriptAccess', 'sameDomain');
+        element.setAttribute('allowScriptAccess', 'always');
         element.setAttribute('allowFullScreen', 'true');
         element.setAttribute('type', 'application/x-shockwave-flash');
         element.setAttribute('pluginspage', '//www.macromedia.com/go/getflashplayer');
@@ -179,7 +179,7 @@ define([
             createParameterElement('quality', 2),
             createParameterElement('bgcolor', '#000000'),
             createParameterElement('wmode', 'transparent'),
-            createParameterElement('allowScriptAccess', 'sameDomain'),
+            createParameterElement('allowScriptAccess', 'always'),
             createParameterElement('allowFullScreen', 'true'),
             missingFlashMessageElement
         ];
