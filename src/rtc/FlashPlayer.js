@@ -279,6 +279,10 @@ define([
             case 'error':
                 that._element.error = event.data;
 
+                if (that._element.dispatchEvent) {
+                    that._element.dispatchEvent(new Error(message));
+                }
+
                 break;
             case 'loadeddata':
             case 'loadedmetadata':

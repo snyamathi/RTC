@@ -23,7 +23,9 @@ requirejs.config({
         'webrtc-adapter': '/webrtc-adapter/out/adapter',
         'phenix-web-lodash-light': 'phenix-web-lodash-light/dist/phenix-web-lodash-light.min',
         'phenix-web-assert': 'phenix-web-assert/dist/phenix-web-assert.min',
+        'phenix-web-event': 'phenix-web-event/dist/phenix-web-event.min',
         'phenix-web-observable': 'phenix-web-observable/dist/phenix-web-observable.min',
+        'phenix-web-disposable': 'phenix-web-disposable/dist/phenix-web-disposable.min',
         'phenix-web-detect-browser': 'phenix-web-detect-browser/dist/phenix-web-detect-browser.min'
     }
 });
