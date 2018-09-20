@@ -1215,7 +1215,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
                 that._element.error = event.data;
 
                 if (that._element.dispatchEvent) {
-                    that._element.dispatchEvent(event);
+                    that._element.dispatchEvent(new Error(message));
                 }
 
                 break;
