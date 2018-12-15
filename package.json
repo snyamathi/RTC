@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.4.1",
+  "version": "2019.0.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -25,16 +25,15 @@
     "start": "node example/httpserver.js",
     "lint": "eslint ./ —-cache",
     "lint-fix": "eslint ./ --fix",
-    "check-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule 'notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.txt}]' ./",
-    "add-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule 'notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.txt}]' ./ --fix"
+    "add-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule \"notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.tmpl}]\" ./dist --fix"
   },
   "dependencies": {
-    "phenix-web-assert": "^2018.2.1",
-    "phenix-web-detect-browser": "^2018.2.1",
-    "phenix-web-disposable": "^2018.2.1",
-    "phenix-web-event": "^2018.2.1",
-    "phenix-web-lodash-light": "^2018.2.1",
-    "phenix-web-observable": "^2018.2.1"
+    "phenix-web-assert": "^2018.4.2",
+    "phenix-web-detect-browser": "^2018.4.2",
+    "phenix-web-disposable": "^2018.4.2",
+    "phenix-web-event": "^2018.4.2",
+    "phenix-web-lodash-light": "^2018.4.2",
+    "phenix-web-observable": "^2018.4.2"
   },
   "engines": {
     "node": "10.13.0"

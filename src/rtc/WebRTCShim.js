@@ -317,7 +317,7 @@ define([
             return element;
         }
 
-        playPromise.then(function () {
+        playPromise.then(function() {
             if (typeof callback === 'function') {
                 callback();
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3963,7 +3963,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             return element;
         }
 
-        playPromise.then(function () {
+        playPromise.then(function() {
             if (typeof callback === 'function') {
                 callback();
             }
@@ -4098,7 +4098,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     };
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
 
 /***/ }),
 /* 26 */
