@@ -5799,7 +5799,28 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             log('Error attaching stream to element.');
         }
 
-        element.play();
+        var playPromise = element.play();
+
+        if (playPromise === undefined) {
+            return element;
+        }
+
+        playPromise.catch(function(e) {
+            log('Autoplay unsuccessful: ' + e);
+            element.muted = true;
+
+            var retryPromise = element.play();
+
+            if (retryPromise === undefined) {
+                return;
+            }
+
+            retryPromise.then(function() {
+                log('Autoplay successful after muting element. Must be manually unmuted.');
+            }).catch(function(e) {
+                log('Autoplay retry unsuccessful: ' + e);
+            });
+        });
 
         return element;
     }
@@ -5924,6 +5945,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     };
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ })
 /******/ ]);

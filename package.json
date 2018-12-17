@@ -1,12 +1,12 @@
 {
   "name": "phenix-rtc",
-  "version": "2018.3.2",
+  "version": "2018.4.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PhenixP2P/RTC.git"
+    "url": "https://github.com/PhenixRTS/RTC.git"
   },
   "scripts": {
     "preinstall": "npm prune",
@@ -37,7 +37,7 @@
     "phenix-web-observable": "^2018.2.1"
   },
   "engines": {
-    "node": "8.4.0"
+    "node": "10.13.0"
   },
   "devDependencies": {
     "bluebird": "3.5.0",

@@ -307,7 +307,28 @@ define([
             log('Error attaching stream to element.');
         }
 
-        element.play();
+        var playPromise = element.play();
+
+        if (playPromise === undefined) {
+            return element;
+        }
+
+        playPromise.catch(function(e) {
+            log('Autoplay unsuccessful: ' + e);
+            element.muted = true;
+
+            var retryPromise = element.play();
+
+            if (retryPromise === undefined) {
+                return;
+            }
+
+            retryPromise.then(function() {
+                log('Autoplay successful after muting element. Must be manually unmuted.');
+            }).catch(function(e) {
+                log('Autoplay retry unsuccessful: ' + e);
+            });
+        });
 
         return element;
     }
