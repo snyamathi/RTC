@@ -3887,12 +3887,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         case 'Safari':
             log('Safari detected', browser);
 
-            attachMediaStream = function(element, stream) {
+            attachMediaStream = function(element, stream, callback) {
                 if (_.isObject(stream)) {
                     element.__phenixHasPlayedWebRtc = true;
                 }
 
-                element = attachStreamToElement(element, stream);
+                element = attachStreamToElement(element, stream, callback);
 
                 return element;
             };
@@ -4032,7 +4032,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         });
     }
 
-    function attachStreamToElement(element, stream) {
+    function attachStreamToElement(element, stream, callback) {
         if (typeof element.srcObject !== 'undefined') {
             element.srcObject = stream;
         } else if (typeof element.mozSrcObject !== 'undefined') {
@@ -4046,24 +4046,23 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         var playPromise = element.play();
 
         if (playPromise === undefined) {
+            if (typeof callback === 'function') {
+                callback();
+            }
+
             return element;
         }
 
-        playPromise.catch(function(e) {
-            log('Autoplay unsuccessful: ' + e);
-            element.muted = true;
-
-            var retryPromise = element.play();
-
-            if (retryPromise === undefined) {
-                return;
+        playPromise.then(function () {
+            if (typeof callback === 'function') {
+                callback();
             }
+        }).catch(function(e) {
+            log('Play() failed: ' + e);
 
-            retryPromise.then(function() {
-                log('Autoplay successful after muting element. Must be manually unmuted.');
-            }).catch(function(e) {
-                log('Autoplay retry unsuccessful: ' + e);
-            });
+            if (typeof callback === 'function') {
+                callback(e);
+            }
         });
 
         return element;
