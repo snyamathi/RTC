@@ -150,7 +150,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,6 +164,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
     'use strict';
 
@@ -245,7 +246,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,6 +260,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(4),
@@ -716,7 +718,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -730,6 +732,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(3)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function(DetectBrowser) {
@@ -1151,7 +1154,7 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1165,6 +1168,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
@@ -1262,7 +1266,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1276,6 +1280,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function(envGlobal) {
     'use strict';
 
@@ -4490,7 +4495,7 @@ module.exports = {
 
 "use strict";
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4504,6 +4509,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(11),
@@ -4526,7 +4532,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4540,6 +4546,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(3),
@@ -5131,7 +5138,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5145,6 +5152,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(1),
@@ -5486,7 +5494,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2018 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5500,6 +5508,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
     __webpack_require__(0),
     __webpack_require__(3),
