@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -620,7 +620,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -757,7 +757,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -869,7 +869,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4886,7 +4886,7 @@ module.exports = {
 
 "use strict";
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4923,7 +4923,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5529,7 +5529,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5885,7 +5885,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5951,47 +5951,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         case 'Firefox':
             log('Firefox detected', browser);
 
-            // Attach a media stream to an element.
-            attachMediaStream = function(element, stream) {
-                log('Attaching media stream');
-
-                var muted = element.muted;
-
-                if (browser.version > 57) {
-                    element.srcObject = stream;
-                }
-
-                element.mozSrcObject = stream;
-                element.play();
-
-                if (muted === true) {
-                    // FF unmutes upon play()
-                    element.muted = true;
-                }
-
-                return element;
-            };
-
-            reattachMediaStream = function(to, from) {
-                log('Reattaching media stream');
-
-                var muted = to.muted;
-
-                if (browser.version > 57) {
-                    to.srcObject = from.srcObject;
-                }
-
-                to.mozSrcObject = from.mozSrcObject;
-                to.play();
-
-                if (muted === true) {
-                    // FF unmutes upon play()
-                    to.muted = true;
-                }
-
-                return to;
-            };
-
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
             };

@@ -22,10 +22,11 @@
     "ci-test": "node scripts/ci-test.js",
     "ci-bundle": "node scripts/ci-bundle.js",
     "ci-coverage": "node scripts/ci-coverage.js",
+    "ci-deploy": "node scripts/ci-deploy.js",
     "start": "node example/httpserver.js",
     "lint": "eslint ./ —-cache",
     "lint-fix": "eslint ./ --fix",
-    "add-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule \"notice/notice: [2, {mustMatch: Copyright .* PhenixP2P Inc,templateFile: copyright.tmpl}]\" ./dist --fix"
+    "add-copyright": "eslint --no-eslintrc --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:3 --parser-options=sourceType:module --rule \"notice/notice: [2, {mustMatch: Copyright .* Phenix Real Time Solutions Inc,templateFile: copyright.tmpl}]\" ./dist --fix"
   },
   "dependencies": {
     "phenix-web-assert": "^2018.4.2",
