@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2019.0.0",
+  "version": "2019.0.1",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
@@ -32,11 +32,11 @@
     "phenix-web-detect-browser": "^2018.4.2",
     "phenix-web-disposable": "^2018.4.2",
     "phenix-web-event": "^2018.4.2",
-    "phenix-web-lodash-light": "^2018.4.2",
+    "phenix-web-lodash-light": "^2019.0.2",
     "phenix-web-observable": "^2018.4.2"
   },
   "engines": {
-    "node": "10.13.0"
+    "node": "10.15.3"
   },
   "devDependencies": {
     "bluebird": "3.5.0",

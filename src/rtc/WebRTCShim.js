@@ -65,47 +65,8 @@ define([
         case 'Firefox':
             log('Firefox detected', browser);
 
-            // Attach a media stream to an element.
-            attachMediaStream = function(element, stream) {
-                log('Attaching media stream');
-
-                var muted = element.muted;
-
-                if (browser.version > 57) {
-                    element.srcObject = stream;
-                }
-
-                element.mozSrcObject = stream;
-                element.play();
-
-                if (muted === true) {
-                    // FF unmutes upon play()
-                    element.muted = true;
-                }
-
-                return element;
-            };
-
-            reattachMediaStream = function(to, from) {
-                log('Reattaching media stream');
-
-                var muted = to.muted;
-
-                if (browser.version > 57) {
-                    to.srcObject = from.srcObject;
-                }
-
-                to.mozSrcObject = from.mozSrcObject;
-                to.play();
-
-                if (muted === true) {
-                    // FF unmutes upon play()
-                    to.muted = true;
-                }
-
-                return to;
-            };
-
+            attachMediaStream = attachStreamToElement;
+            reattachMediaStream = reattachStreamToElement;
             getStats = function getPeerConnectionStats(pc, track, successCallback, errorCallback) {
                 pc.getStats(track, _.bind(handleGetStatsSuccess, this, pc, successCallback), errorCallback);
             };
