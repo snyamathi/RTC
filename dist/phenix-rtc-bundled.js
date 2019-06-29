@@ -6756,6 +6756,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         this._flashVars = [
             'uid=' + this._id,
             'autoplay=' + (_.isUndefined(ghost.autoplay) ? true : ghost.autoplay),
+            'muted=' + (_.isUndefined(ghost.muted) ? false : ghost.muted),
             'allowScriptAccess=always',
             'preload=true',
             'src=' + JSON.stringify(streamInfo)

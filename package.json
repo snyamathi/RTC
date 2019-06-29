@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2019.0.1",
+  "version": "2019.2.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.min",
