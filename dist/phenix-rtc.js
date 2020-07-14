@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5911,7 +5911,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     'use strict';
 
     var log = function() {
-        console.log.apply(console, arguments);
+        // console.log.apply(console, arguments);
     };
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -6056,6 +6056,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
     function navigatorGetUserMedia(constraints, successCallback, errorCallback) {
         var onSuccess = _.bind(handleGetUserMediaSuccess, this, constraints, successCallback, errorCallback);
+
+        if (navigator && navigator.mediaDevices && _.isFunction(navigator.mediaDevices.getUserMedia)) {
+            return navigator.mediaDevices.getUserMedia(constraints)
+                .then(function (mediaStream) {
+                    return onSuccess(mediaStream);
+                }).catch(function (e) {
+                    return errorCallback(e);
+                });
+        }
 
         if (navigator && _.isFunction(navigator.getUserMedia)) {
             return navigator.getUserMedia(constraints, onSuccess, errorCallback);

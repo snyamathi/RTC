@@ -24,7 +24,7 @@ define([
     'use strict';
 
     var log = function() {
-        console.log.apply(console, arguments);
+        // console.log.apply(console, arguments);
     };
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -169,6 +169,15 @@ define([
 
     function navigatorGetUserMedia(constraints, successCallback, errorCallback) {
         var onSuccess = _.bind(handleGetUserMediaSuccess, this, constraints, successCallback, errorCallback);
+
+        if (navigator && navigator.mediaDevices && _.isFunction(navigator.mediaDevices.getUserMedia)) {
+            return navigator.mediaDevices.getUserMedia(constraints)
+                .then(function (mediaStream) {
+                    return onSuccess(mediaStream);
+                }).catch(function (e) {
+                    return errorCallback(e);
+                });
+        }
 
         if (navigator && _.isFunction(navigator.getUserMedia)) {
             return navigator.getUserMedia(constraints, onSuccess, errorCallback);
