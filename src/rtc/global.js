@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,13 @@
 define([], function() {
     'use strict';
 
-    var getGlobal = function getGlobal() {
-        if (typeof window === "object") { // eslint-disable-line no-restricted-globals
-            return window; // eslint-disable-line no-restricted-globals
-        }
+    if (typeof window === "object") { // eslint-disable-line no-restricted-globals
+        return window; // eslint-disable-line no-restricted-globals
+    }
 
-        if (typeof global === "object") {
-            return global; // eslint-disable-line no-undef
-        }
+    if (typeof global === "object") {
+        return global; // eslint-disable-line no-undef
+    }
 
-        return {};
-    };
-
-    return getGlobal();
+    return {};
 });

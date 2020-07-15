@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,16 @@ define([
     'phenix-web-detect-browser',
     'webrtc-adapter',
     './global',
-    './PhenixVideo'
+    './PhenixFlashVideo'
 ], function(_, DetectBrowser, webRtcAdapter, envGlobal, PhenixVideo) { // eslint-disable-line no-unused-vars
     'use strict';
 
     var log = function() {
-        // console.log.apply(console, arguments);
+        // Console.log.apply(console, arguments);
+    };
+
+    var logWarn = function() {
+        console.log.apply(console, arguments);
     };
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
@@ -58,7 +62,7 @@ define([
         }
 
         if (!envGlobal.RTCPeerConnection) {
-            return log('[%s] browser version [%s] does not appear to be WebRTC-capable', browser.browser, browser.version);
+            return logWarn('Browser version does not appear to be WebRTC-capable', browser.browser, browser.version);
         }
 
         switch (browser.browser) {
@@ -172,9 +176,9 @@ define([
 
         if (navigator && navigator.mediaDevices && _.isFunction(navigator.mediaDevices.getUserMedia)) {
             return navigator.mediaDevices.getUserMedia(constraints)
-                .then(function (mediaStream) {
+                .then(function(mediaStream) {
                     return onSuccess(mediaStream);
-                }).catch(function (e) {
+                }).catch(function(e) {
                     return errorCallback(e);
                 });
         }
@@ -322,7 +326,6 @@ define([
     }
 
     function normalizePeerConnectionStats(pc, stats) {
-        // TODO (DCY) add vendor specific logic to map all stats to same similar object
         switch (browser.browser) {
         case 'Edge':
             stats.forEach(function(stat) {

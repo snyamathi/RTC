@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ module.exports = function(config) {
 
         // Frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha'],
+        frameworks: ['mocha', 'stacktrace'],
 
         // List of files / patterns to load in the browser
         files: [
@@ -44,41 +44,55 @@ module.exports = function(config) {
 
         // Preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {'../test/test-runner.js': ['webpack', 'sourcemap']},
+        preprocessors: {'../test/test-runner.js': ['webpack']},
 
         webpack: {
+            mode: 'development',
+            optimization: {minimize: false},
             devtool: 'inline-source-map',
+            resolve: {alias: {'rtc': path.resolve(__dirname, '../src/rtc')}}, // Resolve test dependencies to src
             plugins: [
                 new CaseSensitivePathsPlugin()
             ],
-            resolve: {alias: {'rtc': path.resolve(__dirname, '../src/rtc')}} // Resolve test dependencies to src
+            module: {
+                rules: [
+                    {
+                        test: /\.js$/,
+                        use: {loader: 'istanbul-instrumenter-loader'},
+                        include: path.resolve('src/rtc/')
+                    }
+                ]
+            }
         },
 
-        webpackMiddleware: {stats: 'errors-only'},
+        webpackMiddleware: {
+            noInfo: true,
+            stats: 'errors-only'
+        },
+
+        plugins: [
+            require('karma-webpack'),
+            require('karma-mocha'),
+            require('karma-chrome-launcher'),
+            require('karma-edge-launcher'),
+            require('karma-firefox-launcher'),
+            require('karma-ie-launcher'),
+            require('karma-opera-launcher'),
+            require('karma-safari-launcher'),
+            require('karma-spec-reporter'),
+            require('karma-coverage-istanbul-reporter'),
+            require('karma-stacktrace')
+        ],
 
         // Test results reporter to use
-        // possible values: 'dots', 'progress'
+        // possible values: 'dots', 'progress', 'spec'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress', 'coverage'],
+        reporters: ['spec', 'coverage-istanbul'],
 
-        coverageReporter: {
+        coverageIstanbulReporter: {
             dir: path.resolve(__dirname, '../coverage'),
-            reporters: [
-                {
-                    type: 'json',
-                    subdir: '.'
-                },
-                {
-                    type: 'html',
-                    subdir: '.'
-                },
-                {
-                    type: 'lcov',
-                    subdir: '.'
-                },
-                {type: 'teamcity'},
-                {type: 'text-summary'}
-            ]
+            reports: ['json', 'html', 'lcov', 'teamcity', 'text-summary'],
+            fixWebpackSourcePaths: true
         },
 
         // Web server port
@@ -96,10 +110,10 @@ module.exports = function(config) {
 
         // Start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['ChromeHeadlessCustom'],
+        browsers: ['ChromeHeadlessNoSandbox'],
 
         customLaunchers: {
-            'ChromeHeadlessCustom': {
+            ChromeHeadlessNoSandbox: {
                 base: 'ChromeHeadless',
                 flags: ['--no-sandbox']
             }

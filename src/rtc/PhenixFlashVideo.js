@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,17 @@ define([
     var log = function() {
         console.log.apply(console, arguments);
     } || function() {
-        };
+    };
 
     var logError = function() {
         console.error.apply(console, arguments);
     } || log;
 
-    function PhenixVideo(ghost, stream, pluginType, options) {
+    function PhenxFlashVideo(ghost, stream, options) {
         var that = this;
 
         this._ghost = ghost;
         this._stream = stream;
-        this._isPhenixPlugin = pluginType === 'phenix';
-        this._isFlash = pluginType === 'flash';
         this._options = options || {};
         this._events = {};
         this._disposables = new disposable.DisposableList();
@@ -60,7 +58,7 @@ define([
         };
 
         try {
-            this._video = createPhenixVideoElement.call(this);
+            this._video = createPhenxFlashVideoElement.call(this);
             this._video.className = this._ghost.className;
             this._video.height = this._ghost.height;
             this._video.width = this._ghost.width;
@@ -88,7 +86,7 @@ define([
             if (document.body && document.body.contains && document.body.contains(this._ghost)) {
                 this._ghost.parentNode.replaceChild(this._video, this._ghost);
 
-                if (this._isFlash && this._flashPlayer) {
+                if (this._flashPlayer) {
                     this._video = this._flashPlayer.finishInitializationInDom();
                 }
 
@@ -97,10 +95,6 @@ define([
                         that._video.parentNode.replaceChild(that._ghost, that._video);
                     }
                 }));
-            }
-
-            if (!this._isPhenixPlugin) {
-                return loaded(true);
             }
 
             var waitFor = new WaitFor();
@@ -112,7 +106,7 @@ define([
         }
     }
 
-    PhenixVideo.prototype.hookUpEvents = function() {
+    PhenxFlashVideo.prototype.hookUpEvents = function() {
         var that = this;
         var ghost = this._ghost;
         var onError = function onError() {
@@ -175,7 +169,7 @@ define([
         return eventDisposable;
     };
 
-    PhenixVideo.prototype.onReady = function(callback) {
+    PhenxFlashVideo.prototype.onReady = function(callback) {
         var that = this;
 
         if (this._loaded) {
@@ -187,94 +181,40 @@ define([
         }
     };
 
-    PhenixVideo.prototype.getElement = function() {
+    PhenxFlashVideo.prototype.getElement = function() {
         return this._video;
     };
 
-    PhenixVideo.prototype.addEventListener = function(name, listener, useCapture) {
+    PhenxFlashVideo.prototype.addEventListener = function(name, listener, useCapture) {
         addEventListener.call(this, name, listener, useCapture);
     };
 
-    PhenixVideo.prototype.removeEventListener = function(name, listener, useCapture) {
+    PhenxFlashVideo.prototype.removeEventListener = function(name, listener, useCapture) {
         removeEventListener.call(this, name, listener, useCapture);
     };
 
-    PhenixVideo.prototype.destroy = function() {
+    PhenxFlashVideo.prototype.destroy = function() {
         this._disposables.dispose();
     };
 
-    function createPhenixVideoElement() {
-        var video = document.createElement('video');
+    function createPhenxFlashVideoElement() {
+        this._flashPlayer = new FlashPlayer(this._ghost, this._stream, this._options);
 
-        if (this._isPhenixPlugin) {
-            video = document.createElement('object');
+        var that = this;
 
-            video.type = 'application/x-phenix-video';
-        }
+        this._disposables.add(new disposable.Disposable(function() {
+            that._flashPlayer.destroy();
+        }));
 
-        if (this._isFlash) {
-            this._flashPlayer = new FlashPlayer(this._ghost, this._stream, this._options);
-
-            var that = this;
-
-            this._disposables.add(new disposable.Disposable(function() {
-                that._flashPlayer.destroy();
-            }));
-
-            video = this._flashPlayer.getElement();
-        }
-
-        return video;
+        return this._flashPlayer.getElement();
     }
 
-    function addEventListener(name, listener, useCapture) {
-        if (this._isFlash) {
-            return this._flashPlayer.addEventListener(name, listener);
-        }
-
-        if (this._isPhenixPlugin) {
-            var listeners = this._events[name];
-
-            if (!listeners) {
-                listeners = this._events[name] = [];
-
-                if (this._loaded) {
-                    registerEvent.call(this, name);
-                }
-            }
-
-            return listeners.push(listener);
-        }
-
-        return this._video.addEventListener(name, listener, useCapture);
+    function addEventListener(name, listener /* , useCapture */) {
+        return this._flashPlayer.addEventListener(name, listener);
     }
 
-    function removeEventListener(name, listener, useCapture) {
-        if (this._isFlash) {
-            return this._flashPlayer.removeEventListener(name, listener);
-        }
-
-        if (this._isPhenixPlugin) {
-            var listeners = this._events[name];
-
-            if (listeners) {
-                var idx = listeners.indexOf(listener);
-
-                if (idx >= 0) {
-                    listeners = listeners.splice(idx, 1);
-
-                    if (listeners.length > 0) {
-                        this._events[name] = listeners;
-                    } else {
-                        delete this._events[name];
-                    }
-                }
-            }
-
-            return;
-        }
-
-        return this._video.removeEventListener(name, listener, useCapture);
+    function removeEventListener(name, listener /* , useCapture */) {
+        return this._flashPlayer.removeEventListener(name, listener);
     }
 
     function registerEvent(name) {
@@ -336,10 +276,6 @@ define([
         this._video.muted = this._ghost.muted;
         this._video.defaultMuted = this._ghost.defaultMuted;
         this._video.volume = this._ghost.volume;
-
-        if (this._stream && !this._isFlash) {
-            this._video.src = this._stream;
-        }
     }
 
     function propagateAttributeChanges() {
@@ -462,5 +398,5 @@ define([
         return false;
     }
 
-    return PhenixVideo;
+    return PhenxFlashVideo;
 });

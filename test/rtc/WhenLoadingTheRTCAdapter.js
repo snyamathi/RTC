@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,11 +51,11 @@ define([
         it('defines webrtcSupported boolean flag', function() {
             expect(RTCAdapter.webrtcSupported).to.be.a('boolean');
         });
-        it('defines phenixSupported boolean flag', function() {
-            expect(RTCAdapter.phenixSupported).to.be.a('boolean');
+        it('defines global object', function() {
+            expect(RTCAdapter).to.have.property('global');
         });
-        it('defines phenixEnabled boolean flag', function() {
-            expect(RTCAdapter.isPhenixEnabled).to.be.a('function');
+        it('defines shim function', function() {
+            expect(RTCAdapter.shim).to.be.a('function');
         });
     });
 });

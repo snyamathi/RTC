@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ requirejs([
         var pcReceiverAnswerSdp = null;
 
         var onUserMediaSuccess = function onUserMediaSuccess(stream) {
-            log('Got user media stream [%s]', localVideoEl.id);
+            log('Got user media stream', localVideoEl.id);
 
             // **********
             // IMPORTANT: update reference to element as some RTC implementation will replace the element in the DOM
@@ -88,7 +88,7 @@ requirejs([
         };
 
         var getUserMedia = function getUserMedia() {
-            if (!userMediaStream || userMediaStream.ended) {
+            if (!userMediaStream) {
                 rtc.getUserMedia({
                     audio: true,
                     video: true
@@ -397,15 +397,21 @@ requirejs([
                         track.stop();
                     });
                 }
+
+                userMediaStream = null;
             }
         };
 
         var stopLocalVideo = function stopLocalVideo() {
-            localVideoEl.src = '';
+            localVideoEl.pause();
+
+            var nullStream = null;
+
+            localVideoEl = rtc.attachMediaStream(localVideoEl, nullStream);
         };
 
         var stopRemoteVideo = function stopRemoteVideo() {
-            remoteVideoEl.src = '';
+            remoteVideoEl.pause();
         };
 
         var muteLocalVideo = function muteLocalVideo() {
@@ -468,14 +474,6 @@ requirejs([
             $('#webrtc').addClass('danger');
         }
 
-        if (rtc.isPhenixEnabled()) {
-            $('#phenix').addClass('success');
-        } else if (rtc.phenixSupported) {
-            $('#phenix').addClass('warning');
-        } else {
-            $('#phenix').addClass('danger');
-        }
-
         $('#listSources').click(listSources);
         $('#getUserMedia').click(getUserMedia);
         $('#stopUserMedia').click(stopUserMedia);
@@ -509,11 +507,6 @@ requirejs([
 
     $(function() {
         init();
-
-        // Plugin might load with delay
-        if (rtc.phenixSupported && !rtc.isPhenixEnabled()) {
-            rtc.onload = init;
-        }
     });
 
     var h264Query = /:(.*?(?= H264))/g;
@@ -533,7 +526,7 @@ requirejs([
     }
 
     function replaceAllExceptH264(sdp) {
-        log('Before replace sdp is [%s]', sdp);
+        log('Before replace sdp is', sdp);
 
         var h264Id = sdp.match(h264Query)[0].substring(1, 4);
         var stringToReplace = sdp.match(videoMLineNumbersQuery)[0].split('UDP/TLS/RTP/SAVPF ')[1];

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ app.get('/', function(req, res) {
 
 app.post('/log', function(req, res) {
     console.log(req.body);
-    res.send(200);
+    res.sendStatus(200);
 });
 
 const httpServer = http.createServer(app);

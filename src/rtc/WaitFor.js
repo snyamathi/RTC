@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,24 +44,22 @@ define([
 
         var checkLoaded = function checkLoaded() {
             if (element.readyState === ReadyStateComplete) { // IE
-                guardedLoaded(true);
-            } else if (element.phenixVersion) { // Property is available
-                guardedLoaded(true);
-            } else {
-                waitFor = Math.min(waitFor + 1000, 2 * waitFor);
-                sum += waitFor;
+                return guardedLoaded(true);
+            }
 
-                if (sum > timeout) {
-                    logError('Timed out while waiting for <object> to load');
-                    guardedLoaded(false);
-                } else {
-                    setTimeout(checkLoaded, waitFor);
-                }
+            waitFor = Math.min(waitFor + 1000, 2 * waitFor);
+            sum += waitFor;
+
+            if (sum > timeout) {
+                logError('Timed out while waiting for <object> to load');
+                guardedLoaded(false);
+            } else {
+                setTimeout(checkLoaded, waitFor);
             }
         };
 
-        if (!(element.hasOwnProperty && element.hasOwnProperty('onload'))) {
-            //  There are no events in IE to detect when it is loaded
+        if (!(Object.prototype.hasOwnProperty && Object.prototype.hasOwnProperty.call(element, 'onload'))) {
+            // There are no events in IE to detect when it is loaded
             if (browser.browser !== 'IE') {
                 logError('No means of detecting when <object> is loaded');
             }
@@ -75,11 +73,7 @@ define([
     };
 
     WaitFor.prototype.waitForReady = function(element, loaded) {
-        if (element.phenixVersion) { // Already loaded
-            loaded(true);
-        } else {
-            this.waitForReadyWithTimeout(element, loaded, this._timeout);
-        }
+        this.waitForReadyWithTimeout(element, loaded, this._timeout);
     };
 
     return WaitFor;

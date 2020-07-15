@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,111 +15,60 @@
  */
 
 /* global __dirname module */
-var webpack = require('webpack');
-var path = require('path');
-var webpackMerge = require('webpack-merge');
-var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const path = require('path');
+const del = require('del');
+const {merge} = require('webpack-merge');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const outputPath = path.join(__dirname, 'dist');
 
-var baseConfig = {
+del.sync([path.resolve(outputPath, '**/*')]);
+
+const baseConfig = {
+    mode: 'production',
     output: {
         libraryTarget: 'umd',
-        path: path.join(__dirname, '/dist')
+        path: outputPath
     },
-    context: path.join(__dirname, '/src'),
+    context: path.join(__dirname, 'src'),
     entry: './main',
     devtool: 'source-map',
     plugins: [
-        new webpack.DefinePlugin({'process.env': {'NODE_ENV': JSON.stringify('production')}}),
         new CaseSensitivePathsPlugin()
-    ]
+    ],
+    optimization: {minimize: false}
+};
+const externalizePhenixImports = (context, request, callback) => {
+    if (/^phenix-.*$/.test(request)){
+        return callback(null, true);
+    }
+
+    // Continue without externalizing the import
+    callback();
 };
 
 var configs = [{
     output: {filename: 'phenix-rtc-bundled.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
-            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
-            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
-            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'webrtc-adapter': 'webrtc-adapter/out/adapter.js'
-        }
-    }
+    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter.js'}}
 }, {
     output: {filename: 'phenix-rtc-no-edge-bundled.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
-            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
-            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
-            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'
-        }
-    }
+    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'}}
 }, {
     output: {filename: 'phenix-rtc-react-native-bundled.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'phenix-web-assert': path.resolve(__dirname, 'node_modules', 'phenix-web-assert'),
-            'phenix-web-detect-browser': path.resolve(__dirname, 'node_modules', 'phenix-web-detect-browser'),
-            'phenix-web-disposable': path.resolve(__dirname, 'node_modules', 'phenix-web-disposable'),
-            'phenix-web-event': path.resolve(__dirname, 'node_modules', 'phenix-web-event'),
-            'phenix-web-lodash-light': path.resolve(__dirname, 'node_modules', 'phenix-web-lodash-light'),
-            'phenix-web-observable': path.resolve(__dirname, 'node_modules', 'phenix-web-observable'),
-            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')
-        }
-    }
+    resolve: {alias: {'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')}}
 }, {
     output: {filename: 'phenix-rtc-react-native.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')
-        }
-    },
-    externals: [{
-        'phenix-web-assert': true,
-        'phenix-web-detect-browser': true,
-        'phenix-web-disposable': true,
-        'phenix-web-event': true,
-        'phenix-web-lodash-light': true,
-        'phenix-web-observable': true
-    }]
+    resolve: {alias: {'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')}},
+    externals: [externalizePhenixImports]
 }, {
     output: {filename: 'phenix-rtc.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': 'webrtc-adapter/out/adapter.js'
-        }
-    },
-    externals: [{
-        'phenix-web-assert': true,
-        'phenix-web-detect-browser': true,
-        'phenix-web-disposable': true,
-        'phenix-web-event': true,
-        'phenix-web-lodash-light': true,
-        'phenix-web-observable': true
-    }]
+    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter.js'}},
+    externals: [externalizePhenixImports]
 }, {
     output: {filename: 'phenix-rtc-no-edge.js'},
-    resolve: {
-        alias: { // Webpack issue - alias libraries used in self and dependent libraries to avoid duplication in bundle
-            'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'
-        }
-    },
-    externals: [{
-        'phenix-web-assert': true,
-        'phenix-web-detect-browser': true,
-        'phenix-web-disposable': true,
-        'phenix-web-event': true,
-        'phenix-web-lodash-light': true,
-        'phenix-web-observable': true
-    }]
+    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'}},
+    externals: [externalizePhenixImports]
 }];
 
 module.exports = configs.map(function(config) {
-    return webpackMerge(baseConfig, config);
+    return merge(baseConfig, config);
 });

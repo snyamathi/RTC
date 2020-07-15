@@ -6,4 +6,6 @@
 .idea/codeStyles/
 node_modules/
 coverage/
+dist/
 npm-debug.log
+.eslintcache

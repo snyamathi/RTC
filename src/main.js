@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,11 @@
 'use strict';
 define('phenix-rtc', [
     './rtc/RTCAdapter',
-    './rtc/exportGlobal',
-    './rtc/PhenixVideo'
-], function(adapter, exportGlobal, PhenixVideo) {
-    adapter.PhenixVideo = PhenixVideo;
-    adapter.onLoaded = function() {
-        exportGlobal(adapter);
-    };
+    './rtc/PhenixFlashVideo'
+], function(adapter, PhenixFlashVideo) {
+    'use strict';
 
-    adapter.onLoaded();
+    adapter.PhenixFlashVideo = PhenixFlashVideo;
 
     return adapter;
 });

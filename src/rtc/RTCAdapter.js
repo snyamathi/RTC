@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Phenix Real Time Solutions Inc. All Rights Reserved.
+ * Copyright 2020 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,91 +16,21 @@
 
 define([
     'phenix-web-lodash-light',
-    'phenix-web-assert',
-    'phenix-web-observable',
     'phenix-web-detect-browser',
     './global',
-    './WebRTCShim',
-    './PhenixRTC'
-], function(_, assert, obserervable, DetectBrowser, envGlobal, webRTCShim, PhenixRTC) {
+    './WebRTCShim'
+], function(_, DetectBrowser, envGlobal, webRTCShim) {
     'use strict';
 
     var browser = new DetectBrowser(navigator.userAgent).detect();
     var adapter = {
         browser: browser.browser,
         browserVersion: browser.version,
-        phenixSupported: false,
-        isPhenixEnabled: function() {
-            return false;
-        },
-        onLoaded: undefined,
-        global: envGlobal
+        global: envGlobal,
+        shim: webRTCShim
     };
 
-    function createAdapter() {
-        _.assign(adapter, webRTCShim());
+    _.assign(adapter, webRTCShim());
 
-        if (PhenixRTC.isSupported()) {
-            adapter.phenixSupported = true;
-
-            var phenixRTC = new PhenixRTC();
-
-            var enablePhenix = function enablePhenix() {
-                adapter.RTCPeerConnection = phenixRTC.getRTCPeerConnectionConstructor();
-                adapter.RTCSessionDescription = phenixRTC.getRTCSessionDescriptionConstructor();
-                adapter.RTCIceCandidate = phenixRTC.getRTCIceCandidateConstructor();
-                adapter.getSources = phenixRTC.getSourcesDelegate();
-                adapter.getUserMedia = phenixRTC.getUserMediaDelegate();
-                adapter.getStats = phenixRTC.getStatsDelegate();
-
-                if (Function.prototype.bind) {
-                    adapter.attachMediaStream = phenixRTC.attachMediaStream.bind(phenixRTC);
-                    adapter.reattachMediaStream = phenixRTC.reattachMediaStream.bind(phenixRTC);
-                    adapter.isPhenixEnabled = phenixRTC.isEnabled.bind(phenixRTC);
-                } else {
-                    adapter.attachMediaStream = function() {
-                        phenixRTC.attachMediaStream.apply(phenixRTC, arguments);
-                    };
-                    adapter.reattachMediaStream = function() {
-                        phenixRTC.reattachMediaStream.apply(phenixRTC, arguments);
-                    };
-                    adapter.isPhenixEnabled = function() {
-                        return phenixRTC.isEnabled();
-                    };
-                }
-
-                adapter.webrtcSupported = true;
-                adapter.phenixSupported = true;
-                adapter.phenixVersion = phenixRTC.getVersion();
-
-                if (adapter.onLoaded) {
-                    adapter.onLoaded.call();
-                }
-            };
-
-            if (phenixRTC.isEnabled()) {
-                enablePhenix();
-            } else {
-                phenixRTC.onReady(function(enabled) {
-                    if (enabled) {
-                        enablePhenix();
-
-                        if (adapter.onload && typeof adapter.onload === 'function') {
-                            adapter.onload();
-                        }
-                    }
-                });
-            }
-
-            phenixRTC.onLoaded(function() {
-                enablePhenix();
-            });
-        } else {
-            adapter.phenixSupported = false;
-        }
-
-        return adapter;
-    }
-
-    return _.assign(createAdapter(), {shim: createAdapter});
+    return adapter;
 });
