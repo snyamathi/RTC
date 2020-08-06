@@ -38,7 +38,7 @@ const baseConfig = {
     optimization: {minimize: false}
 };
 const externalizePhenixImports = (context, request, callback) => {
-    if (/^phenix-.*$/.test(request)){
+    if (/^phenix-.*$/.test(request)) {
         return callback(null, true);
     }
 
@@ -46,13 +46,7 @@ const externalizePhenixImports = (context, request, callback) => {
     callback();
 };
 
-var configs = [{
-    output: {filename: 'phenix-rtc-bundled.js'},
-    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter.js'}}
-}, {
-    output: {filename: 'phenix-rtc-no-edge-bundled.js'},
-    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'}}
-}, {
+var configs = [{output: {filename: 'phenix-rtc-bundled.js'}}, {
     output: {filename: 'phenix-rtc-react-native-bundled.js'},
     resolve: {alias: {'webrtc-adapter': path.resolve(__dirname, 'src', 'webrtcAdapterShim')}}
 }, {
@@ -61,12 +55,7 @@ var configs = [{
     externals: [externalizePhenixImports]
 }, {
     output: {filename: 'phenix-rtc.js'},
-    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter.js'}},
-    externals: [externalizePhenixImports]
-}, {
-    output: {filename: 'phenix-rtc-no-edge.js'},
-    resolve: {alias: {'webrtc-adapter': 'webrtc-adapter/out/adapter_no_edge.js'}},
-    externals: [externalizePhenixImports]
+    externals: [externalizePhenixImports, 'webrtc-adapter']
 }];
 
 module.exports = configs.map(function(config) {

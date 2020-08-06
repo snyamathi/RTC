@@ -15,11 +15,13 @@
  */
 
 const runner = require('./runner');
+const packageJson = require('../package.json');
+const version = packageJson.version;
 
 runner.runCommands([
     'node --version',
     'npm --version',
     'npm install',
     'npm run bundle',
-    'npm publish'
+    version.match(/beta/g) ? 'npm publish --tag beta' : 'npm publish'
 ]);

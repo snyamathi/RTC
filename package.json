@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2020.2.2",
+  "version": "2020.4.2",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.js",
@@ -27,6 +27,9 @@
     "lint": "eslint --cache --ext .jsx,.js ./",
     "lint:fix": "eslint --ext .jsx,.js --fix ./",
     "add-copyright": "eslint --no-eslintrc --no-ignore --ignore-path .gitignore --plugin notice --parser-options=ecmaVersion:10 --parser-options=sourceType:module --rule \"notice/notice: [2, {mustMatch: Copyright .* Phenix Real Time Solutions. Inc,templateFile: copyright.tmpl}]\" ./dist --fix"
+  },
+  "peerDependencies": {
+    "webrtc-adapter": ">=4"
   },
   "dependencies": {
     "phenix-web-assert": "^2020.0.1",
@@ -76,11 +79,11 @@
     "requirejs": "2.3.6",
     "sinon": "9.0.2",
     "sinon-chai": "3.5.0",
-    "webpack": "4.43.0",
+    "webpack": "4.44.1",
     "webpack-cli": "3.3.12",
     "webpack-dev-server": "3.11.0",
     "webpack-merge": "5.0.9",
-    "webrtc-adapter": "7.6.3",
+    "webrtc-adapter": "4.2.2",
     "websocket": "1.0.31"
   }
 }
