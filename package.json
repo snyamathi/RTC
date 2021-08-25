@@ -1,6 +1,6 @@
 {
   "name": "phenix-rtc",
-  "version": "2020.4.2",
+  "version": "2021.0.1",
   "license": "Apache-2.0",
   "private": false,
   "main": "dist/phenix-rtc.js",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "phenix-web-assert": "^2020.0.1",
-    "phenix-web-detect-browser": "^2020.0.1",
+    "phenix-web-detect-browser": "^2021.0.1",
     "phenix-web-disposable": "^2020.0.1",
     "phenix-web-event": "^2020.0.1",
     "phenix-web-lodash-light": "^2020.0.1",
