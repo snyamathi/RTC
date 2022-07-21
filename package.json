@@ -40,7 +40,7 @@
     "phenix-web-observable": "^2020.0.1"
   },
   "engines": {
-    "node": "12.18.2"
+    "node": ">= 12.18.2"
   },
   "devDependencies": {
     "bluebird": "3.7.2",
